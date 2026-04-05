@@ -1,0 +1,38 @@
+{
+  "2026": {
+    "Makar Sankranti": {"dates": ["2026-01-14"], "type": "soft_blackout"},
+    "Republic Day": {"dates": ["2026-01-26"], "type": "full_blackout"},
+    "Maha Shivratri": {"dates": ["2026-02-26"], "type": "soft_blackout"},
+    "Holi": {"dates": ["2026-03-21", "2026-03-22"], "type": "full_blackout"},
+    "Ugadi/Gudi Padwa": {"dates": ["2026-03-29"], "type": "soft_blackout"},
+    "Ram Navami": {"dates": ["2026-04-06"], "type": "soft_blackout"},
+    "Good Friday": {"dates": ["2026-04-03"], "type": "soft_blackout"},
+    "Easter": {"dates": ["2026-04-05"], "type": "soft_blackout"},
+    "Eid ul-Fitr": {"dates": ["2026-04-20", "2026-04-21"], "type": "full_blackout"},
+    "Eid ul-Adha": {"dates": ["2026-06-27", "2026-06-28"], "type": "full_blackout"},
+    "Independence Day": {"dates": ["2026-08-15"], "type": "full_blackout"},
+    "Janmashtami": {"dates": ["2026-08-22"], "type": "soft_blackout"},
+    "Ganesh Chaturthi": {"dates": ["2026-09-12", "2026-09-13"], "type": "soft_blackout"},
+    "Navratri": {"dates": ["2026-09-26","2026-09-27","2026-09-28","2026-09-29","2026-09-30","2026-10-01","2026-10-02","2026-10-03","2026-10-04"], "type": "soft_blackout"},
+    "Durga Puja": {"dates": ["2026-10-14","2026-10-15","2026-10-16","2026-10-17","2026-10-18"], "type": "full_blackout"},
+    "Dussehra": {"dates": ["2026-10-19"], "type": "full_blackout"},
+    "Diwali": {"dates": ["2026-11-07","2026-11-08","2026-11-09","2026-11-10","2026-11-11"], "type": "full_blackout"},
+    "Chhath Puja": {"dates": ["2026-11-14", "2026-11-15"], "type": "soft_blackout"},
+    "Guru Nanak Jayanti": {"dates": ["2026-11-24"], "type": "soft_blackout"},
+    "Christmas": {"dates": ["2026-12-25", "2026-12-26"], "type": "soft_blackout"},
+    "New Year Eve": {"dates": ["2026-12-31"], "type": "soft_blackout"},
+    "Gandhi Jayanti": {"dates": ["2026-10-02"], "type": "full_blackout"},
+    "Pongal": {"dates": ["2026-01-14","2026-01-15","2026-01-16","2026-01-17"], "type": "soft_blackout"},
+    "Onam": {"dates": ["2026-08-26","2026-08-27","2026-08-28","2026-08-29"], "type": "soft_blackout"}
+  },
+  "2027": {
+    "Makar Sankranti": {"dates": ["2027-01-14"], "type": "soft_blackout"},
+    "Republic Day": {"dates": ["2027-01-26"], "type": "full_blackout"},
+    "Holi": {"dates": ["2027-03-10", "2027-03-11"], "type": "full_blackout"},
+    "Eid ul-Fitr": {"dates": ["2027-04-09", "2027-04-10"], "type": "full_blackout"},
+    "Independence Day": {"dates": ["2027-08-15"], "type": "full_blackout"},
+    "Gandhi Jayanti": {"dates": ["2027-10-02"], "type": "full_blackout"},
+    "Diwali": {"dates": ["2027-10-27","2027-10-28","2027-10-29","2027-10-30","2027-10-31"], "type": "full_blackout"},
+    "Christmas": {"dates": ["2027-12-25", "2027-12-26"], "type": "soft_blackout"}
+  }
+}

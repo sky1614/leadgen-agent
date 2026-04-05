@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadGen AI — Agentic Sales Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a38;
+    --accent: #7c5cfc;
+    --accent2: #00e5a0;
+    --accent3: #ff6b6b;
+    --amber: #f5a623;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 14px; min-height: 100vh; }
+
+  /* ── Auth Screen ── */
+  #auth-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 0%, rgba(124,92,252,.12) 0%, transparent 60%);
+  }
+  .auth-box {
+    width: 420px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 40px; position: relative;
+  }
+  .auth-logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .auth-logo span { color: var(--accent); }
+  .auth-sub { font-size: 12px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 32px; letter-spacing: .08em; }
+  .auth-tabs { display: flex; gap: 0; margin-bottom: 28px; background: var(--bg); border-radius: 8px; padding: 3px; }
+  .auth-tab {
+    flex: 1; padding: 8px; text-align: center; border-radius: 6px; cursor: pointer;
+    font-size: 13px; font-weight: 500; color: var(--muted); transition: all .15s;
+  }
+  .auth-tab.active { background: var(--surface2); color: var(--text); }
+  .auth-form { display: none; }
+  .auth-form.active { display: block; }
+  .auth-field { margin-bottom: 16px; }
+  .auth-field label { display: block; font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 6px; }
+  .auth-field input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 11px 14px; border-radius: 8px; font-size: 13px;
+    font-family: var(--font-body); outline: none; transition: border-color .15s;
+  }
+  .auth-field input:focus { border-color: var(--accent); }
+  .auth-btn {
+    width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none;
+    border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    font-family: var(--font-body); transition: all .15s; margin-top: 4px;
+  }
+  .auth-btn:hover { background: #6a4be8; transform: translateY(-1px); }
+  .auth-error { color: var(--accent3); font-size: 12px; margin-top: 12px; min-height: 18px; }
+
+  /* ── App Shell ── */
+  #app-shell { display: none; }
+  .shell { display: flex; height: 100vh; overflow: hidden; }
+  .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .main { flex: 1; overflow-y: auto; background: var(--bg); }
+
+  /* Sidebar */
+  .logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+  .logo-mark { font-family: var(--font-display); font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo-mark span { color: var(--accent); }
+  .logo-sub { font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-top: 2px; letter-spacing: .08em; }
+  .nav { padding: 16px 12px; flex: 1; }
+  .nav-label { font-size: 9px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; font-family: var(--font-mono); padding: 0 8px; margin-bottom: 8px; margin-top: 16px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 8px; cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 500; transition: all .15s; margin-bottom: 2px; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(124,92,252,.15); color: var(--accent); }
+  .nav-icon { width: 16px; text-align: center; font-size: 14px; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .user-info { font-size: 12px; color: var(--muted); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-info strong { color: var(--text); display: block; font-size: 13px; }
+  .btn-logout {
+    width: 100%; padding: 8px 12px; background: transparent; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 8px; font-size: 12px;
+    cursor: pointer; font-family: var(--font-body); transition: all .15s; text-align: left;
+  }
+  .btn-logout:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* Header */
+  .page-header { padding: 28px 32px 0; display: flex; align-items: center; justify-content: space-between; }
+  .page-title { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+  .page-title .accent { color: var(--accent2); }
+  .page-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .header-actions { display: flex; gap: 10px; }
+  .btn { padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all .15s; font-family: var(--font-body); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #6a4be8; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-success { background: rgba(0,229,160,.15); color: var(--accent2); border: 1px solid rgba(0,229,160,.3); }
+  .btn-danger { background: rgba(255,107,107,.12); color: var(--accent3); border: 1px solid rgba(255,107,107,.25); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 2px; padding: 20px 32px 0; }
+  .tab { padding: 8px 16px; border-radius: 8px 8px 0 0; font-size: 13px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s; }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .tab:hover { color: var(--text); }
+
+  /* Content */
+  .content { padding: 24px 32px 40px; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Stat cards */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .stat-card.purple::before { background: var(--accent); }
+  .stat-card.green::before { background: var(--accent2); }
+  .stat-card.red::before { background: var(--accent3); }
+  .stat-card.amber::before { background: var(--amber); }
+  .stat-label { font-size: 11px; color: var(--muted); font-family: var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
+  .stat-value { font-family: var(--font-display); font-size: 32px; font-weight: 800; margin: 6px 0 2px; }
+  .stat-delta { font-size: 11px; color: var(--muted); }
+
+  /* Table */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .table-toolbar { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .table-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 11px 16px; text-align: left; font-size: 11px; color: var(--muted); font-family: var(--font-mono); letter-spacing: .08em; text-transform: uppercase; border-bottom: 1px solid var(--border); font-weight: 400; }
+  td { padding: 13px 16px; border-bottom: 1px solid rgba(42,42,56,.5); font-size: 13px; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+  .empty-text { font-size: 14px; }
+
+  /* Status badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-family: var(--font-mono); font-weight: 500; }
+  .badge-new { background: rgba(107,107,128,.2); color: var(--muted); }
+  .badge-enriched { background: rgba(124,92,252,.2); color: var(--accent); }
+  .badge-contacted { background: rgba(0,229,160,.15); color: var(--accent2); }
+  .badge-skipped { background: rgba(255,107,107,.12); color: var(--accent3); }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  /* Score bar */
+  .score-bar { display: flex; align-items: center; gap: 8px; }
+  .score-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; max-width: 80px; }
+  .score-fill { height: 100%; border-radius: 2px; }
+  .score-num { font-size: 12px; font-family: var(--font-mono); min-width: 24px; }
+
+  /* Forms */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+  input, select, textarea {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    padding: 10px 12px; border-radius: 8px; font-size: 13px; font-family: var(--font-body);
+    transition: border-color .15s; outline: none; width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--surface); }
+
+  /* Panel */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .panel-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  /* Message preview */
+  .message-preview { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-size: 13px; line-height: 1.7; color: var(--text); white-space: pre-wrap; font-family: var(--font-mono); min-height: 120px; }
+
+  /* Notification toast */
+  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: 13px; z-index: 1000; transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 320px; }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: rgba(0,229,160,.4); color: var(--accent2); }
+  #toast.error { border-color: rgba(255,107,107,.4); color: var(--accent3); }
+
+  /* Upload zone */
+  .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 32px; text-align: center; cursor: pointer; transition: all .2s; color: var(--muted); }
+  .upload-zone:hover { border-color: var(--accent); color: var(--accent); }
+  .upload-zone input { display: none; }
+
+  /* Log items */
+  .log-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+  .log-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .log-channel { font-size: 10px; font-family: var(--font-mono); padding: 2px 8px; border-radius: 4px; }
+  .log-email { background: rgba(124,92,252,.15); color: var(--accent); }
+  .log-whatsapp { background: rgba(0,229,160,.12); color: var(--accent2); }
+  .log-time { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-left: auto; }
+  .log-body { font-size: 12px; color: var(--muted); line-height: 1.6; white-space: pre-wrap; max-height: 120px; overflow-y: auto; }
+
+    /* Approval queue cards */
+  .aq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+  .aq-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .aq-lead-name { font-weight: 600; font-size: 14px; }
+  .aq-company { color: var(--muted); font-size: 13px; }
+  .aq-score { font-family: var(--font-mono); font-size: 12px; background: rgba(124,92,252,.15); color: var(--accent); padding: 3px 10px; border-radius: 20px; }
+  .aq-quality { font-family: var(--font-mono); font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+  .aq-quality.good { background: rgba(0,229,160,.12); color: var(--accent2); }
+  .aq-quality.warn { background: rgba(245,166,35,.12); color: var(--amber); }
+  .aq-quality.fail { background: rgba(255,107,107,.12); color: var(--accent3); }
+  .aq-msg { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-size: 12px; line-height: 1.7; color: var(--text); white-space: pre-wrap; font-family: var(--font-mono); max-height: 160px; overflow-y: auto; margin-bottom: 12px; }
+  .aq-issues { font-size: 11px; color: var(--amber); margin-bottom: 10px; font-family: var(--font-mono); }
+  .aq-actions { display: flex; gap: 8px; }
+  .aq-time { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-left: auto; }
+
+  /* Loader */
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.2); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Responsive tweaks */
+  @media (max-width: 900px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .form-grid { grid-template-columns: 1fr; }
+    .sidebar { width: 56px; }
+    .nav-item span, .logo-sub, .logo-mark, .sidebar-footer { display: none; }
+  }
+
+  /* ── Analytics Dashboard ── */
+  .analytics-tabs { display: flex; gap: 4px; padding: 20px 32px 0; border-bottom: 1px solid var(--border); }
+  .analytics-tab { padding: 9px 18px; font-size: 13px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s; }
+  .analytics-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .analytics-pane { display: none; }
+  .analytics-pane.active { display: block; }
+  .funnel-row { display: flex; gap: 0; margin-bottom: 24px; }
+  .funnel-stage { flex: 1; background: var(--surface); border: 1px solid var(--border); border-right: none; padding: 16px 12px; text-align: center; position: relative; }
+  .funnel-stage:last-child { border-right: 1px solid var(--border); border-radius: 0 10px 10px 0; }
+  .funnel-stage:first-child { border-radius: 10px 0 0 10px; }
+  .funnel-stage .f-count { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--accent); }
+  .funnel-stage .f-label { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-top: 4px; text-transform: uppercase; letter-spacing: .06em; }
+  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .metric-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .metric-box .m-val { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin: 4px 0 2px; }
+  .metric-box .m-label { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+  .metric-box .m-sub { font-size: 11px; color: var(--accent2); margin-top: 2px; }
+  .share-card { background: linear-gradient(135deg, #0a0a0f, #111118); border: 1px solid var(--accent); border-radius: 16px; padding: 32px; }
+  .kanban-board { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; }
+  .kanban-col { min-width: 180px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; flex-shrink: 0; }
+  .kanban-col-title { font-size: 11px; font-family: var(--font-mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .kanban-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 12px; }
+  .kanban-card .kc-name { font-weight: 600; color: var(--text); }
+  .kanban-card .kc-co { color: var(--muted); font-size: 11px; }
+  .camp-perf-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 4px; overflow: hidden; }
+  .camp-perf-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+  @media (max-width: 900px) { .metric-grid { grid-template-columns: repeat(2,1fr); } .funnel-row { flex-wrap: wrap; } .funnel-stage { min-width: 45%; border-right: 1px solid var(--border); margin-bottom: 8px; border-radius: 10px !important; } }
+
+</style>
+</head>
+<body>
+
+<!-- ── AUTH SCREEN ── -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">Lead<span>Gen</span> AI</div>
+    <div class="auth-sub">agentic sales platform</div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')">Register</div>
+    </div>
+
+    <!-- Login form -->
+    <div id="auth-login" class="auth-form active">
+      <div class="auth-field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"></div>
+      <div class="auth-field"><label>Password</label><input id="login-password" type="password" placeholder="••••••••"></div>
+      <button class="auth-btn" onclick="doLogin()">Sign In</button>
+      <div class="auth-error" id="login-error"></div>
+    </div>
+
+    <!-- Register form -->
+    <div id="auth-register" class="auth-form">
+      <div class="auth-field"><label>Name</label><input id="reg-name" placeholder="Your Name"></div>
+      <div class="auth-field"><label>Email</label><input id="reg-email" type="email" placeholder="you@example.com"></div>
+      <div class="auth-field"><label>Password</label><input id="reg-password" type="password" placeholder="••••••••"></div>
+      <button class="auth-btn" onclick="doRegister()">Create Account</button>
+      <div class="auth-error" id="reg-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP SHELL ── -->
+<div id="app-shell">
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">Lead<span>Gen</span> AI</div>
+      <div class="logo-sub">agentic sales platform</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Core</div>
+      <div class="nav-item active" onclick="showView('dashboard', this)"><span class="nav-icon">◈</span><span>Dashboard</span></div>
+      <div class="nav-item" onclick="showView('leads', this)"><span class="nav-icon">◎</span><span>Leads</span></div>
+      <div class="nav-item" onclick="showView('campaigns', this)"><span class="nav-icon">◇</span><span>Campaigns</span></div>
+      <div class="nav-label">Outreach</div>
+      <div class="nav-item" onclick="showView('outreach', this)"><span class="nav-icon">⟢</span><span>Outreach</span></div>
+      <div class="nav-item" onclick="showView('log', this)"><span class="nav-icon">≡</span><span>Message Log</span></div>
+      <div class="nav-label">Agent</div>
+      <div class="nav-item" onclick="showView('agent', this)"><span class="nav-icon">⚡</span><span>Auto Agent</span></div>
+      <div class="nav-item" onclick="showView('approve', this)"><span class="nav-icon">✓</span><span>Approve Queue</span></div>
+      <div class="nav-item" onclick="showView('analytics', this)"><span class="nav-icon">◈</span><span>Analytics</span></div>
+
+      <div class="nav-label">Tools</div>
+      <div class="nav-item" onclick="showView('import', this)"><span class="nav-icon">↑</span><span>Import Leads</span></div>
+      <div class="nav-item" onclick="showView('scrape', this)"><span class="nav-icon">⊕</span><span>Scrape Leads</span></div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info"><strong id="sidebar-username">—</strong><span id="sidebar-email"></span></div>
+      <button class="btn-logout" onclick="doLogout()">↩ Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="view-dashboard" class="view active">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard <span class="accent">Overview</span></div>
+          <div class="page-sub">Your AI sales agent — live and running</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" onclick="loadAnalytics()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="stats-row">
+          <div class="stat-card purple"><div class="stat-label">Total Leads</div><div class="stat-value" id="stat-leads">0</div><div class="stat-delta">in your pipeline</div></div>
+          <div class="stat-card green"><div class="stat-label">Enriched</div><div class="stat-value" id="stat-enriched">0</div><div class="stat-delta">AI-analyzed leads</div></div>
+          <div class="stat-card amber"><div class="stat-label">Contacted</div><div class="stat-value" id="stat-contacted">0</div><div class="stat-delta">outreach sent</div></div>
+          <div class="stat-card red"><div class="stat-label">Avg Fit Score</div><div class="stat-value" id="stat-fit">—</div><div class="stat-delta">out of 10</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title"><span class="dot"></span> Quick Actions</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="showView('import', document.querySelector('[onclick*=import]'))">↑ Import CSV</button>
+            <button class="btn btn-ghost" onclick="showView('scrape', document.querySelector('[onclick*=scrape]'))">⊕ Scrape Leads</button>
+            <button class="btn btn-ghost" onclick="showView('leads', document.querySelector('[onclick*=leads]'))">◎ View All Leads</button>
+            <button class="btn btn-ghost" onclick="showView('campaigns', document.querySelector('[onclick*=campaigns]'))">◇ New Campaign</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span> Leads by Industry</div>
+          <div id="industry-chart" style="color:var(--muted);font-size:13px">Loading...</div>
+        </div>
+
+        <div class="panel" style="background:linear-gradient(135deg,rgba(124,92,252,.08),rgba(0,229,160,.05));border-color:rgba(124,92,252,.3)">
+          <div class="panel-title"><span class="dot" style="background:var(--amber)"></span> What this agent does</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;font-size:13px">
+            <div><div style="color:var(--accent);font-family:var(--font-mono);font-size:11px;margin-bottom:6px">01 / FIND</div><div style="color:var(--muted)">Import leads via CSV or let the AI scrape them from any URL automatically</div></div>
+            <div><div style="color:var(--accent2);font-family:var(--font-mono);font-size:11px;margin-bottom:6px">02 / ENRICH</div><div style="color:var(--muted)">AI scores each lead, identifies pain points and generates a personalized icebreaker</div></div>
+            <div><div style="color:var(--amber);font-family:var(--font-mono);font-size:11px;margin-bottom:6px">03 / REACH</div><div style="color:var(--muted)">Sends personalized WhatsApp + Email outreach messages — one click per lead or bulk</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- ── APPROVAL QUEUE ── -->
+    <div id="view-approve" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Approval <span class="accent">Queue</span></div>
+          <div class="page-sub">Review AI-generated messages before sending</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost btn-sm" onclick="loadApprovalQueue()">↻ Refresh</button>
+          <button class="btn btn-success btn-sm" onclick="approveAllVisible()">✓ Approve All Visible</button>
+        </div>
+      </div>
+      <div class="content">
+
+        <!-- Stats bar -->
+        <div class="stats-row" style="grid-template-columns:repeat(5,1fr)">
+          <div class="stat-card purple"><div class="stat-label">Pending</div><div class="stat-value" id="aq-stat-pending">0</div></div>
+          <div class="stat-card green"><div class="stat-label">Approved Today</div><div class="stat-value" id="aq-stat-approved">0</div></div>
+          <div class="stat-card red"><div class="stat-label">Rejected Today</div><div class="stat-value" id="aq-stat-rejected">0</div></div>
+          <div class="stat-card amber"><div class="stat-label">Avg Quality</div><div class="stat-value" id="aq-stat-quality">—</div></div>
+          <div class="stat-card purple"><div class="stat-label">Waiting to Send</div><div class="stat-value" id="aq-stat-waiting">0</div></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="panel" style="padding:16px 20px;margin-bottom:16px">
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <select id="aq-filter-channel" onchange="loadApprovalQueue()" style="width:140px">
+              <option value="">All Channels</option>
+              <option value="email">📧 Email</option>
+              <option value="whatsapp">💬 WhatsApp</option>
+            </select>
+            <select id="aq-sort" onchange="renderApprovalCards()" style="width:180px">
+              <option value="newest">Newest First</option>
+              <option value="score">Highest Score First</option>
+            </select>
+            <span id="aq-count" style="color:var(--muted);font-size:12px;font-family:var(--font-mono)"></span>
+          </div>
+        </div>
+
+        <!-- Message cards -->
+        <div id="aq-cards"></div>
+
+        <!-- Pagination -->
+        <div id="aq-pagination" style="display:flex;gap:8px;justify-content:center;margin-top:20px"></div>
+
+        <!-- Edit modal -->
+        <div id="aq-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:580px;max-width:95vw">
+            <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px">Edit Message</div>
+            <textarea id="aq-edit-text" style="min-height:200px;width:100%;margin-bottom:16px"></textarea>
+            <div style="display:flex;gap:10px;justify-content:flex-end">
+              <button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="saveEdit()">Save & Approve</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reject modal -->
+        <div id="aq-reject-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:460px;max-width:95vw">
+            <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px">Reject Message</div>
+            <div class="form-group" style="margin-bottom:16px">
+              <label>Reason (optional)</label>
+              <input id="aq-reject-reason" placeholder="e.g. Wrong tone, irrelevant content">
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end">
+              <button class="btn btn-ghost" onclick="closeRejectModal()">Cancel</button>
+              <button class="btn btn-danger" onclick="confirmReject()">Reject</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ── LEADS ── -->
+    <div id="view-leads" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Lead <span class="accent">Pipeline</span></div>
+          <div class="page-sub">Manage and enrich your leads</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">↓ Export CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="showView('import', document.querySelector('[onclick*=import]'))">↑ Import</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddLead()">+ Add Lead</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="add-lead-panel" class="panel" style="display:none">
+          <div class="panel-title"><span class="dot"></span> Add New Lead</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Name</label><input id="l-name" placeholder="Raj Sharma"></div>
+            <div class="form-group"><label>Company</label><input id="l-company" placeholder="Acme Pvt Ltd"></div>
+            <div class="form-group"><label>Email</label><input id="l-email" type="email" placeholder="raj@acme.com"></div>
+            <div class="form-group"><label>WhatsApp</label><input id="l-whatsapp" placeholder="+91 9876543210"></div>
+            <div class="form-group"><label>Industry</label><input id="l-industry" placeholder="SaaS / E-commerce / Real Estate"></div>
+            <div class="form-group"><label>Role</label><input id="l-role" placeholder="Founder / Sales Head / CTO"></div>
+            <div class="form-group"><label>Website</label><input id="l-website" placeholder="https://acme.com"></div>
+            <div class="form-group"><label>Notes</label><input id="l-notes" placeholder="Met at startup event..."></div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="addLead()">Save Lead</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('add-lead-panel').style.display='none'">Cancel</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <div class="table-title">All Leads</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" onclick="loadLeads()">↻ Refresh</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr>
+              <th>Name</th><th>Company</th><th>Industry</th><th>Source</th><th>Fit Score</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="leads-table-body">
+              <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◎</div><div class="empty-text">No leads yet. Import a CSV or add manually.</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CAMPAIGNS ── -->
+    <div id="view-campaigns" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Campaigns</div><div class="page-sub">Create and manage outreach campaigns</div></div>
+      </div>
+      <div class="content">
+        <div class="panel">
+          <div class="panel-title"><span class="dot"></span> Create New Campaign</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Campaign Name</label><input id="c-name" placeholder="Q3 SaaS Outreach"></div>
+            <div class="form-group"><label>Target Industry</label><input id="c-industry" placeholder="SaaS, E-commerce, Real Estate"></div>
+            <div class="form-group full"><label>Product / Service Description</label><textarea id="c-product" placeholder="We build AI-powered Sales Lead Generation agents..."></textarea></div>
+            <div class="form-group"><label>Tone</label>
+              <select id="c-tone">
+                <option value="professional">Professional</option>
+                <option value="friendly">Friendly & Conversational</option>
+                <option value="direct">Direct & Bold</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Channel</label>
+              <select id="c-channel">
+                <option value="both">Both (WhatsApp + Email)</option>
+                <option value="email">Email only</option>
+                <option value="whatsapp">WhatsApp only</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="createCampaign()">Create Campaign</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar"><div class="table-title">Active Campaigns</div><button class="btn btn-ghost btn-sm" onclick="loadCampaigns()">↻ Refresh</button></div>
+          <table>
+            <thead><tr><th>Name</th><th>Industry</th><th>Channel</th><th>Tone</th><th>Sent</th><th>Status</th></tr></thead>
+            <tbody id="campaigns-table-body">
+              <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">◇</div><div class="empty-text">No campaigns yet.</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── OUTREACH ── -->
+    <div id="view-outreach" class="view">
+      <div class="page-header">
+        <div><div class="page-title">AI <span class="accent">Outreach</span></div><div class="page-sub">Generate and send personalized messages</div></div>
+      </div>
+      <div class="content">
+        <div class="panel">
+          <div class="panel-title"><span class="dot"></span> Generate Message</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Select Lead</label>
+              <select id="o-lead"><option value="">— choose lead —</option></select>
+            </div>
+            <div class="form-group">
+              <label>Select Campaign</label>
+              <select id="o-campaign"><option value="">— choose campaign —</option></select>
+            </div>
+            <div class="form-group">
+              <label>Channel</label>
+              <select id="o-channel">
+                <option value="email">Email</option>
+                <option value="whatsapp">WhatsApp</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:16px">
+            <button class="btn btn-ghost" onclick="previewMessage()">Preview Message</button>
+            <button class="btn btn-success" onclick="sendMessage()">Send Outreach</button>
+          </div>
+          <div id="message-preview-box" class="message-preview" style="display:none"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title"><span class="dot" style="background:var(--amber)"></span> Bulk Outreach</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Campaign</label>
+              <select id="bulk-campaign"><option value="">— choose campaign —</option></select>
+            </div>
+            <div class="form-group">
+              <label>Channel</label>
+              <select id="bulk-channel">
+                <option value="email">Email</option>
+                <option value="whatsapp">WhatsApp</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="bulkSend()">Run Bulk Outreach (All Leads)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LOG ── -->
+    <div id="view-log" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Message <span class="accent">Log</span></div><div class="page-sub">All generated outreach messages</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadLog()">↻ Refresh</button>
+      </div>
+      <div class="content">
+        <div id="log-container">
+          <div class="empty-state"><div class="empty-icon">≡</div><div class="empty-text">No messages sent yet.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── IMPORT ── -->
+    <div id="view-import" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Import <span class="accent">Leads</span></div><div class="page-sub">Upload a CSV file with your lead list</div></div>
+      </div>
+      <div class="content">
+        <div class="panel">
+          <div class="panel-title"><span class="dot"></span> CSV Upload</div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Expected columns: <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);font-size:11px">name, company, email, whatsapp, industry, role, website, notes</code></p>
+          <div class="upload-zone" onclick="document.getElementById('csv-input').click()">
+            <input type="file" id="csv-input" accept=".csv" onchange="uploadCSV(this)">
+            <div style="font-size:28px;margin-bottom:8px">↑</div>
+            <div>Click to upload CSV file</div>
+            <div style="font-size:11px;margin-top:4px;color:var(--muted)">or drag & drop</div>
+          </div>
+          <div id="upload-result" style="margin-top:16px"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span> Sample CSV Format</div>
+          <pre style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:11px;font-family:var(--font-mono);color:var(--muted);overflow-x:auto">name,company,email,whatsapp,industry,role,website,notes
+Rahul Gupta,TechSoft India,rahul@techsoft.in,+919876543210,SaaS,Founder,https://techsoft.in,Met at NASSCOM
+Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of Sales,https://quickcommerce.in,Interested in automation</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AGENT ── -->
+    <div id="view-agent" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Auto <span class="accent">Agent</span></div><div class="page-sub">Agent finds leads, enriches them, writes messages — you just approve</div></div>
+      </div>
+      <div class="content">
+
+        <!-- Config Panel -->
+        <div class="panel" id="agent-config-panel">
+          <div class="panel-title"><span class="dot" style="background:var(--accent)"></span> Configure Agent Run</div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Select a campaign and industry. The agent will automatically find leads, score them with AI, generate personalized messages, and wait for your approval before doing anything.</p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Campaign</label>
+              <select id="agent-campaign" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px">
+                <option value="">Loading campaigns...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Target Industry</label>
+              <select id="agent-industry" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px">
+                <option value="SaaS">SaaS</option>
+                <option value="E-commerce">E-commerce</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Finance">Finance</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Real Estate">Real Estate</option>
+                <option value="FMCG">FMCG</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Retail">Retail</option>
+                <option value="Logistics">Logistics</option>
+                <option value="Education">Education</option>
+                <option value="Construction">Construction</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Number of Leads</label>
+              <select id="agent-count" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px">
+                <option value="3">3 leads</option>
+                <option value="5" selected>5 leads</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Source URL (optional — leave blank to use sample data)</label>
+              <input id="agent-url" placeholder="https://example.com/team">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="runAgent()" style="font-size:14px;padding:12px 24px">⚡ Run Agent</button>
+        </div>
+
+        <!-- Status Panel -->
+        <div class="panel" id="agent-status-panel" style="display:none">
+          <div class="panel-title"><span class="dot" style="background:var(--amber)"></span> Agent Running...</div>
+          <div id="agent-status-msg" style="color:var(--muted);font-size:13px;margin-bottom:8px">Finding and enriching leads with AI...</div>
+          <div style="height:4px;background:var(--border);border-radius:4px;overflow:hidden">
+            <div id="agent-progress-bar" style="height:100%;width:30%;background:var(--accent);border-radius:4px;transition:width 1s"></div>
+          </div>
+        </div>
+
+        <!-- Review Queue -->
+        <div class="panel" id="agent-review-panel" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="panel-title" style="margin:0"><span class="dot" style="background:var(--accent2)"></span> Review Queue — Agent Found <span id="agent-lead-count">0</span> Leads</div>
+            <button class="btn btn-primary" onclick="approveAgentJob()" style="background:var(--accent2);color:#000;font-weight:700">✓ Approve All & Send</button>
+          </div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Review each lead and message below. Reject any you don't want. Then click <strong style="color:var(--accent2)">Approve All</strong> to confirm.</p>
+          <div id="agent-items"></div>
+        </div>
+
+        <!-- Done Panel -->
+        <div class="panel" id="agent-done-panel" style="display:none;border-color:var(--accent2)">
+          <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span> Agent Complete</div>
+          <p id="agent-done-msg" style="color:var(--muted);font-size:13px;margin-bottom:16px"></p>
+          <button class="btn btn-primary" onclick="resetAgent()">Run Agent Again</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SCRAPE ── -->
+    <div id="view-scrape" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Scrape <span class="accent">Leads</span></div><div class="page-sub">Extract leads from any website or auto-generate by industry</div></div>
+      </div>
+      <div class="content">
+
+        <!-- Auto-Generate Panel -->
+        <div class="panel" style="border-color:var(--accent2);margin-bottom:20px">
+          <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span> Auto-Generate Leads by Industry</div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Instantly populate your pipeline with pre-vetted leads — no API or scraping needed.</p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Industry</label>
+              <select id="autogen-industry" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px">
+                <option value="SaaS">SaaS</option>
+                <option value="E-commerce">E-commerce</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Finance">Finance</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Real Estate">Real Estate</option>
+                <option value="FMCG">FMCG</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Retail">Retail</option>
+                <option value="Logistics">Logistics</option>
+                <option value="Education">Education</option>
+                <option value="Construction">Construction</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Number of Leads</label>
+              <select id="autogen-count" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px">
+                <option value="3">3 leads</option>
+                <option value="5" selected>5 leads</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="background:var(--accent2);color:#000;font-weight:600" onclick="autoGenerateLeads()">⚡ Auto-Generate Leads</button>
+          <div id="autogen-result" style="margin-top:16px"></div>
+        </div>
+
+        <!-- Apollo Panel -->
+        <div class="panel" style="border-color:var(--amber);margin-bottom:20px">
+          <div class="panel-title"><span class="dot" style="background:var(--amber)"></span> Find Real Leads (Email + Phone)</div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Search a B2B database for real companies with verified emails and phone numbers.</p>
+          <div class="form-grid">
+            <div class="form-group"><label>Industry</label><input id="apollo-industry" placeholder="FMCG, Retail, SaaS..."></div>
+            <div class="form-group"><label>City</label><input id="apollo-city" placeholder="Mumbai, Delhi, Bangalore..."></div>
+            <div class="form-group">
+              <label>Number of Results</label>
+              <select id="apollo-count" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px">
+                <option value="3">3 companies</option>
+                <option value="5" selected>5 companies</option>
+                <option value="10">10 companies</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="background:var(--amber);color:#000;font-weight:600" onclick="searchApollo()">⚡ Find Real Leads</button>
+          <div id="apollo-result" style="margin-top:16px"></div>
+        </div>
+
+        <!-- Google Places Panel -->
+        <div class="panel" style="border-color:var(--accent);margin-bottom:20px">
+          <div class="panel-title"><span class="dot" style="background:var(--accent)"></span> Find Real Businesses — OpenStreetMap</div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Search real local businesses by industry and city. Pulls live data from OpenStreetMap — 100% free, no API key needed.</p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Industry / Business Type</label>
+              <input id="places-industry" placeholder="FMCG, Manufacturing, Retail...">
+            </div>
+            <div class="form-group">
+              <label>City</label>
+              <input id="places-city" placeholder="Mumbai, Delhi, Bangalore...">
+            </div>
+            <div class="form-group">
+              <label>Number of Results</label>
+              <select id="places-count" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px">
+                <option value="3">3 businesses</option>
+                <option value="5" selected>5 businesses</option>
+                <option value="10">10 businesses</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="searchPlaces()">🔍 Find Real Businesses</button>
+          <div id="places-result" style="margin-top:16px"></div>
+        </div>
+
+        <!-- AI Web Scraper Panel -->
+        <div class="panel">
+          <div class="panel-title"><span class="dot"></span> AI Web Scraper</div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Paste a URL from a static company page or contact directory. Works best on pages with visible email addresses.</p>
+          <div class="form-grid">
+            <div class="form-group full"><label>Target URL</label><input id="scrape-url" placeholder="https://example.com/contact or https://example.com/team"></div>
+            <div class="form-group"><label>Industry hint (optional)</label><input id="scrape-industry" placeholder="SaaS, Real Estate, Manufacturing"></div>
+          </div>
+          <button class="btn btn-primary" onclick="scrapeLeads()">Extract Leads with AI</button>
+          <div id="scrape-result" style="margin-top:16px"></div>
+        </div>
+
+      </div>
+    </div>
+
+    
+    <!-- ── ANALYTICS DASHBOARD ── -->
+    <div id="view-analytics" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Analytics <span class="accent">Dashboard</span></div>
+          <div class="page-sub">Performance metrics across your entire pipeline</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost btn-sm" onclick="loadAnalyticsDash()">↻ Refresh</button>
+          <button class="btn btn-ghost btn-sm" onclick="shareStats()">↗ Share Stats</button>
+        </div>
+      </div>
+
+      <div class="analytics-tabs">
+        <div class="analytics-tab active" onclick="switchAnalyticsTab('overview', this)">Overview</div>
+        <div class="analytics-tab" onclick="switchAnalyticsTab('pipeline', this)">Pipeline</div>
+        <div class="analytics-tab" onclick="switchAnalyticsTab('campaigns', this)">Campaigns</div>
+        <div class="analytics-tab" onclick="switchAnalyticsTab('ai', this)">AI Performance</div>
+        <div class="analytics-tab" id="admin-tab" style="display:none" onclick="switchAnalyticsTab('admin', this)">Admin Overview</div>
+      </div>
+
+      <div class="content">
+
+        <!-- ── Overview pane ── -->
+        <div id="an-pane-overview" class="analytics-pane active">
+          <div class="panel-title" style="margin-bottom:16px"><span class="dot"></span> Funnel Summary</div>
+          <div class="funnel-row" id="an-funnel">
+            <div class="funnel-stage"><div class="f-count" id="fn-new">—</div><div class="f-label">New</div></div>
+            <div class="funnel-stage"><div class="f-count" id="fn-enriched">—</div><div class="f-label">Enriched</div></div>
+            <div class="funnel-stage"><div class="f-count" id="fn-contacted">—</div><div class="f-label">Contacted</div></div>
+            <div class="funnel-stage"><div class="f-count" id="fn-replied">—</div><div class="f-label">Replied</div></div>
+            <div class="funnel-stage"><div class="f-count" id="fn-meeting" style="color:var(--accent2)">—</div><div class="f-label">Meeting</div></div>
+            <div class="funnel-stage"><div class="f-count" id="fn-closed" style="color:var(--amber)">—</div><div class="f-label">Closed</div></div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div class="panel">
+              <div class="panel-title" style="margin-bottom:14px"><span class="dot" style="background:var(--accent)"></span> Email Metrics</div>
+              <div class="metric-grid" style="grid-template-columns:repeat(2,1fr)">
+                <div class="metric-box"><div class="m-label">Sent</div><div class="m-val" id="em-sent">—</div></div>
+                <div class="metric-box"><div class="m-label">Open Rate</div><div class="m-val" id="em-open">—</div></div>
+                <div class="metric-box"><div class="m-label">Click Rate</div><div class="m-val" id="em-click">—</div></div>
+                <div class="metric-box"><div class="m-label">Bounce Rate</div><div class="m-val" id="em-bounce" style="color:var(--accent3)">—</div></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-title" style="margin-bottom:14px"><span class="dot" style="background:var(--accent2)"></span> WhatsApp Metrics</div>
+              <div class="metric-grid" style="grid-template-columns:repeat(2,1fr)">
+                <div class="metric-box"><div class="m-label">Sent</div><div class="m-val" id="wa-sent">—</div></div>
+                <div class="metric-box"><div class="m-label">Read Rate</div><div class="m-val" id="wa-read">—</div></div>
+                <div class="metric-box"><div class="m-label">Replied</div><div class="m-val" id="wa-replied">—</div></div>
+                <div class="metric-box"><div class="m-label">Delivered</div><div class="m-val" id="wa-delivered">—</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title" style="margin-bottom:14px"><span class="dot" style="background:var(--amber)"></span> Last 10 Messages</div>
+            <div id="an-last-messages"><div class="empty-state" style="padding:20px"><div class="empty-text">Loading...</div></div></div>
+          </div>
+        </div>
+
+        <!-- ── Pipeline pane ── -->
+        <div id="an-pane-pipeline" class="analytics-pane">
+          <div class="panel">
+            <div class="panel-title" style="margin-bottom:16px"><span class="dot"></span> Lead Pipeline — Kanban</div>
+            <div class="kanban-board" id="an-kanban">
+              <div class="empty-state">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Campaigns pane ── -->
+        <div id="an-pane-campaigns" class="analytics-pane">
+          <div class="table-wrap">
+            <div class="table-toolbar">
+              <div class="table-title">Campaign Performance</div>
+              <button class="btn btn-ghost btn-sm" onclick="loadCampaignPerf()">↻ Refresh</button>
+            </div>
+            <table>
+              <thead><tr>
+                <th>Campaign</th><th>Channel</th><th>Sent</th>
+                <th>Open Rate</th><th>Click Rate</th><th>Bounce Rate</th><th>Status</th>
+              </tr></thead>
+              <tbody id="an-camp-tbody">
+                <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◇</div><div class="empty-text">No campaigns yet</div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── AI Performance pane ── -->
+        <div id="an-pane-ai" class="analytics-pane">
+          <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+            <div class="stat-card green"><div class="stat-label">First-Pass Rate</div><div class="stat-value" id="ai-pass-rate">—</div></div>
+            <div class="stat-card purple"><div class="stat-label">Total Generated</div><div class="stat-value" id="ai-total">—</div></div>
+            <div class="stat-card amber"><div class="stat-label">Regenerated</div><div class="stat-value" id="ai-regen">—</div></div>
+            <div class="stat-card red"><div class="stat-label">Failed Permanently</div><div class="stat-value" id="ai-failed">—</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-title" style="margin-bottom:14px"><span class="dot" style="background:var(--accent3)"></span> Most Common Quality Issues</div>
+            <div id="an-quality-issues"><div class="empty-state" style="padding:20px"><div class="empty-text">Loading...</div></div></div>
+          </div>
+        </div>
+
+        <!-- ── Admin pane ── -->
+        <div id="an-pane-admin" class="analytics-pane">
+          <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+            <div class="stat-card purple"><div class="stat-label">Active Clients</div><div class="stat-value" id="adm-clients">—</div></div>
+            <div class="stat-card green"><div class="stat-label">MRR (₹)</div><div class="stat-value" id="adm-mrr">—</div></div>
+            <div class="stat-card amber"><div class="stat-label">Gross Margin</div><div class="stat-value" id="adm-margin">—</div></div>
+            <div class="stat-card red"><div class="stat-label">Infra Cost (₹)</div><div class="stat-value" id="adm-infra">—</div></div>
+          </div>
+          <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+            <div class="stat-card purple"><div class="stat-label">Leads This Month</div><div class="stat-value" id="adm-leads">—</div></div>
+            <div class="stat-card green"><div class="stat-label">Emails Sent</div><div class="stat-value" id="adm-emails">—</div></div>
+            <div class="stat-card amber"><div class="stat-label">WA Sent</div><div class="stat-value" id="adm-wa">—</div></div>
+            <div class="stat-card green"><div class="stat-label">Meetings</div><div class="stat-value" id="adm-meetings">—</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-title" style="margin-bottom:14px"><span class="dot" style="background:var(--accent2)"></span> Client Health Summary</div>
+            <div id="adm-health" style="display:flex;gap:20px;font-size:14px">
+              <div>🟢 Healthy: <strong id="adm-h-green">—</strong></div>
+              <div>🟡 Warning: <strong id="adm-h-yellow">—</strong></div>
+              <div>🔴 Critical: <strong id="adm-h-red">—</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Share Stats card (hidden, shown on demand) ── -->
+        <div id="share-stats-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:center;justify-content:center">
+          <div style="width:520px;max-width:95vw">
+            <div class="share-card" id="share-card-content">
+              <div style="font-family:var(--font-display);font-size:22px;font-weight:800;margin-bottom:4px">LeadGen<span style="color:var(--accent)"> AI</span></div>
+              <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-bottom:24px">This week's results</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+                <div style="background:#18181f;border-radius:10px;padding:18px;text-align:center">
+                  <div style="font-family:var(--font-display);font-size:40px;font-weight:800;color:var(--accent)" id="share-leads">—</div>
+                  <div style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">LEADS IN PIPELINE</div>
+                </div>
+                <div style="background:#18181f;border-radius:10px;padding:18px;text-align:center">
+                  <div style="font-family:var(--font-display);font-size:40px;font-weight:800;color:var(--accent2)" id="share-messages">—</div>
+                  <div style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">MESSAGES SENT</div>
+                </div>
+                <div style="background:#18181f;border-radius:10px;padding:18px;text-align:center">
+                  <div style="font-family:var(--font-display);font-size:40px;font-weight:800;color:var(--amber)" id="share-open">—</div>
+                  <div style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">OPEN RATE</div>
+                </div>
+                <div style="background:#18181f;border-radius:10px;padding:18px;text-align:center">
+                  <div style="font-family:var(--font-display);font-size:40px;font-weight:800;color:var(--accent2)" id="share-meetings">—</div>
+                  <div style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">MEETINGS BOOKED</div>
+                </div>
+              </div>
+              <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);text-align:center">AI-powered B2B outreach · LeadGen AI</div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:14px;justify-content:center">
+              <button class="btn btn-primary" onclick="printShareCard()">Print / Screenshot</button>
+              <button class="btn btn-ghost" onclick="document.getElementById('share-stats-modal').style.display='none'">Close</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+</div><!-- end app-shell -->
+
+<div id="toast"></div>
+
+<script>
+const API = 'http://localhost:8000';
+
+// ── Auth state (in-memory) ──────────────────────────────────────────────────
+let authToken = null;
+let currentUser = null;
+
+// ── Auth helpers ───────────────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+  });
+  document.getElementById('auth-login').classList.toggle('active', tab === 'login');
+  document.getElementById('auth-register').classList.toggle('active', tab === 'register');
+}
+
+async function doLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl    = document.getElementById('login-error');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = 'Email and password required.'; return; }
+
+  try {
+    const form = new URLSearchParams();
+    form.append('username', email);
+    form.append('password', password);
+    const res  = await fetch(API + '/auth/login', { method: 'POST', body: form });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.detail || 'Login failed.'; return; }
+    onAuthSuccess(data);
+  } catch (e) {
+    errEl.textContent = 'Cannot reach backend. Is it running on port 8000?';
+  }
+}
+
+async function doRegister() {
+  const name     = document.getElementById('reg-name').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const errEl    = document.getElementById('reg-error');
+  errEl.textContent = '';
+  if (!name || !email || !password) { errEl.textContent = 'All fields required.'; return; }
+
+  try {
+    const res  = await fetch(API + '/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.detail || 'Registration failed.'; return; }
+    onAuthSuccess(data);
+  } catch (e) {
+    errEl.textContent = 'Cannot reach backend. Is it running on port 8000?';
+  }
+}
+
+function onAuthSuccess(data) {
+  authToken   = data.access_token;
+  currentUser = data.user;
+  document.getElementById('auth-screen').style.display  = 'none';
+  document.getElementById('app-shell').style.display    = 'block';
+  document.getElementById('sidebar-username').textContent = currentUser.name  || currentUser.email;
+  document.getElementById('sidebar-email').textContent    = currentUser.email || '';
+  loadAnalytics();
+}
+
+function doLogout() {
+  authToken   = null;
+  currentUser = null;
+  document.getElementById('app-shell').style.display   = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('login-email').value    = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error').textContent = '';
+}
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+function showView(name, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (name === 'dashboard') loadAnalytics();
+  if (name === 'analytics') loadAnalyticsDash();
+  if (name === 'leads')     loadLeads();
+  if (name === 'approve') loadApprovalQueue();
+  if (name === 'campaigns') loadCampaigns();
+  if (name === 'outreach')  { loadLeadSelects(); loadCampaignSelects(); }
+  if (name === 'log')       loadLog();
+  if (name === 'agent')     loadAgentCampaigns();
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 3500);
+}
+
+// ── API helpers ────────────────────────────────────────────────────────────
+async function api(path, opts = {}) {
+  try {
+    opts.headers = opts.headers || {};
+    if (authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
+    const res = await fetch(API + path, opts);
+    if (res.status === 401) { doLogout(); toast('Session expired — please sign in again.', 'error'); return null; }
+    return await res.json();
+  } catch (e) {
+    toast('Cannot reach API — is the backend running on port 8000?', 'error');
+    return null;
+  }
+}
+
+// ── Analytics ─────────────────────────────────────────────────────────────
+async function loadAnalytics() {
+  const data = await api('/analytics');
+  if (!data) return;
+  document.getElementById('stat-leads').textContent    = data.total_leads;
+  document.getElementById('stat-enriched').textContent = data.enriched;
+  document.getElementById('stat-contacted').textContent = data.contacted;
+  document.getElementById('stat-fit').textContent      = data.avg_fit_score || '—';
+
+  const ic  = document.getElementById('industry-chart');
+  const ind = data.leads_by_industry || {};
+  if (!Object.keys(ind).length) { ic.innerHTML = '<span style="color:var(--muted)">No leads yet</span>'; return; }
+  const max = Math.max(...Object.values(ind));
+  ic.innerHTML = Object.entries(ind).sort((a,b)=>b[1]-a[1]).map(([k,v]) =>
+    `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:130px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${k}</div>
+      <div style="flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(v/max*100)}%;background:var(--accent);border-radius:4px;transition:width .5s"></div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--text);min-width:20px">${v}</div>
+    </div>`
+  ).join('');
+}
+
+// ── Leads ──────────────────────────────────────────────────────────────────
+function scoreColor(s) {
+  if (s >= 8) return 'var(--accent2)';
+  if (s >= 5) return 'var(--amber)';
+  return 'var(--accent3)';
+}
+
+async function loadLeads() {
+  const data = await api('/leads');
+  if (!data) return;
+  const tbody = document.getElementById('leads-table-body');
+  if (!data.leads.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◎</div><div class="empty-text">No leads yet. Import a CSV or add manually.</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.leads.map(l => {
+    const score = l.fit_score || l.enrichment?.fit_score;
+    const scoreHtml = score
+      ? `<div class="score-bar"><div class="score-track"><div class="score-fill" style="width:${score*10}%;background:${scoreColor(score)}"></div></div><span class="score-num" style="color:${scoreColor(score)}">${score}</span></div>`
+      : `<span style="color:var(--muted);font-size:11px">not enriched</span>`;
+    const statusBadge = `<span class="badge badge-${l.status}"><span class="badge-dot"></span>${l.status}</span>`;
+    return `<tr>
+      <td style="font-weight:500">${l.name || '—'}</td>
+      <td style="color:var(--muted)">${l.company || '—'}</td>
+      <td style="color:var(--muted);font-size:12px">${l.industry || '—'}</td>
+      <td><span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">${l.source || 'manual'}</span></td>
+      <td>${scoreHtml}</td>
+      <td>${statusBadge}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="enrichLead('${l.id}')">✦ Enrich</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteLead('${l.id}')">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddLead() {
+  const p = document.getElementById('add-lead-panel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+async function addLead() {
+  const lead = {
+    name: document.getElementById('l-name').value,
+    company: document.getElementById('l-company').value,
+    email: document.getElementById('l-email').value,
+    whatsapp: document.getElementById('l-whatsapp').value,
+    industry: document.getElementById('l-industry').value,
+    role: document.getElementById('l-role').value,
+    website: document.getElementById('l-website').value,
+    notes: document.getElementById('l-notes').value,
+  };
+  if (!lead.name || !lead.company) { toast('Name and Company are required', 'error'); return; }
+  const data = await api('/leads', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(lead) });
+  if (data?.duplicate) { toast('Duplicate lead detected — already in your pipeline.', 'error'); return; }
+  if (data?.success) { toast('Lead added!'); document.getElementById('add-lead-panel').style.display='none'; loadLeads(); }
+}
+
+async function enrichLead(id) {
+  toast('Enriching with AI...');
+  const data = await api(`/leads/${id}/enrich`, { method: 'POST' });
+  if (data?.success) {
+    const msg = data.auto_skipped
+      ? `Auto-skipped — score ${data.enrichment.fit_score}/10 (below threshold)`
+      : `Fit score: ${data.enrichment.fit_score}/10 — ${data.enrichment.fit_reason}`;
+    toast(msg, data.auto_skipped ? 'error' : 'success');
+    loadLeads();
+  }
+}
+
+async function deleteLead(id) {
+  if (!confirm('Delete this lead?')) return;
+  await api(`/leads/${id}`, { method: 'DELETE' });
+  toast('Lead deleted'); loadLeads();
+}
+
+async function exportCSV() {
+  if (!authToken) return;
+  const a = document.createElement('a');
+  a.href = API + '/leads/export/csv';
+  // Fetch with auth header and trigger download
+  const res = await fetch(API + '/leads/export/csv', { headers: { 'Authorization': 'Bearer ' + authToken } });
+  const blob = await res.blob();
+  a.href = URL.createObjectURL(blob);
+  a.download = 'leads.csv';
+  a.click();
+  toast('CSV downloaded!');
+}
+
+// ── Campaigns ──────────────────────────────────────────────────────────────
+async function createCampaign() {
+  const c = {
+    name: document.getElementById('c-name').value,
+    product_description: document.getElementById('c-product').value,
+    target_industry: document.getElementById('c-industry').value,
+    tone: document.getElementById('c-tone').value,
+    channel: document.getElementById('c-channel').value,
+  };
+  if (!c.name || !c.product_description) { toast('Campaign name and description required', 'error'); return; }
+  const data = await api('/campaigns', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(c) });
+  if (data?.success) { toast('Campaign created!'); loadCampaigns(); }
+}
+
+async function loadCampaigns() {
+  const data = await api('/campaigns');
+  if (!data) return;
+  const tbody = document.getElementById('campaigns-table-body');
+  if (!data.campaigns.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">◇</div><div class="empty-text">No campaigns yet.</div></div></td></tr>'; return; }
+  tbody.innerHTML = data.campaigns.map(c =>
+    `<tr>
+      <td style="font-weight:500">${c.name}</td>
+      <td style="color:var(--muted)">${c.target_industry}</td>
+      <td><span class="badge badge-enriched">${c.channel}</span></td>
+      <td style="color:var(--muted);font-size:12px">${c.tone}</td>
+      <td style="font-family:var(--font-mono);font-size:13px">${c.sent_count || 0}</td>
+      <td><span class="badge badge-contacted"><span class="badge-dot"></span>${c.status}</span></td>
+    </tr>`
+  ).join('');
+}
+
+// ── Outreach selects ───────────────────────────────────────────────────────
+async function loadLeadSelects() {
+  const data = await api('/leads');
+  if (!data) return;
+  const sel = document.getElementById('o-lead');
+  sel.innerHTML = '<option value="">— choose lead —</option>' +
+    data.leads.map(l => `<option value="${l.id}">${l.name} — ${l.company}</option>`).join('');
+}
+
+async function loadCampaignSelects() {
+  const data = await api('/campaigns');
+  if (!data) return;
+  ['o-campaign', 'bulk-campaign'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">— choose campaign —</option>' +
+      data.campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  });
+}
+
+async function previewMessage() {
+  const lead_id     = document.getElementById('o-lead').value;
+  const campaign_id = document.getElementById('o-campaign').value;
+  const channel     = document.getElementById('o-channel').value;
+  if (!lead_id || !campaign_id) { toast('Select lead and campaign', 'error'); return; }
+  toast('Generating AI message...');
+  const data = await api('/outreach/preview', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ lead_id, campaign_id, channel }) });
+  if (data?.success) {
+    const box = document.getElementById('message-preview-box');
+    box.style.display = 'block'; box.textContent = data.message;
+  }
+}
+
+async function sendMessage() {
+  const lead_id     = document.getElementById('o-lead').value;
+  const campaign_id = document.getElementById('o-campaign').value;
+  const channel     = document.getElementById('o-channel').value;
+  if (!lead_id || !campaign_id) { toast('Select lead and campaign', 'error'); return; }
+  const data = await api('/outreach/send', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ lead_id, campaign_id, channel }) });
+  if (data?.success) {
+    toast('Message sent! Follow-ups scheduled at Day 3 & Day 7.');
+    const box = document.getElementById('message-preview-box');
+    box.style.display = 'block'; box.textContent = data.message;
+  }
+}
+
+async function bulkSend() {
+  const campaign_id = document.getElementById('bulk-campaign').value;
+  const channel     = document.getElementById('bulk-channel').value;
+  if (!campaign_id) { toast('Select a campaign', 'error'); return; }
+  if (!confirm('Send outreach to ALL eligible leads in pipeline?')) return;
+  toast('Running bulk outreach...');
+  const data = await api(`/outreach/bulk?campaign_id=${campaign_id}&channel=${channel}`, { method: 'POST' });
+  if (data?.success) toast(`Processed ${data.processed} leads. Skipped ${data.skipped_low_fit || 0} low-score leads.`);
+}
+
+// ── Log ────────────────────────────────────────────────────────────────────
+async function loadLog() {
+  const data = await api('/outreach/log');
+  if (!data) return;
+  const container = document.getElementById('log-container');
+  if (!data.log.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">≡</div><div class="empty-text">No messages sent yet.</div></div>'; return; }
+  container.innerHTML = data.log.map(l => {
+    const fuBadge = l.follow_up_number > 0 ? `<span style="font-size:10px;font-family:var(--font-mono);background:rgba(245,166,35,.15);color:var(--amber);padding:2px 8px;border-radius:4px">Day ${l.follow_up_number === 1 ? 3 : 7} follow-up</span>` : '';
+    return `<div class="log-item">
+      <div class="log-meta">
+        <strong style="font-size:13px">${l.lead_id}</strong>
+        <span class="log-channel log-${l.channel}">${l.channel}</span>
+        ${fuBadge}
+        <span class="log-time">${new Date(l.sent_at).toLocaleString()}</span>
+      </div>
+      <div class="log-body">${l.message}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Import ─────────────────────────────────────────────────────────────────
+async function uploadCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append('file', file);
+  toast('Uploading CSV...');
+  const data = await api('/leads/upload-csv', { method: 'POST', body: formData });
+  const div  = document.getElementById('upload-result');
+  if (data?.success) {
+    div.innerHTML = `<div style="color:var(--accent2);font-size:13px">✓ Imported ${data.imported} leads. ${data.duplicates_skipped ? `(${data.duplicates_skipped} duplicates skipped)` : ''}</div>`;
+    toast(`${data.imported} leads imported!`);
+  }
+}
+
+// ── Agent ───────────────────────────────────────────────────────────────────
+let _agentJobId = null;
+let _agentPollTimer = null;
+
+async function loadAgentCampaigns() {
+  const data = await api('/campaigns');
+  const sel = document.getElementById('agent-campaign');
+  if (!data?.campaigns?.length) { sel.innerHTML = '<option value="">No campaigns — create one first</option>'; return; }
+  sel.innerHTML = data.campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+async function runAgent() {
+  const campaign_id = document.getElementById('agent-campaign').value;
+  const industry    = document.getElementById('agent-industry').value;
+  const count       = parseInt(document.getElementById('agent-count').value);
+  const source_url  = document.getElementById('agent-url').value;
+  if (!campaign_id) { toast('Select a campaign first', 'error'); return; }
+
+  document.getElementById('agent-config-panel').style.display = 'none';
+  document.getElementById('agent-review-panel').style.display = 'none';
+  document.getElementById('agent-done-panel').style.display   = 'none';
+  document.getElementById('agent-status-panel').style.display = 'block';
+
+  const data = await api('/agent/run', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ campaign_id, industry, count, source_url }) });
+
+  if (!data?.success) { toast('Failed to start agent', 'error'); resetAgent(); return; }
+  _agentJobId = data.job_id;
+  pollAgentJob();
+}
+
+function pollAgentJob() {
+  let progress = 30;
+  _agentPollTimer = setInterval(async () => {
+    progress = Math.min(progress + 10, 90);
+    document.getElementById('agent-progress-bar').style.width = progress + '%';
+    const data = await api(`/agent/jobs/${_agentJobId}`);
+    if (!data?.job) return;
+    const status = data.job.status;
+    document.getElementById('agent-status-msg').textContent =
+      status === 'running' ? 'Finding and enriching leads with AI...' : 'Generating personalized messages...';
+    if (status === 'pending_approval') {
+      clearInterval(_agentPollTimer);
+      document.getElementById('agent-progress-bar').style.width = '100%';
+      showAgentReview(data);
+    } else if (status === 'error') {
+      clearInterval(_agentPollTimer);
+      toast('Agent encountered an error', 'error'); resetAgent();
+    }
+  }, 2000);
+}
+
+function showAgentReview(data) {
+  document.getElementById('agent-status-panel').style.display = 'none';
+  document.getElementById('agent-review-panel').style.display = 'block';
+  document.getElementById('agent-lead-count').textContent = data.items.length;
+  const container = document.getElementById('agent-items');
+  container.innerHTML = data.items.map(item => `
+    <div id="agent-item-${item.id}" style="border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-weight:600;font-size:14px">${item.lead_name} <span style="color:var(--muted);font-weight:400">@ ${item.lead_company}</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${item.lead_email || '—'} ${item.lead_whatsapp ? '· ' + item.lead_whatsapp : ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-family:var(--font-mono);font-size:11px;color:${item.fit_score>=7?'var(--accent2)':item.fit_score>=5?'var(--amber)':'var(--accent3)'}">Score: ${item.fit_score}/10</span>
+          <button onclick="rejectAgentItem('${item.id}')" style="background:transparent;border:1px solid var(--accent3);color:var(--accent3);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px">✕ Reject</button>
+        </div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:12px;font-size:12px;color:var(--muted);white-space:pre-wrap;line-height:1.6">${item.email_message}</div>
+    </div>`).join('');
+}
+
+async function rejectAgentItem(itemId) {
+  await api(`/agent/jobs/${_agentJobId}/items/${itemId}`, { method: 'DELETE' });
+  const el = document.getElementById(`agent-item-${itemId}`);
+  if (el) { el.style.opacity = '0.3'; el.style.pointerEvents = 'none'; }
+  toast('Lead rejected');
+}
+
+async function approveAgentJob() {
+  const data = await api(`/agent/jobs/${_agentJobId}/approve`, { method: 'POST' });
+  if (data?.success) {
+    document.getElementById('agent-review-panel').style.display = 'none';
+    document.getElementById('agent-done-panel').style.display   = 'block';
+    document.getElementById('agent-done-msg').textContent =
+      `✓ Approved ${data.approved} leads. Messages logged and follow-up sequences scheduled for Day 3 & Day 7.`;
+    toast(`${data.approved} messages approved!`);
+    loadLeads();
+  }
+}
+
+function resetAgent() {
+  _agentJobId = null;
+  if (_agentPollTimer) clearInterval(_agentPollTimer);
+  document.getElementById('agent-config-panel').style.display = 'block';
+  document.getElementById('agent-status-panel').style.display = 'none';
+  document.getElementById('agent-review-panel').style.display = 'none';
+  document.getElementById('agent-done-panel').style.display   = 'none';
+}
+
+// ── Apollo ──────────────────────────────────────────────────────────────────
+async function searchApollo() {
+  const industry = document.getElementById('apollo-industry').value;
+  const city     = document.getElementById('apollo-city').value;
+  const count    = parseInt(document.getElementById('apollo-count').value);
+  const div      = document.getElementById('apollo-result');
+  if (!industry || !city) { toast('Enter industry and city', 'error'); return; }
+  div.innerHTML = `<div style="color:var(--muted);font-size:13px">Searching Apollo database for ${industry} companies in ${city}...</div>`;
+  const data = await api('/leads/search-apollo', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ industry, city, count }) });
+  if (data?.success) {
+    if (!data.added && !data.duplicates_skipped) {
+      div.innerHTML = `<div style="color:var(--accent3);font-size:13px">No results found. Try different industry or city.</div>`;
+    } else {
+      div.innerHTML = `<div style="color:var(--accent2);font-size:13px">✓ Found ${data.found} companies, added ${data.added} leads${data.duplicates_skipped ? ', ' + data.duplicates_skipped + ' duplicates skipped' : ''}. <a href="#" onclick="showView('leads',document.querySelector('[onclick*=leads]'));return false" style="color:var(--accent)">View leads →</a></div>`;
+      toast(`${data.added} Apollo leads added!`); loadLeads();
+    }
+  } else {
+    div.innerHTML = `<div style="color:var(--accent3);font-size:13px">${data?.detail || 'Apollo API error.'}</div>`;
+  }
+}
+
+// ── Google Places ───────────────────────────────────────────────────────────
+async function searchPlaces() {
+  const industry = document.getElementById('places-industry').value;
+  const city     = document.getElementById('places-city').value;
+  const count    = parseInt(document.getElementById('places-count').value);
+  const div      = document.getElementById('places-result');
+  if (!industry || !city) { toast('Enter industry and city', 'error'); return; }
+  div.innerHTML = `<div style="color:var(--muted);font-size:13px">Searching OpenStreetMap for ${industry} businesses in ${city}...</div>`;
+  const data = await api('/leads/search-places', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ industry, city, count }) });
+  if (data?.success) {
+    if (!data.added && !data.duplicates_skipped) {
+      div.innerHTML = `<div style="color:var(--accent3);font-size:13px">No businesses found. Try different industry or city.</div>`;
+    } else {
+      div.innerHTML = `<div style="color:var(--accent2);font-size:13px">✓ Found ${data.found} businesses, added ${data.added} leads${data.duplicates_skipped ? ', ' + data.duplicates_skipped + ' duplicates skipped' : ''}. <a href="#" onclick="showView('leads',document.querySelector('[onclick*=leads]'));return false" style="color:var(--accent)">View leads →</a></div>`;
+      toast(`${data.added} real leads added!`); loadLeads();
+    }
+  } else {
+    div.innerHTML = `<div style="color:var(--accent3);font-size:13px">${data?.detail || 'Google Places API key not configured yet.'}</div>`;
+  }
+}
+
+// ── Auto-Generate ───────────────────────────────────────────────────────────
+async function autoGenerateLeads() {
+  const industry = document.getElementById('autogen-industry').value;
+  const count    = parseInt(document.getElementById('autogen-count').value);
+  const div      = document.getElementById('autogen-result');
+  div.innerHTML  = `<div style="color:var(--muted);font-size:13px">Generating ${count} ${industry} leads...</div>`;
+  const data = await api('/leads/auto-generate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ industry, count }) });
+  if (data?.success) {
+    if (!data.added) {
+      div.innerHTML = `<div style="color:var(--amber);font-size:13px">⚠ ${data.duplicates_skipped} leads already exist for this industry. Try a different industry or view your leads.</div>`;
+    } else {
+      div.innerHTML = `<div style="color:var(--accent2);font-size:13px">✓ Added ${data.added} ${industry} leads! <a href="#" onclick="showView('leads',document.querySelector('[onclick*=leads]'));return false" style="color:var(--accent)">View leads →</a></div>`;
+      toast(`${data.added} leads generated!`);
+      loadLeads();
+    }
+  } else {
+    div.innerHTML = `<div style="color:var(--accent3);font-size:13px">Error generating leads. Try again.</div>`;
+  }
+}
+
+// ── Scrape ─────────────────────────────────────────────────────────────────
+async function scrapeLeads() {
+  const url      = document.getElementById('scrape-url').value;
+  const industry = document.getElementById('scrape-industry').value;
+  if (!url) { toast('Enter a URL to scrape', 'error'); return; }
+  toast('AI is extracting leads...');
+  const data = await api('/leads/scrape', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ url, industry }) });
+  const div  = document.getElementById('scrape-result');
+  if (data?.success) {
+    if (!data.scraped) {
+      div.innerHTML = `<div style="color:var(--accent3);font-size:13px">No leads found at this URL. Try a company directory or team page.</div>`;
+    } else {
+      div.innerHTML = `<div style="color:var(--accent2);font-size:13px">✓ Extracted ${data.scraped} leads. <a href="#" onclick="showView('leads',document.querySelector('[onclick*=leads]'));return false" style="color:var(--accent)">View leads →</a></div>`;
+      toast(`${data.scraped} leads scraped!`);
+    }
+  }
+}
+
+// ── Approval Queue ────────────────────────────────────────────────────────────
+let _aqData = [];
+let _aqCurrentPage = 1;
+let _aqEditId = null;
+let _aqRejectId = null;
+
+async function loadApprovalQueue(page = 1) {
+  _aqCurrentPage = page;
+  const channel = document.getElementById('aq-filter-channel').value;
+  const params = new URLSearchParams({ page, limit: 20 });
+  if (channel) params.append('channel', channel);
+
+  try {
+    const r = await fetch(`${API}/messages/pending?${params}`, { headers: authHeaders() });
+    const data = await r.json();
+
+    // Update stats
+    const s = data.stats || {};
+    document.getElementById('aq-stat-pending').textContent = s.pending ?? 0;
+    document.getElementById('aq-stat-approved').textContent = s.approved_today ?? 0;
+    document.getElementById('aq-stat-rejected').textContent = s.rejected_today ?? 0;
+    document.getElementById('aq-stat-quality').textContent = s.avg_quality_score ?? '—';
+    document.getElementById('aq-stat-waiting').textContent = s.waiting_to_send ?? 0;
+    document.getElementById('aq-count').textContent = `${data.total} messages`;
+
+    _aqData = data.messages || [];
+    renderApprovalCards();
+    renderAqPagination(data.page, data.pages);
+  } catch (e) {
+    document.getElementById('aq-cards').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠</div><div class="empty-text">Failed to load queue</div></div>';
+  }
+}
+
+function renderApprovalCards() {
+  const sort = document.getElementById('aq-sort').value;
+  let msgs = [..._aqData];
+  if (sort === 'score') msgs.sort((a, b) => (b.lead_fit_score || 0) - (a.lead_fit_score || 0));
+
+  const container = document.getElementById('aq-cards');
+  if (!msgs.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">✓</div><div class="empty-text">No messages pending approval</div></div>';
+    return;
+  }
+
+  container.innerHTML = msgs.map(m => {
+    const qs = m.quality_gate_score || 0;
+    const qClass = qs >= 8 ? 'good' : qs >= 5 ? 'warn' : 'fail';
+    const qLabel = qs >= 8 ? `✓ Quality ${qs}/10` : qs >= 5 ? `⚠ Quality ${qs}/10` : `✗ Quality ${qs}/10`;
+    const channelIcon = m.channel === 'whatsapp' ? '💬 WhatsApp' : '📧 Email';
+    const issues = (m.quality_gate_issues || []).map(i => `• ${i.check}: ${i.detail}`).join('\n');
+    const timeStr = m.sent_at ? new Date(m.sent_at).toLocaleString() : '';
+
+    return `<div class="aq-card" id="aqcard-${m.id}">
+      <div class="aq-card-header">
+        <div>
+          <div class="aq-lead-name">${m.lead_name || 'Unknown'} <span class="aq-company">· ${m.lead_company || ''}</span></div>
+        </div>
+        <span class="log-channel ${m.channel === 'whatsapp' ? 'log-whatsapp' : 'log-email'}">${channelIcon}</span>
+        <span class="aq-score">Score ${m.lead_fit_score || 0}/10</span>
+        <span class="aq-quality ${qClass}">${qLabel}</span>
+        <span class="aq-time">${timeStr}</span>
+      </div>
+      ${issues ? `<div class="aq-issues">Issues found:\n${issues}</div>` : ''}
+      <div class="aq-msg">${m.message || ''}</div>
+      <div class="aq-actions">
+        <button class="btn btn-success btn-sm" onclick="approveOne('${m.id}')">✓ Approve</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--accent);border-color:var(--accent)" onclick="openEdit('${m.id}','${m.message?.replace(/'/g, "\\'")}')">✏ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="openReject('${m.id}')">✗ Reject</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAqPagination(current, total) {
+  const el = document.getElementById('aq-pagination');
+  if (total <= 1) { el.innerHTML = ''; return; }
+  let html = '';
+  for (let i = 1; i <= total; i++) {
+    html += `<button class="btn btn-sm ${i === current ? 'btn-primary' : 'btn-ghost'}" onclick="loadApprovalQueue(${i})">${i}</button>`;
+  }
+  el.innerHTML = html;
+}
+
+async function approveOne(id) {
+  try {
+    const r = await fetch(`${API}/messages/${id}/approve`, { method: 'PUT', headers: authHeaders() });
+    if (r.ok) {
+      document.getElementById(`aqcard-${id}`)?.remove();
+      _aqData = _aqData.filter(m => m.id !== id);
+      const pending = document.getElementById('aq-stat-pending');
+      if (pending) pending.textContent = Math.max(0, parseInt(pending.textContent) - 1);
+      showToast('Message approved', 'success');
+    } else {
+      showToast('Failed to approve', 'error');
+    }
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function approveAllVisible() {
+  if (!_aqData.length) return;
+  if (!confirm(`Approve all ${_aqData.length} visible messages?`)) return;
+  const ids = _aqData.map(m => m.id);
+  try {
+    const r = await fetch(`${API}/messages/approve-batch`, {
+      method: 'POST',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message_ids: ids })
+    });
+    const data = await r.json();
+    if (data.success) {
+      showToast(`Approved ${data.approved} messages`, 'success');
+      loadApprovalQueue(_aqCurrentPage);
+    }
+  } catch (e) { showToast('Batch approve failed', 'error'); }
+}
+
+function openEdit(id, message) {
+  _aqEditId = id;
+  document.getElementById('aq-edit-text').value = message.replace(/\\n/g, '\n');
+  document.getElementById('aq-edit-modal').style.display = 'flex';
+}
+function closeEditModal() {
+  document.getElementById('aq-edit-modal').style.display = 'none';
+  _aqEditId = null;
+}
+async function saveEdit() {
+  if (!_aqEditId) return;
+  const text = document.getElementById('aq-edit-text').value.trim();
+  if (!text) { showToast('Message cannot be empty', 'error'); return; }
+  try {
+    const r = await fetch(`${API}/messages/${_aqEditId}/edit`, {
+      method: 'PUT',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+    if (r.ok) {
+      closeEditModal();
+      document.getElementById(`aqcard-${_aqEditId}`)?.remove();
+      _aqData = _aqData.filter(m => m.id !== _aqEditId);
+      showToast('Message edited and approved', 'success');
+    } else { showToast('Failed to save', 'error'); }
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+function openReject(id) {
+  _aqRejectId = id;
+  document.getElementById('aq-reject-reason').value = '';
+  document.getElementById('aq-reject-modal').style.display = 'flex';
+}
+function closeRejectModal() {
+  document.getElementById('aq-reject-modal').style.display = 'none';
+  _aqRejectId = null;
+}
+async function confirmReject() {
+  if (!_aqRejectId) return;
+  const reason = document.getElementById('aq-reject-reason').value;
+  try {
+    const r = await fetch(`${API}/messages/${_aqRejectId}/reject`, {
+      method: 'PUT',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason })
+    });
+    if (r.ok) {
+      closeRejectModal();
+      document.getElementById(`aqcard-${_aqRejectId}`)?.remove();
+      _aqData = _aqData.filter(m => m.id !== _aqRejectId);
+      showToast('Message rejected', 'success');
+    } else { showToast('Failed to reject', 'error'); }
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+
+// ── Analytics Dashboard ────────────────────────────────────────────────────
+function switchAnalyticsTab(name, el) {
+  document.querySelectorAll('.analytics-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.analytics-pane').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('an-pane-' + name).classList.add('active');
+  if (name === 'pipeline')  loadPipelineKanban();
+  if (name === 'campaigns') loadCampaignPerf();
+  if (name === 'ai')        loadAIPerf();
+  if (name === 'admin')     loadAdminOverview();
+}
+
+async function loadAnalyticsDash() {
+  // Show admin tab if admin
+  if (currentUser?.role === 'admin' || currentUser?.role === 'superadmin') {
+    document.getElementById('admin-tab').style.display = 'block';
+  }
+  // Load overview by default
+  try {
+    const data = await api('/analytics/client-detail');
+    if (!data) return;
+    const f = data.funnel || {};
+    document.getElementById('fn-new').textContent       = f.new ?? 0;
+    document.getElementById('fn-enriched').textContent  = f.enriched ?? 0;
+    document.getElementById('fn-contacted').textContent = f.contacted ?? 0;
+    document.getElementById('fn-replied').textContent   = f.replied ?? 0;
+    document.getElementById('fn-meeting').textContent   = f.meeting_booked ?? 0;
+    document.getElementById('fn-closed').textContent    = f.closed ?? 0;
+
+    const em = data.email_metrics || {};
+    document.getElementById('em-sent').textContent   = em.sent ?? 0;
+    document.getElementById('em-open').textContent   = em.open_rate ?? '0%';
+    document.getElementById('em-click').textContent  = em.click_rate ?? '0%';
+    document.getElementById('em-bounce').textContent = em.bounce_rate ?? '0%';
+
+    const wa = data.wa_metrics || {};
+    document.getElementById('wa-sent').textContent      = wa.sent ?? 0;
+    document.getElementById('wa-read').textContent      = wa.read_rate ?? '0%';
+    document.getElementById('wa-replied').textContent   = wa.replied ?? 0;
+    document.getElementById('wa-delivered').textContent = wa.delivered ?? 0;
+
+    // Populate share card data
+    document.getElementById('share-leads').textContent    = f.total ?? 0;
+    document.getElementById('share-messages').textContent = (em.sent ?? 0) + (wa.sent ?? 0);
+    document.getElementById('share-open').textContent     = em.open_rate ?? '0%';
+    document.getElementById('share-meetings').textContent = f.meeting_booked ?? 0;
+
+    // Last messages
+    const lm = data.last_messages || [];
+    const lmEl = document.getElementById('an-last-messages');
+    if (!lm.length) { lmEl.innerHTML = '<div class="empty-state" style="padding:20px"><div class="empty-text">No messages sent yet</div></div>'; }
+    else {
+      lmEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr><th style="padding:8px;text-align:left;color:var(--muted)">Channel</th><th>Lead</th><th>Status</th><th>Opened</th><th>Time</th></tr></thead>
+        <tbody>${lm.map(m => `<tr>
+          <td style="padding:8px"><span class="log-channel log-${m.channel}">${m.channel}</span></td>
+          <td style="padding:8px;color:var(--muted)">${m.lead_id}</td>
+          <td style="padding:8px"><span class="badge badge-${m.approval_status === 'approved' ? 'contacted' : 'new'}">${m.status}</span></td>
+          <td style="padding:8px;color:${m.opened ? 'var(--accent2)' : 'var(--muted)'}">${m.opened ? '✓' : '—'}</td>
+          <td style="padding:8px;color:var(--muted);font-family:var(--font-mono)">${m.sent_at ? new Date(m.sent_at).toLocaleDateString() : '—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+  } catch(e) { console.error('loadAnalyticsDash error:', e); }
+}
+
+async function loadPipelineKanban() {
+  const data = await api('/analytics/pipeline');
+  if (!data) return;
+  const labels = { new:'New', enriched:'Enriched', contacted:'Contacted', replied:'Replied', meeting_booked:'Meeting', closed:'Closed', skipped:'Skipped' };
+  const colors = { new:'var(--muted)', enriched:'var(--accent)', contacted:'var(--amber)', replied:'var(--accent2)', meeting_booked:'var(--accent2)', closed:'var(--accent2)', skipped:'var(--accent3)' };
+  document.getElementById('an-kanban').innerHTML = (data.stages || []).map(s => `
+    <div class="kanban-col">
+      <div class="kanban-col-title">
+        <span style="color:${colors[s.stage]||'var(--muted)'}">${labels[s.stage]||s.stage}</span>
+        <span style="background:var(--bg);border-radius:10px;padding:1px 8px;font-size:11px">${s.count}</span>
+      </div>
+      ${(s.leads||[]).map(l => `<div class="kanban-card">
+        <div class="kc-name">${l.name||'—'}</div>
+        <div class="kc-co">${l.company||'—'}</div>
+        <div style="margin-top:4px;font-family:var(--font-mono);font-size:10px;color:${l.fit_score>=7?'var(--accent2)':l.fit_score>=5?'var(--amber)':'var(--accent3)'}">Score: ${l.fit_score||0}</div>
+      </div>`).join('')}
+      ${s.count > 10 ? `<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px">+${s.count-10} more</div>` : ''}
+    </div>`).join('');
+}
+
+async function loadCampaignPerf() {
+  const data = await api('/analytics/campaigns-performance');
+  if (!data) return;
+  const tbody = document.getElementById('an-camp-tbody');
+  if (!data.campaigns?.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◇</div><div class="empty-text">No campaigns yet</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.campaigns.map(c => {
+    const openPct = parseFloat(c.open_rate) || 0;
+    return `<tr>
+      <td style="font-weight:600">${c.name}</td>
+      <td><span class="badge badge-enriched">${c.channel}</span></td>
+      <td style="font-family:var(--font-mono)">${c.messages_sent}</td>
+      <td><div style="min-width:80px">${c.open_rate}<div class="camp-perf-bar"><div class="camp-perf-fill" style="width:${Math.min(openPct*2,100)}%;background:var(--accent2)"></div></div></div></td>
+      <td>${c.click_rate}</td>
+      <td style="color:var(--accent3)">${c.bounce_rate}</td>
+      <td><span class="badge badge-${c.status==='active'?'contacted':'new'}">${c.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadAIPerf() {
+  const data = await api('/analytics/quality');
+  if (!data) return;
+  document.getElementById('ai-pass-rate').textContent = data.first_pass_rate || '0%';
+  document.getElementById('ai-total').textContent     = data.total_generated || 0;
+  document.getElementById('ai-regen').textContent     = data.passed_after_regen || 0;
+  document.getElementById('ai-failed').textContent    = data.failed_permanently || 0;
+
+  const issues = data.common_issues || [];
+  const el = document.getElementById('an-quality-issues');
+  if (!issues.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px">No quality data yet</div>'; return; }
+  const max = issues[0]?.count || 1;
+  el.innerHTML = issues.map(i => `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:160px;font-size:12px;color:var(--muted);font-family:var(--font-mono)">${i.issue}</div>
+      <div style="flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(i.count/max*100)}%;background:var(--accent3);border-radius:4px"></div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:12px;min-width:24px;color:var(--text)">${i.count}</div>
+    </div>`).join('');
+}
+
+async function loadAdminOverview() {
+  const data = await api('/analytics/admin-overview');
+  if (!data) return;
+  document.getElementById('adm-clients').textContent = data.total_active_clients || 0;
+  document.getElementById('adm-mrr').textContent     = `₹${(data.mrr_inr||0).toLocaleString('en-IN')}`;
+  document.getElementById('adm-margin').textContent  = `${data.gross_margin_pct||0}%`;
+  document.getElementById('adm-infra').textContent   = `₹${(data.infra_cost_inr||0).toLocaleString('en-IN')}`;
+  document.getElementById('adm-leads').textContent   = data.leads_this_month || 0;
+  document.getElementById('adm-emails').textContent  = data.emails_sent_this_month || 0;
+  document.getElementById('adm-wa').textContent      = data.wa_sent_this_month || 0;
+  document.getElementById('adm-meetings').textContent= data.meetings_this_month || 0;
+  const h = data.health_summary || {};
+  document.getElementById('adm-h-green').textContent  = h.healthy || 0;
+  document.getElementById('adm-h-yellow').textContent = h.warning || 0;
+  document.getElementById('adm-h-red').textContent    = h.critical || 0;
+}
+
+function shareStats() {
+  document.getElementById('share-stats-modal').style.display = 'flex';
+}
+
+function printShareCard() {
+  const content = document.getElementById('share-card-content').outerHTML;
+  const win = window.open('', '_blank');
+  win.document.write(`<html><head><style>
+    body{background:#0a0a0f;color:#e8e8f0;font-family:'DM Sans',sans-serif;display:flex;justify-content:center;padding:40px}
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Mono&family=DM+Sans&display=swap');
+    .share-card{background:linear-gradient(135deg,#0a0a0f,#111118);border:1px solid #7c5cfc;border-radius:16px;padding:32px;width:480px}
+  </style></head><body>${content}<script>window.print()<\/script></body></html>`);
+  win.document.close();
+}
+</script>
+</body>
+</html>

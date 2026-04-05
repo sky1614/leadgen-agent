@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: leadgen
+      POSTGRES_PASSWORD: leadgen123
+      POSTGRES_DB: leadgen
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    build: .
+    command: python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: python -m celery -A app.tasks.celery_app.celery worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file: .env
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+
+  beat:
+    build: .
+    command: python -m celery -A app.tasks.celery_app.celery beat --loglevel=info
+    volumes:
+      - .:/app
+    env_file: .env
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
