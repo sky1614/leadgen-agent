@@ -118,6 +118,8 @@ class MessageLogDB(Base):
     approval_status = Column(String, default="pending_approval")
     approved_by = Column(String, nullable=True)
     approved_at = Column(DateTime, nullable=True)
+    ab_test_id = Column(String, nullable=True)
+    ab_test_variant = Column(String, nullable=True)
     rejection_reason = Column(String, nullable=True)
     quality_gate_score = Column(Float, nullable=True)
     quality_gate_issues = Column(JSON, nullable=True)
@@ -156,7 +158,15 @@ class AgentJobDB(Base):
     status = Column(String, default="running")
     total_leads = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
-
+    prospector_status = Column(String, nullable=True)
+    scorer_status = Column(String, nullable=True)
+    writer_status = Column(String, nullable=True)
+    delivery_status = Column(String, nullable=True)
+    leads_found = Column(Integer, default=0)
+    leads_scored = Column(Integer, default=0)
+    leads_written = Column(Integer, default=0)
+    auto_approved_count = Column(Integer, default=0)
+    pending_approval_count = Column(Integer, default=0)
 
 class AgentJobItemDB(Base):
     __tablename__ = "agent_job_items"
@@ -281,4 +291,123 @@ class ClientWebhookDB(Base):
     is_active = Column(Boolean, default=True)
     failure_count = Column(Integer, default=0)
     last_triggered_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class AgentReflectionDB(Base):
+    __tablename__ = "agent_reflections"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4())[:12])
+    client_id = Column(String, ForeignKey("clients.id"), nullable=True)
+    job_id = Column(String, nullable=True)
+    industry = Column(String, nullable=True)
+    lessons_json = Column(Text, default="[]")
+    avoid_patterns_json = Column(Text, default="[]")
+    confidence_score = Column(Float, default=0.0)
+    was_applied = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class PromptVersionDB(Base):
+    __tablename__ = "prompt_versions"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4())[:12])
+    client_id = Column(String, ForeignKey("clients.id"), nullable=True)
+    template_name = Column(String, nullable=False)
+    prompt_text = Column(Text, nullable=False)
+    reply_rate_at_creation = Column(Float, default=0.0)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class EpisodicMemoryDB(Base):
+    __tablename__ = "episodic_memory"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4())[:12])
+    client_id = Column(String, ForeignKey("clients.id"), nullable=True)
+    lead_id = Column(String, nullable=True)
+    outcome = Column(String, nullable=True)
+    channel = Column(String, nullable=True)
+    message_length = Column(Integer, default=0)
+    had_name = Column(Boolean, default=False)
+    had_company = Column(Boolean, default=False)
+    had_pain_point = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class SemanticMemoryDB(Base):
+    __tablename__ = "semantic_memory"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4())[:12])
+    client_id = Column(String, nullable=True)
+    industry = Column(String, nullable=True)
+    pattern_type = Column(String, nullable=True)
+    pattern_value = Column(String, nullable=True)
+    success_rate = Column(Float, default=0.0)
+    sample_count = Column(Integer, default=0)
+    last_updated = Column(DateTime, default=datetime.utcnow)
+
+class AutonomousLoopDB(Base):
+    __tablename__ = "autonomous_loop"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4())[:12])
+    client_id = Column(String, ForeignKey("clients.id"), nullable=True)
+    campaign_id = Column(String, nullable=True)
+    replan_count = Column(Integer, default=0)
+    last_replan_at = Column(DateTime, nullable=True)
+    last_performance_json = Column(Text, default="{}")
+    last_strategy_json = Column(Text, default="{}")
+    total_improvements = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+class ReactTraceDB(Base):
+    __tablename__ = "react_traces"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4())[:12])
+    client_id = Column(String, ForeignKey("clients.id"), nullable=True)
+    job_id = Column(String, nullable=True)
+    lead_id = Column(String, nullable=True)
+    trace_type = Column(String, nullable=True)
+    decision = Column(String, nullable=True)
+    confidence = Column(Float, nullable=True)
+    thought_trace_json = Column(Text, nullable=True)
+    recommended_action = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class JudgeEvaluationDB(Base):
+    __tablename__ = "judge_evaluations"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4())[:12])
+    client_id = Column(String, nullable=True)
+    lead_id = Column(String, nullable=True)
+    job_id = Column(String, nullable=True)
+    channel = Column(String, nullable=True)
+    personalization_score = Column(Float, default=0.0)
+    cultural_fit_score = Column(Float, default=0.0)
+    cta_strength_score = Column(Float, default=0.0)
+    tone_match_score = Column(Float, default=0.0)
+    clarity_score = Column(Float, default=0.0)
+    weighted_score = Column(Float, default=0.0)
+    verdict = Column(String, nullable=True)
+    primary_weakness = Column(String, nullable=True)
+    was_rewritten = Column(Boolean, default=False)
+    final_passed = Column(Boolean, default=False)
+    red_flags_json = Column(Text, default="[]")
+    improvement_suggestion = Column(Text, nullable=True)
+    judge_model = Column(String, nullable=True)
+    evaluation_time_ms = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class ABTestDB(Base):
+    __tablename__ = "ab_tests"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4())[:12])
+    client_id = Column(String, ForeignKey("clients.id"), nullable=True)
+    campaign_id = Column(String, nullable=True)
+    template_name = Column(String, nullable=True)
+    control_prompt = Column(Text, nullable=True)
+    treatment_prompt = Column(Text, nullable=True)
+    control_messages_sent = Column(Integer, default=0)
+    control_replies = Column(Integer, default=0)
+    control_opens = Column(Integer, default=0)
+    control_bounces = Column(Integer, default=0)
+    treatment_messages_sent = Column(Integer, default=0)
+    treatment_replies = Column(Integer, default=0)
+    treatment_opens = Column(Integer, default=0)
+    treatment_bounces = Column(Integer, default=0)
+    status = Column(String, default="running")
+    winner = Column(String, nullable=True)
+    started_at = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

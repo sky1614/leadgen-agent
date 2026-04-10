@@ -3,7 +3,8 @@
     "allow": [
       "Bash(python -c \":*)",
       "Read(//c/Users/SWAPNIL/.claude/projects/c--Users-SWAPNIL-Downloads-leadgen-agent-leadgen-agent/7aeb94c0-7a2f-49e7-9096-69aab01a86a2/tool-results/**)",
-      "Bash(python -c \"from app.main import app; print\\(''Import OK''\\)\")"
+      "Bash(python -c \"from app.main import app; print\\(''Import OK''\\)\")",
+      "Bash(ls c:/Users/SWAPNIL/Downloads/leadgen-agent/leadgen-agent/backend/alembic/versions/*.py)"
     ]
   }
 }

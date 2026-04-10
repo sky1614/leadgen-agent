@@ -128,6 +128,20 @@ def calculate_client_health(client_id: str) -> dict:
         if spam_reports > 3:
             alerts.append(f"{spam_reports} spam reports in last 30 days — review templates")
 
+        # Autonomous loop: flag campaigns at max replan attempts
+        try:
+            from ..models import AutonomousLoopDB
+            maxed = db.query(AutonomousLoopDB).filter(
+                AutonomousLoopDB.client_id == client_id,
+                AutonomousLoopDB.replan_count >= MAX_REPLAN_ATTEMPTS if False else True,
+            ).all()
+            from ..services.autonomous_loop import MAX_REPLAN_ATTEMPTS as _MAX
+            for loop_rec in maxed:
+                if loop_rec.replan_count >= _MAX:
+                    alerts.append(f"Campaign {loop_rec.campaign_id} has exhausted {_MAX} auto-replan attempts — human review required")
+        except Exception:
+            pass
+
         if scores["agent_uptime"] == 0:
             alerts.append("Agent has not run in 3+ days — check Celery workers")
 

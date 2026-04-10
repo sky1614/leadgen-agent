@@ -3,29 +3,29 @@ import time
 import uuid
 from collections import deque
 
-from groq import Groq
+from openai import OpenAI
 
-from ..config import GROQ_API_KEY, OPENAI_API_KEY
+from ..config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, PRIMARY_MODEL, FALLBACK_MODEL
 
-# ── Clients ──────────────────────────────────────────────────────────────────
-_groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
-_openai_client = None
-if OPENAI_API_KEY:
-    try:
-        from openai import OpenAI
-        _openai_client = OpenAI(api_key=OPENAI_API_KEY)
-    except ImportError:
-        pass
+# ── Client ────────────────────────────────────────────────────────────────────
+_openrouter_client = OpenAI(
+    api_key=OPENROUTER_API_KEY,
+    base_url=OPENROUTER_BASE_URL,
+    default_headers={
+        "HTTP-Referer": "https://leadgenai.in",
+        "X-Title": "LeadGen AI",
+    }
+) if OPENROUTER_API_KEY else None
 
 # ── Cost table (USD per 1M tokens) ───────────────────────────────────────────
 _COSTS = {
-    "llama-3.3-70b-versatile": {"input": 0.59, "output": 0.79},
-    "gpt-4o-mini":             {"input": 0.15, "output": 0.60},
+    "meta-llama/llama-3.3-70b-instruct": {"input": 0.12, "output": 0.30},
+    "openai/gpt-4o-mini":                {"input": 0.15, "output": 0.60},
 }
 
-# ── Rate limit tracker ────────────────────────────────────────────────────────
+# ── Rate limit tracker (kept for compatibility) ───────────────────────────────
 _groq_calls = deque()
-_GROQ_RPM_LIMIT = 28  # conservative (actual Groq free limit is 30 RPM)
+_GROQ_RPM_LIMIT = 28
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -44,63 +44,66 @@ def _is_groq_rate_limited() -> bool:
 def _log_usage(client_id, model, inp, out, task_type):
     try:
         from .cost_tracker import log_groq, log_openai
-        if "gpt" in model.lower():
+        if "gpt" in model.lower() or "openai" in model.lower():
             log_openai(client_id, inp, out, task_type)
         else:
             log_groq(client_id, inp, out, task_type)
     except Exception as e:
         print(f"USAGE LOG ERROR: {e}")
 
-def _call_groq(prompt: str) -> tuple:
-    res = _groq_client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}],
-        model="llama-3.3-70b-versatile",
-        timeout=10
-    )
-    _groq_calls.append(time.time())
-    u = res.usage
-    return res.choices[0].message.content.strip(), u.prompt_tokens, u.completion_tokens
 
-
-def _call_openai(prompt: str) -> tuple:
-    res = _openai_client.chat.completions.create(
+def _call_openrouter(prompt: str, model: str) -> tuple:
+    res = _openrouter_client.chat.completions.create(
         messages=[{"role": "user", "content": prompt}],
-        model="gpt-4o-mini"
+        model=model,
+        timeout=30
     )
     u = res.usage
     return res.choices[0].message.content.strip(), u.prompt_tokens, u.completion_tokens
 
 
 # ── Unified AI call ────────────────────────────────────────────────────────────
-def generate_ai(prompt: str, task_type: str = "general", client_id: str = None) -> dict:
+def generate_ai(prompt: str, task_type: str = "general", client_id: str = None,
+                model_override: str = None) -> dict:
     """
-    Try Groq first (10s timeout). If fails or rate limited, fall back to OpenAI.
+    Try PRIMARY_MODEL first. If fails, fall back to FALLBACK_MODEL.
+    If model_override is provided and OpenRouter is configured, use it directly.
     Returns: {text, model_used, input_tokens, output_tokens, cost_estimate}
     """
-    if _groq_client and not _is_groq_rate_limited():
-        try:
-            text, inp, out = _call_groq(prompt)
-            _log_usage(client_id, "llama-3.3-70b-versatile", inp, out, task_type)
-            return {"text": text, "model_used": "llama-3.3-70b-versatile",
-                    "input_tokens": inp, "output_tokens": out,
-                    "cost_estimate": _estimate_cost("llama-3.3-70b-versatile", inp, out)}
-        except Exception as e:
-            print(f"GROQ FAILED ({type(e).__name__}), trying OpenAI fallback: {e}")
+    if not _openrouter_client:
+        raise RuntimeError("No AI provider available — set OPENROUTER_API_KEY in .env")
 
-    if _openai_client:
+    if model_override and _openrouter_client:
         try:
-            text, inp, out = _call_openai(prompt)
-            _log_usage(client_id, "gpt-4o-mini", inp, out, task_type)
-            print(f"FALLBACK: OpenAI gpt-4o-mini used for task={task_type}")
-            return {"text": text, "model_used": "gpt-4o-mini",
+            text, inp, out = _call_openrouter(prompt, model_override)
+            _log_usage(client_id, model_override, inp, out, task_type)
+            return {"text": text, "model_used": model_override,
                     "input_tokens": inp, "output_tokens": out,
-                    "cost_estimate": _estimate_cost("gpt-4o-mini", inp, out)}
+                    "cost_estimate": _estimate_cost(model_override, inp, out)}
         except Exception as e:
-            print(f"OPENAI FALLBACK ALSO FAILED: {e}")
-            raise
+            print(f"MODEL OVERRIDE FAILED ({model_override}), falling through: {e}")
+
+    try:
+        text, inp, out = _call_openrouter(prompt, PRIMARY_MODEL)
+        _log_usage(client_id, PRIMARY_MODEL, inp, out, task_type)
+        return {"text": text, "model_used": PRIMARY_MODEL,
+                "input_tokens": inp, "output_tokens": out,
+                "cost_estimate": _estimate_cost(PRIMARY_MODEL, inp, out)}
+    except Exception as e:
+        print(f"PRIMARY MODEL FAILED ({type(e).__name__}), trying fallback: {e}")
+
+    try:
+        text, inp, out = _call_openrouter(prompt, FALLBACK_MODEL)
+        _log_usage(client_id, FALLBACK_MODEL, inp, out, task_type)
+        print(f"FALLBACK: {FALLBACK_MODEL} used for task={task_type}")
+        return {"text": text, "model_used": FALLBACK_MODEL,
+                "input_tokens": inp, "output_tokens": out,
+                "cost_estimate": _estimate_cost(FALLBACK_MODEL, inp, out)}
+    except Exception as e:
+        print(f"FALLBACK ALSO FAILED: {e}")
+        raise
 
     raise RuntimeError("No AI provider available")
-
 
 # ── Public interfaces (called by routes + agent_service) ──────────────────────
 def gemini(prompt: str, client_id: str = None) -> str:
@@ -147,7 +150,13 @@ def _check_forbidden(text: str, forbidden: list) -> bool:
 
 
 def generate_message(lead, camp, channel: str, follow_up: int = 0,
-                     client_id: str = None, language: str = "en") -> dict:
+                     client_id: str = None, language: str = "en",
+                     reflection_context: str = "",
+                     memory_context: str = ""),
+                     rag_context: str = "",
+                     ab_test_variant: str = None,
+                     ab_test_id: str = None) -> dict:
+
     import logging
     logger = logging.getLogger("groq_service")
     from .scraper_service import message_template
@@ -176,9 +185,26 @@ def generate_message(lead, camp, channel: str, follow_up: int = 0,
                 except Exception:
                     pass
 
-
         lang = "hi" if language in ("hi", "hinglish") else "en"
-        few_shots = get_few_shot_block(template, channel, lang)
+                # RAG: try to retrieve dynamic few-shots; fall back to static if empty
+        rag_few_shots = ""
+        try:
+            enrichment_preview = json.loads(lead.enrichment_json or "{}")
+            lead_profile_dict = {
+                "name": getattr(lead, "name", ""),
+                "company": getattr(lead, "company", ""),
+                "role": getattr(lead, "role", ""),
+                "industry": getattr(lead, "industry", "") or industry,
+                "pain_points": enrichment_preview.get("pain_points", []),
+            }
+            from .rag_service import build_rag_few_shots
+            rag_few_shots = build_rag_few_shots(
+                client_id or "", lead_profile_dict, channel, lang, industry
+            )
+        except Exception:
+            pass
+        few_shots = rag_few_shots if rag_few_shots else get_few_shot_block(template, channel, lang)
+
 
         # Follow-up context
         max_words = template.max_message_length.get(channel, 200)
@@ -203,10 +229,48 @@ def generate_message(lead, camp, channel: str, follow_up: int = 0,
         except Exception:
             pass
             
-        prompt = f"""{template.system_prompt}
+        # Check for OPRO-optimized prompt
+        active_system_prompt = template.system_prompt
+        try:
+            from ..database import SessionLocal
+            from ..models import PromptVersionDB
+            _db = SessionLocal()
+            optimized = _db.query(PromptVersionDB).filter(
+                PromptVersionDB.client_id == client_id,
+                PromptVersionDB.template_name == template.industry,
+                PromptVersionDB.is_active == True,
+            ).order_by(PromptVersionDB.created_at.desc()).first()
+            _db.close()
+            if optimized:
+                active_system_prompt = optimized.prompt_text
+                logger.info(f"OPRO: using optimized prompt version={optimized.id} for client={client_id}")
+        except Exception as _e:
+            logger.warning(f"OPRO prompt lookup failed, using default: {_e}")
+        
+        # A/B test: if treatment variant, override system prompt
+        if ab_test_variant == "treatment" and ab_test_id:
+            try:
+                from ..models import ABTestDB
+                from ..database import SessionLocal
+                _adb = SessionLocal()
+                try:
+                    _atest = _adb.query(ABTestDB).filter(ABTestDB.id == ab_test_id).first()
+                    if _atest and _atest.treatment_prompt:
+                        active_system_prompt = _atest.treatment_prompt
+                finally:
+                    _adb.close()
+            except Exception:
+                pass
+        #reflection_block = f"\n{reflection_context}" if reflection_context else ""
+
+        reflection_block = f"\n{reflection_context}" if reflection_context else ""
+        memory_block = f"\n{memory_context}" if memory_context else ""
+
+        prompt = f"""{active_system_prompt}
+
 
 {lang_instruction}
-{regional_notes}
+{regional_notes}{reflection_block}{memory_block}
 Channel: {channel}. Max {max_words} words.
 {fu_instruction}
 
@@ -233,6 +297,17 @@ Write ONLY the message. No explanation. No notes."""
         result = generate_ai(prompt, task_type="message", client_id=client_id)
         message_text = result["text"]
 
+        # A/B test: record message sent in background
+        if ab_test_id and ab_test_variant:
+            try:
+                from .ab_testing_service import record_message_sent
+                from ..database import SessionLocal
+                _db2 = SessionLocal()
+                record_message_sent(ab_test_id, ab_test_variant, _db2)
+                _db2.close()
+            except Exception:
+                pass
+
         # Check forbidden phrases — regenerate once if violated
         if _check_forbidden(message_text, template.forbidden_phrases):
             logger.warning({"event": "forbidden_phrase_detected", "lead_id": getattr(lead, "id", ""), "retrying": True})
@@ -241,6 +316,15 @@ Write ONLY the message. No explanation. No notes."""
 
         result["message"] = message_text
         result.pop("text", None)
+
+        # Record A/B message sent in background
+        if ab_test_id and ab_test_variant:
+            try:
+                from .ab_testing_service import record_message_sent
+                record_message_sent(ab_test_id, ab_test_variant, None)
+            except Exception:
+                pass
+
         result["template_used"] = template.industry
         result["language"] = lang
         return result

@@ -5,281 +5,465 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LeadGen AI — Agentic Sales Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --surface2: #18181f;
-    --border: #2a2a38;
-    --accent: #7c5cfc;
-    --accent2: #00e5a0;
-    --accent3: #ff6b6b;
-    --amber: #f5a623;
-    --text: #e8e8f0;
-    --muted: #6b6b80;
-    --font-display: 'Syne', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
-    --font-mono: 'DM Mono', monospace;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface2: #f1f5f9;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --accent-navy: #1e3a5f;
+    --accent2: #059669;
+    --accent3: #dc2626;
+    --amber: #d97706;
+    --text: #0f172a;
+    --muted: #64748b;
+    --font-display: 'Inter', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'Inter', monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 14px; min-height: 100vh; }
 
   /* ── Auth Screen ── */
   #auth-screen {
-    min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    background: radial-gradient(ellipse at 50% 0%, rgba(124,92,252,.12) 0%, transparent 60%);
+    min-height: 100vh; display: flex; align-items: stretch;
+  }
+  .auth-left {
+    width: 420px; flex-shrink: 0; background: var(--accent-navy);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 56px 48px; color: #fff;
+  }
+  .auth-left-logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; color: #fff; }
+  .auth-left-logo span { color: #60a5fa; }
+  .auth-left-tag { font-size: 13px; color: rgba(255,255,255,.55); margin-bottom: 48px; font-weight: 400; }
+  .auth-left-props { display: flex; flex-direction: column; gap: 20px; }
+  .auth-prop { display: flex; align-items: flex-start; gap: 14px; }
+  .auth-prop-icon { width: 36px; height: 36px; background: rgba(255,255,255,.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .auth-prop-icon svg { width: 18px; height: 18px; color: #60a5fa; }
+  .auth-prop-text strong { display: block; font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+  .auth-prop-text span { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.5; }
+  .auth-right {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    background: #fff; padding: 40px;
   }
   .auth-box {
-    width: 420px; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 40px; position: relative;
+    width: 100%; max-width: 380px;
   }
-  .auth-logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .auth-logo { font-size: 20px; font-weight: 700; margin-bottom: 4px; color: var(--text); letter-spacing: -0.3px; }
   .auth-logo span { color: var(--accent); }
-  .auth-sub { font-size: 12px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 32px; letter-spacing: .08em; }
-  .auth-tabs { display: flex; gap: 0; margin-bottom: 28px; background: var(--bg); border-radius: 8px; padding: 3px; }
+  .auth-sub { font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+  .auth-tabs { display: flex; gap: 0; margin-bottom: 24px; background: var(--bg); border-radius: 8px; padding: 3px; }
   .auth-tab {
     flex: 1; padding: 8px; text-align: center; border-radius: 6px; cursor: pointer;
     font-size: 13px; font-weight: 500; color: var(--muted); transition: all .15s;
   }
-  .auth-tab.active { background: var(--surface2); color: var(--text); }
+  .auth-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
   .auth-form { display: none; }
   .auth-form.active { display: block; }
-  .auth-field { margin-bottom: 16px; }
-  .auth-field label { display: block; font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 6px; }
+  .auth-field { margin-bottom: 14px; }
+  .auth-field label { display: block; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 5px; }
   .auth-field input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); padding: 11px 14px; border-radius: 8px; font-size: 13px;
-    font-family: var(--font-body); outline: none; transition: border-color .15s;
+    width: 100%; background: #fff; border: 1px solid var(--border);
+    color: var(--text); padding: 10px 13px; border-radius: 8px; font-size: 13px;
+    font-family: var(--font-body); outline: none; transition: border-color .15s, box-shadow .15s;
   }
-  .auth-field input:focus { border-color: var(--accent); }
+  .auth-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
   .auth-btn {
-    width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none;
+    width: 100%; padding: 11px; background: var(--accent2); color: #fff; border: none;
     border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
     font-family: var(--font-body); transition: all .15s; margin-top: 4px;
   }
-  .auth-btn:hover { background: #6a4be8; transform: translateY(-1px); }
-  .auth-error { color: var(--accent3); font-size: 12px; margin-top: 12px; min-height: 18px; }
+  .auth-btn:hover { background: #047857; }
+  .auth-error { color: var(--accent3); font-size: 12px; margin-top: 10px; min-height: 18px; }
 
   /* ── App Shell ── */
   #app-shell { display: none; }
   .shell { display: flex; height: 100vh; overflow: hidden; }
-  .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar {
+    width: 220px; background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
   .main { flex: 1; overflow-y: auto; background: var(--bg); }
 
   /* Sidebar */
-  .logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
-  .logo-mark { font-family: var(--font-display); font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+  .logo-mark { font-family: var(--font-display); font-size: 17px; font-weight: 700; letter-spacing: -0.4px; color: var(--text); }
   .logo-mark span { color: var(--accent); }
-  .logo-sub { font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-top: 2px; letter-spacing: .08em; }
-  .nav { padding: 16px 12px; flex: 1; }
-  .nav-label { font-size: 9px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; font-family: var(--font-mono); padding: 0 8px; margin-bottom: 8px; margin-top: 16px; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 8px; cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 500; transition: all .15s; margin-bottom: 2px; }
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { background: rgba(124,92,252,.15); color: var(--accent); }
-  .nav-icon { width: 16px; text-align: center; font-size: 14px; }
-  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
-  .user-info { font-size: 12px; color: var(--muted); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-info strong { color: var(--text); display: block; font-size: 13px; }
+  .logo-sub { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: .04em; font-weight: 400; }
+  .nav { padding: 12px 10px; flex: 1; }
+  .nav-label {
+    font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase;
+    font-weight: 600; padding: 0 8px; margin-bottom: 4px; margin-top: 16px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 9px; padding: 8px 8px; border-radius: 6px;
+    cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 500;
+    transition: all .15s; margin-bottom: 1px; position: relative;
+  }
+  .nav-item:hover { background: var(--bg); color: var(--text); }
+  .nav-item.active {
+    background: #eff6ff; color: var(--accent);
+    border-left: 3px solid var(--accent); padding-left: 5px;
+  }
+  .nav-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-icon svg { width: 16px; height: 16px; }
+  .skeleton-loader {
+    background: #f1f5f9;
+    border-radius: 6px;
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+  }
+  .skeleton-line { height: 14px; margin-bottom: 8px; border-radius: 4px; }
+  .skeleton-block { height: 80px; border-radius: 8px; margin-bottom: 12px; }
+  .sidebar-footer { padding: 14px 16px; border-top: 1px solid var(--border); }
+  .user-info { font-size: 12px; color: var(--muted); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-info strong { color: var(--text); display: block; font-size: 13px; font-weight: 600; }
   .btn-logout {
-    width: 100%; padding: 8px 12px; background: transparent; color: var(--muted);
-    border: 1px solid var(--border); border-radius: 8px; font-size: 12px;
+    width: 100%; padding: 7px 10px; background: transparent; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 6px; font-size: 12px;
     cursor: pointer; font-family: var(--font-body); transition: all .15s; text-align: left;
+    display: flex; align-items: center; gap: 6px;
   }
   .btn-logout:hover { border-color: var(--accent3); color: var(--accent3); }
 
   /* Header */
-  .page-header { padding: 28px 32px 0; display: flex; align-items: center; justify-content: space-between; }
-  .page-title { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
-  .page-title .accent { color: var(--accent2); }
-  .page-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
-  .header-actions { display: flex; gap: 10px; }
-  .btn { padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all .15s; font-family: var(--font-body); }
+  .page-header { padding: 24px 32px 0; display: flex; align-items: center; justify-content: space-between; }
+  .page-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.4px; color: var(--text); }
+  .page-title .accent { color: var(--accent); }
+  .page-sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .header-actions { display: flex; gap: 8px; }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none; transition: all .15s; font-family: var(--font-body);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
   .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: #6a4be8; transform: translateY(-1px); }
+  .btn-primary:hover { background: #1d4ed8; }
   .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-success { background: rgba(0,229,160,.15); color: var(--accent2); border: 1px solid rgba(0,229,160,.3); }
-  .btn-danger { background: rgba(255,107,107,.12); color: var(--accent3); border: 1px solid rgba(255,107,107,.25); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
+  .btn-success { background: var(--accent2); color: #fff; border: none; }
+  .btn-success:hover { background: #047857; }
+  .btn-danger { background: #fff; color: var(--accent3); border: 1px solid #fecaca; }
+  .btn-danger:hover { background: #fef2f2; }
   .btn-sm { padding: 6px 12px; font-size: 12px; }
 
   /* Tabs */
   .tabs { display: flex; gap: 2px; padding: 20px 32px 0; }
-  .tab { padding: 8px 16px; border-radius: 8px 8px 0 0; font-size: 13px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s; }
-  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .tab {
+    padding: 8px 16px; border-radius: 0; font-size: 13px; cursor: pointer;
+    color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s;
+    font-weight: 500;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
   .tab:hover { color: var(--text); }
 
   /* Content */
-  .content { padding: 24px 32px 40px; }
+  .content { padding: 20px 32px 40px; }
   .view { display: none; }
   .view.active { display: block; }
 
   /* Stat cards */
-  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; }
-  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 20px; position: relative; overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
   .stat-card.purple::before { background: var(--accent); }
   .stat-card.green::before { background: var(--accent2); }
   .stat-card.red::before { background: var(--accent3); }
   .stat-card.amber::before { background: var(--amber); }
-  .stat-label { font-size: 11px; color: var(--muted); font-family: var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
-  .stat-value { font-family: var(--font-display); font-size: 32px; font-weight: 800; margin: 6px 0 2px; }
+  .stat-label { font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+  .stat-value { font-family: var(--font-display); font-size: 30px; font-weight: 700; margin: 6px 0 2px; color: var(--text); letter-spacing: -1px; }
   .stat-delta { font-size: 11px; color: var(--muted); }
 
   /* Table */
-  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .table-toolbar { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
-  .table-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+  .table-wrap {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .table-toolbar {
+    padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .table-title { font-weight: 600; font-size: 14px; color: var(--text); }
   table { width: 100%; border-collapse: collapse; }
-  th { padding: 11px 16px; text-align: left; font-size: 11px; color: var(--muted); font-family: var(--font-mono); letter-spacing: .08em; text-transform: uppercase; border-bottom: 1px solid var(--border); font-weight: 400; }
-  td { padding: 13px 16px; border-bottom: 1px solid rgba(42,42,56,.5); font-size: 13px; vertical-align: middle; }
+  th {
+    padding: 11px 16px; text-align: left; font-size: 11px; color: var(--muted);
+    letter-spacing: .07em; text-transform: uppercase; background: var(--surface2);
+    border-bottom: 1px solid var(--border); font-weight: 600;
+  }
+  td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; color: var(--text); }
   tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(255,255,255,.02); }
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
-  .empty-icon { font-size: 36px; margin-bottom: 12px; }
-  .empty-text { font-size: 14px; }
+  tr:hover td { background: #eff6ff; border-left: 3px solid var(--accent); }
+  tr:hover td:not(:first-child) { border-left: none; }
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty-icon { font-size: 28px; margin-bottom: 10px; opacity: .5; }
+  .empty-text { font-size: 13px; }
 
   /* Status badges */
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-family: var(--font-mono); font-weight: 500; }
-  .badge-new { background: rgba(107,107,128,.2); color: var(--muted); }
-  .badge-enriched { background: rgba(124,92,252,.2); color: var(--accent); }
-  .badge-contacted { background: rgba(0,229,160,.15); color: var(--accent2); }
-  .badge-skipped { background: rgba(255,107,107,.12); color: var(--accent3); }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-new { background: var(--surface2); color: var(--muted); }
+  .badge-enriched { background: #eff6ff; color: var(--accent); }
+  .badge-contacted { background: #d1fae5; color: #065f46; }
+  .badge-skipped { background: #fef2f2; color: var(--accent3); }
   .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
   /* Score bar */
   .score-bar { display: flex; align-items: center; gap: 8px; }
   .score-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; max-width: 80px; }
   .score-fill { height: 100%; border-radius: 2px; }
-  .score-num { font-size: 12px; font-family: var(--font-mono); min-width: 24px; }
+  .score-num { font-size: 12px; min-width: 24px; color: var(--text); font-weight: 500; }
 
   /* Forms */
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
   .form-group.full { grid-column: 1 / -1; }
-  label { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+  label { font-size: 12px; color: var(--muted); font-weight: 500; }
   input, select, textarea {
-    background: var(--bg); border: 1px solid var(--border); color: var(--text);
-    padding: 10px 12px; border-radius: 8px; font-size: 13px; font-family: var(--font-body);
-    transition: border-color .15s; outline: none; width: 100%;
+    background: #fff; border: 1px solid var(--border); color: var(--text);
+    padding: 9px 11px; border-radius: 8px; font-size: 13px; font-family: var(--font-body);
+    transition: border-color .15s, box-shadow .15s; outline: none; width: 100%;
   }
-  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  }
   textarea { resize: vertical; min-height: 80px; }
-  select option { background: var(--surface); }
+  select option { background: #fff; color: var(--text); }
 
   /* Panel */
-  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
-  .panel-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-  .panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .panel-title { font-weight: 600; font-size: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--text); }
+  .panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
   /* Message preview */
-  .message-preview { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-size: 13px; line-height: 1.7; color: var(--text); white-space: pre-wrap; font-family: var(--font-mono); min-height: 120px; }
+  .message-preview {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; font-size: 13px; line-height: 1.7; color: var(--text);
+    white-space: pre-wrap; font-family: var(--font-mono); min-height: 120px;
+  }
 
-  /* Notification toast */
-  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: 13px; z-index: 1000; transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 320px; }
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; background: var(--surface);
+    border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    border-radius: 8px; padding: 13px 18px; font-size: 13px; z-index: 1000;
+    transform: translateY(80px); opacity: 0; transition: all .3s;
+    max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,.1); color: var(--text);
+  }
   #toast.show { transform: translateY(0); opacity: 1; }
-  #toast.success { border-color: rgba(0,229,160,.4); color: var(--accent2); }
-  #toast.error { border-color: rgba(255,107,107,.4); color: var(--accent3); }
+  #toast.success { border-left-color: var(--accent2); }
+  #toast.error { border-left-color: var(--accent3); }
 
   /* Upload zone */
-  .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 32px; text-align: center; cursor: pointer; transition: all .2s; color: var(--muted); }
-  .upload-zone:hover { border-color: var(--accent); color: var(--accent); }
+  .upload-zone {
+    border: 2px dashed var(--border); border-radius: 8px; padding: 32px;
+    text-align: center; cursor: pointer; transition: all .2s; color: var(--muted);
+    background: var(--bg);
+  }
+  .upload-zone:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
   .upload-zone input { display: none; }
 
   /* Log items */
-  .log-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
-  .log-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
-  .log-channel { font-size: 10px; font-family: var(--font-mono); padding: 2px 8px; border-radius: 4px; }
-  .log-email { background: rgba(124,92,252,.15); color: var(--accent); }
-  .log-whatsapp { background: rgba(0,229,160,.12); color: var(--accent2); }
-  .log-time { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-left: auto; }
+  .log-item {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .log-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .log-channel { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: .04em; text-transform: uppercase; }
+  .log-email { background: #eff6ff; color: var(--accent); }
+  .log-whatsapp { background: #d1fae5; color: #065f46; }
+  .log-time { font-size: 11px; color: var(--muted); margin-left: auto; }
   .log-body { font-size: 12px; color: var(--muted); line-height: 1.6; white-space: pre-wrap; max-height: 120px; overflow-y: auto; }
 
-    /* Approval queue cards */
-  .aq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 14px; }
-  .aq-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-  .aq-lead-name { font-weight: 600; font-size: 14px; }
+  /* Approval queue cards */
+  .aq-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .aq-card[data-channel="email"] { border-left: 4px solid var(--accent); }
+  .aq-card[data-channel="whatsapp"] { border-left: 4px solid var(--accent2); }
+  .aq-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .aq-lead-name { font-weight: 600; font-size: 14px; color: var(--text); }
   .aq-company { color: var(--muted); font-size: 13px; }
-  .aq-score { font-family: var(--font-mono); font-size: 12px; background: rgba(124,92,252,.15); color: var(--accent); padding: 3px 10px; border-radius: 20px; }
-  .aq-quality { font-family: var(--font-mono); font-size: 11px; padding: 3px 10px; border-radius: 20px; }
-  .aq-quality.good { background: rgba(0,229,160,.12); color: var(--accent2); }
-  .aq-quality.warn { background: rgba(245,166,35,.12); color: var(--amber); }
-  .aq-quality.fail { background: rgba(255,107,107,.12); color: var(--accent3); }
-  .aq-msg { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-size: 12px; line-height: 1.7; color: var(--text); white-space: pre-wrap; font-family: var(--font-mono); max-height: 160px; overflow-y: auto; margin-bottom: 12px; }
-  .aq-issues { font-size: 11px; color: var(--amber); margin-bottom: 10px; font-family: var(--font-mono); }
+  .aq-score { font-size: 12px; font-weight: 600; background: #eff6ff; color: var(--accent); padding: 3px 10px; border-radius: 20px; }
+  .aq-quality { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .aq-quality.good { background: #d1fae5; color: #065f46; }
+  .aq-quality.warn { background: #fef3c7; color: #92400e; }
+  .aq-quality.fail { background: #fef2f2; color: var(--accent3); }
+  .aq-msg {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px; font-size: 12px; line-height: 1.7; color: var(--text);
+    white-space: pre-wrap; max-height: 160px; overflow-y: auto; margin-bottom: 12px;
+  }
+  .aq-issues { font-size: 11px; color: var(--amber); margin-bottom: 10px; font-weight: 500; }
   .aq-actions { display: flex; gap: 8px; }
-  .aq-time { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-left: auto; }
+  .aq-time { font-size: 11px; color: var(--muted); margin-left: auto; }
 
   /* Loader */
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.2); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(37,99,235,.2); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Responsive tweaks */
+  /* Analytics */
+  .analytics-tabs { display: flex; gap: 4px; padding: 16px 32px 0; border-bottom: 1px solid var(--border); }
+  .analytics-tab { padding: 8px 16px; font-size: 13px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s; font-weight: 500; }
+  .analytics-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .analytics-pane { display: none; }
+  .analytics-pane.active { display: block; }
+  .funnel-row { display: flex; gap: 0; margin-bottom: 20px; }
+  .funnel-stage {
+    flex: 1; background: var(--surface); border: 1px solid var(--border);
+    border-right: none; padding: 14px 10px; text-align: center;
+  }
+  .funnel-stage:last-child { border-right: 1px solid var(--border); border-radius: 0 8px 8px 0; }
+  .funnel-stage:first-child { border-radius: 8px 0 0 8px; }
+  .funnel-stage .f-count { font-size: 26px; font-weight: 700; color: var(--accent); letter-spacing: -1px; }
+  .funnel-stage .f-label { font-size: 10px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; }
+  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .metric-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+  .metric-box .m-val { font-size: 22px; font-weight: 700; margin: 4px 0 2px; color: var(--text); letter-spacing: -0.5px; }
+  .metric-box .m-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 600; }
+  .metric-box .m-sub { font-size: 11px; color: var(--accent2); margin-top: 2px; font-weight: 500; }
+  .share-card { background: var(--accent-navy); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 28px; }
+  .kanban-board { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; }
+  .kanban-col { min-width: 175px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; flex-shrink: 0; }
+  .kanban-col-title { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+  .kanban-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 9px; margin-bottom: 7px; font-size: 12px; }
+  .kanban-card .kc-name { font-weight: 600; color: var(--text); }
+  .kanban-card .kc-co { color: var(--muted); font-size: 11px; }
+  .camp-perf-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+  .camp-perf-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), #60a5fa); }
+
+    /* ── Skeleton loader ── */
+  .skeleton-loader {
+    background: #f1f5f9;
+    border-radius: 6px;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  /* ── Intelligence Dashboard ── */
+  .intel-section { margin-bottom: 24px; }
+  .intel-section-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .intel-section-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .timeline-list { display: flex; flex-direction: column; gap: 0; }
+  .timeline-node { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .timeline-node:last-child { border-bottom: none; }
+  .timeline-badge { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .prompt-preview-text { font-size: 12px; color: var(--muted); font-family: var(--font-mono); background: var(--bg); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); margin-top: 6px; white-space: pre-wrap; word-break: break-all; display: none; }
+  .prompt-preview-text.expanded { display: block; }
+  .lesson-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .lesson-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 8px 0; }
+  .lesson-col { background: var(--bg); border-radius: 6px; padding: 8px 10px; }
+  .lesson-col-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+  .lesson-col-val { font-size: 12px; color: var(--text); line-height: 1.5; }
+  .pill { display: inline-flex; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin: 2px; }
+  .pill-avoid { background: #fef2f2; color: var(--accent3); }
+  .pill-neutral { background: var(--surface2); color: var(--muted); }
+  .conf-high { color: var(--accent2); font-weight: 600; }
+  .conf-mid { color: var(--amber); font-weight: 600; }
+  .conf-low { color: var(--accent3); font-weight: 600; }
+  .bar-chart-wrap { overflow-x: auto; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding: 0 4px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 40px; }
+  .bar-label-top { font-size: 10px; color: var(--muted); white-space: nowrap; }
+  .bar-body { width: 100%; border-radius: 4px 4px 0 0; transition: opacity .15s; cursor: default; position: relative; }
+  .bar-body:hover { opacity: 0.85; }
+  .bar-label-bot { font-size: 10px; color: var(--muted); text-align: center; white-space: nowrap; }
+  .replan-line { border-top: 2px dotted var(--accent); padding-top: 2px; font-size: 9px; color: var(--accent); text-align: center; margin-top: 2px; }
+  .memory-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* Responsive */
   @media (max-width: 900px) {
     .stats-row { grid-template-columns: repeat(2, 1fr); }
     .form-grid { grid-template-columns: 1fr; }
     .sidebar { width: 56px; }
-    .nav-item span, .logo-sub, .logo-mark, .sidebar-footer { display: none; }
+    .nav-item span:not(.nav-icon), .logo-sub, .logo-mark, .sidebar-footer { display: none; }
+    .auth-left { display: none; }
+    .metric-grid { grid-template-columns: repeat(2,1fr); }
+    .funnel-row { flex-wrap: wrap; }
+    .funnel-stage { min-width: 45%; border-right: 1px solid var(--border); margin-bottom: 8px; border-radius: 8px !important; }
   }
-
-  /* ── Analytics Dashboard ── */
-  .analytics-tabs { display: flex; gap: 4px; padding: 20px 32px 0; border-bottom: 1px solid var(--border); }
-  .analytics-tab { padding: 9px 18px; font-size: 13px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all .15s; }
-  .analytics-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .analytics-pane { display: none; }
-  .analytics-pane.active { display: block; }
-  .funnel-row { display: flex; gap: 0; margin-bottom: 24px; }
-  .funnel-stage { flex: 1; background: var(--surface); border: 1px solid var(--border); border-right: none; padding: 16px 12px; text-align: center; position: relative; }
-  .funnel-stage:last-child { border-right: 1px solid var(--border); border-radius: 0 10px 10px 0; }
-  .funnel-stage:first-child { border-radius: 10px 0 0 10px; }
-  .funnel-stage .f-count { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--accent); }
-  .funnel-stage .f-label { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-top: 4px; text-transform: uppercase; letter-spacing: .06em; }
-  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-  .metric-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-  .metric-box .m-val { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin: 4px 0 2px; }
-  .metric-box .m-label { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
-  .metric-box .m-sub { font-size: 11px; color: var(--accent2); margin-top: 2px; }
-  .share-card { background: linear-gradient(135deg, #0a0a0f, #111118); border: 1px solid var(--accent); border-radius: 16px; padding: 32px; }
-  .kanban-board { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; }
-  .kanban-col { min-width: 180px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; flex-shrink: 0; }
-  .kanban-col-title { font-size: 11px; font-family: var(--font-mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-  .kanban-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 12px; }
-  .kanban-card .kc-name { font-weight: 600; color: var(--text); }
-  .kanban-card .kc-co { color: var(--muted); font-size: 11px; }
-  .camp-perf-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 4px; overflow: hidden; }
-  .camp-perf-fill { height: 100%; border-radius: 3px; background: var(--accent); }
-  @media (max-width: 900px) { .metric-grid { grid-template-columns: repeat(2,1fr); } .funnel-row { flex-wrap: wrap; } .funnel-stage { min-width: 45%; border-right: 1px solid var(--border); margin-bottom: 8px; border-radius: 10px !important; } }
-
 </style>
+
 </head>
 <body>
 
 <!-- ── AUTH SCREEN ── -->
 <div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-logo">Lead<span>Gen</span> AI</div>
-    <div class="auth-sub">agentic sales platform</div>
-
-    <div class="auth-tabs">
-      <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
-      <div class="auth-tab" onclick="switchAuthTab('register')">Register</div>
+  <div class="auth-left">
+    <div class="auth-left-logo">Lead<span>Gen</span> AI</div>
+    <div class="auth-left-tag">Agentic B2B Sales Platform</div>
+    <div class="auth-left-props">
+      <div class="auth-prop">
+        <div class="auth-prop-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div class="auth-prop-text">
+          <strong>AI-Powered Lead Enrichment</strong>
+          <span>Score, qualify and enrich every lead automatically with AI analysis.</span>
+        </div>
+      </div>
+      <div class="auth-prop">
+        <div class="auth-prop-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </div>
+        <div class="auth-prop-text">
+          <strong>Personalized Outreach at Scale</strong>
+          <span>Send hyper-personalized email and WhatsApp messages to every lead.</span>
+        </div>
+      </div>
+      <div class="auth-prop">
+        <div class="auth-prop-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <div class="auth-prop-text">
+          <strong>Full Pipeline Analytics</strong>
+          <span>Track every stage from discovery to closed deal in one dashboard.</span>
+        </div>
+      </div>
     </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-box">
+      <div class="auth-logo">Lead<span>Gen</span> AI</div>
+      <div class="auth-sub">Sign in to your account</div>
 
-    <!-- Login form -->
-    <div id="auth-login" class="auth-form active">
-      <div class="auth-field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"></div>
-      <div class="auth-field"><label>Password</label><input id="login-password" type="password" placeholder="••••••••"></div>
-      <button class="auth-btn" onclick="doLogin()">Sign In</button>
-      <div class="auth-error" id="login-error"></div>
-    </div>
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="auth-tab" onclick="switchAuthTab('register')">Register</div>
+      </div>
 
-    <!-- Register form -->
-    <div id="auth-register" class="auth-form">
-      <div class="auth-field"><label>Name</label><input id="reg-name" placeholder="Your Name"></div>
-      <div class="auth-field"><label>Email</label><input id="reg-email" type="email" placeholder="you@example.com"></div>
-      <div class="auth-field"><label>Password</label><input id="reg-password" type="password" placeholder="••••••••"></div>
-      <button class="auth-btn" onclick="doRegister()">Create Account</button>
-      <div class="auth-error" id="reg-error"></div>
+      <!-- Login form -->
+      <div id="auth-login" class="auth-form active">
+        <div class="auth-field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"></div>
+        <div class="auth-field"><label>Password</label><input id="login-password" type="password" placeholder="••••••••"></div>
+        <button class="auth-btn" onclick="doLogin()">Sign In</button>
+        <div class="auth-error" id="login-error"></div>
+      </div>
+
+      <!-- Register form -->
+      <div id="auth-register" class="auth-form">
+        <div class="auth-field"><label>Name</label><input id="reg-name" placeholder="Your Name"></div>
+        <div class="auth-field"><label>Email</label><input id="reg-email" type="email" placeholder="you@example.com"></div>
+        <div class="auth-field"><label>Password</label><input id="reg-password" type="password" placeholder="••••••••"></div>
+        <button class="auth-btn" onclick="doRegister()">Create Account</button>
+        <div class="auth-error" id="reg-error"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -293,26 +477,59 @@
       <div class="logo-mark">Lead<span>Gen</span> AI</div>
       <div class="logo-sub">agentic sales platform</div>
     </div>
-    <nav class="nav">
+      <nav class="nav">
       <div class="nav-label">Core</div>
-      <div class="nav-item active" onclick="showView('dashboard', this)"><span class="nav-icon">◈</span><span>Dashboard</span></div>
-      <div class="nav-item" onclick="showView('leads', this)"><span class="nav-icon">◎</span><span>Leads</span></div>
-      <div class="nav-item" onclick="showView('campaigns', this)"><span class="nav-icon">◇</span><span>Campaigns</span></div>
+      <div class="nav-item active" onclick="showView('dashboard', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="showView('leads', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span>
+        <span>Leads</span>
+      </div>
+      <div class="nav-item" onclick="showView('campaigns', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg></span>
+        <span>Campaigns</span>
+      </div>
       <div class="nav-label">Outreach</div>
-      <div class="nav-item" onclick="showView('outreach', this)"><span class="nav-icon">⟢</span><span>Outreach</span></div>
-      <div class="nav-item" onclick="showView('log', this)"><span class="nav-icon">≡</span><span>Message Log</span></div>
+      <div class="nav-item" onclick="showView('outreach', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg></span>
+        <span>Outreach</span>
+      </div>
+      <div class="nav-item" onclick="showView('log', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg></span>
+        <span>Message Log</span>
+      </div>
       <div class="nav-label">Agent</div>
-      <div class="nav-item" onclick="showView('agent', this)"><span class="nav-icon">⚡</span><span>Auto Agent</span></div>
-      <div class="nav-item" onclick="showView('approve', this)"><span class="nav-icon">✓</span><span>Approve Queue</span></div>
-      <div class="nav-item" onclick="showView('analytics', this)"><span class="nav-icon">◈</span><span>Analytics</span></div>
-
+      <div class="nav-item" onclick="showView('agent', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
+        <span>Auto Agent</span>
+      </div>
+      <div class="nav-item" onclick="showView('approve', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+        <span>Approve Queue</span>
+      </div>
+      <div class="nav-item" onclick="showView('analytics', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></span>
+        <span>Analytics</span>
+      </div>
+      <div class="nav-item" onclick="showView('intelligence', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></span>
+        <span>AI Intelligence</span>
+      </div>
       <div class="nav-label">Tools</div>
-      <div class="nav-item" onclick="showView('import', this)"><span class="nav-icon">↑</span><span>Import Leads</span></div>
-      <div class="nav-item" onclick="showView('scrape', this)"><span class="nav-icon">⊕</span><span>Scrape Leads</span></div>
+      <div class="nav-item" onclick="showView('import', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></span>
+        <span>Import Leads</span>
+      </div>
+      <div class="nav-item" onclick="showView('scrape', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></span>
+        <span>Scrape Leads</span>
+      </div>
     </nav>
     <div class="sidebar-footer">
       <div class="user-info"><strong id="sidebar-username">—</strong><span id="sidebar-email"></span></div>
-      <button class="btn-logout" onclick="doLogout()">↩ Sign Out</button>
+        <button class="btn-logout" onclick="doLogout()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg> Sign Out</button>
     </div>
   </aside>
 
@@ -635,6 +852,17 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
         <!-- Config Panel -->
         <div class="panel" id="agent-config-panel">
           <div class="panel-title"><span class="dot" style="background:var(--accent)"></span> Configure Agent Run</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <span style="font-size:13px;color:var(--muted)">Agent Mode:</span>
+            <div style="display:flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+              <button id="mode-standard" onclick="setAgentMode('standard')" style="padding:6px 14px;font-size:12px;font-weight:600;background:var(--accent);color:#fff;border:none;cursor:pointer">Standard</button>
+              <button id="mode-multi" onclick="setAgentMode('multi')" style="padding:6px 14px;font-size:12px;font-weight:600;background:transparent;color:var(--muted);border:none;cursor:pointer">Multi-Agent</button>
+            </div>
+          </div>
+          <div id="multi-agent-banner" style="display:none;background:rgba(124,92,252,0.08);border:1px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--accent);margin-bottom:16px">
+            Multi-Agent mode runs 4 specialized AI agents in parallel — faster and more thorough than standard mode.
+          </div>
+
           <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Select a campaign and industry. The agent will automatically find leads, score them with AI, generate personalized messages, and wait for your approval before doing anything.</p>
           <div class="form-grid">
             <div class="form-group">
@@ -675,12 +903,80 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
           <button class="btn btn-primary" onclick="runAgent()" style="font-size:14px;padding:12px 24px">⚡ Run Agent</button>
         </div>
 
-        <!-- Status Panel -->
+        <!-- Status Panel (Standard) -->
         <div class="panel" id="agent-status-panel" style="display:none">
           <div class="panel-title"><span class="dot" style="background:var(--amber)"></span> Agent Running...</div>
           <div id="agent-status-msg" style="color:var(--muted);font-size:13px;margin-bottom:8px">Finding and enriching leads with AI...</div>
           <div style="height:4px;background:var(--border);border-radius:4px;overflow:hidden">
             <div id="agent-progress-bar" style="height:100%;width:30%;background:var(--accent);border-radius:4px;transition:width 1s"></div>
+          </div>
+        </div>
+
+        <!-- Pipeline Status Panel (Multi-Agent) -->
+        <div class="panel" id="agent-pipeline-panel" style="display:none">
+          <div class="panel-title"><span class="dot" style="background:var(--amber)" id="pipeline-dot"></span> Multi-Agent Pipeline Running...</div>
+          <style>
+            .pipeline-stage { display:flex;flex-direction:column;align-items:center;gap:6px;flex:1 }
+            .stage-box { width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;transition:border-color 0.3s }
+            .stage-box.running { border-color:var(--amber) }
+            .stage-box.complete { border-color:var(--accent2) }
+            .stage-box.error { border-color:var(--accent3) }
+            .stage-name { font-size:12px;font-weight:700;color:var(--text) }
+            .stage-status { font-size:11px;color:var(--muted);margin-top:2px }
+            .stage-count { font-size:16px;font-weight:700;color:var(--accent);margin-top:4px }
+            .stage-indicator { width:10px;height:10px;border-radius:50%;background:var(--border) }
+            .stage-indicator.running { background:var(--amber);animation:pulse 1s infinite }
+            .stage-indicator.complete { background:var(--accent2) }
+            .stage-indicator.error { background:var(--accent3) }
+            .pipeline-arrow { color:var(--muted);font-size:18px;align-self:center;padding:0 4px }
+            .queue-badge { font-size:10px;color:var(--muted);text-align:center;margin-top:2px }
+            @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+          </style>
+          <div style="display:flex;align-items:flex-start;gap:4px;margin-top:16px">
+            <div class="pipeline-stage">
+              <div class="stage-indicator" id="ps-dot-prospector"></div>
+              <div class="stage-box" id="ps-box-prospector">
+                <div class="stage-name">Prospector</div>
+                <div class="stage-status" id="ps-status-prospector">waiting</div>
+                <div class="stage-count" id="ps-count-prospector">—</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center">
+              <span class="pipeline-arrow">→</span>
+              <div class="queue-badge" id="qs-scorer">0</div>
+            </div>
+            <div class="pipeline-stage">
+              <div class="stage-indicator" id="ps-dot-scorer"></div>
+              <div class="stage-box" id="ps-box-scorer">
+                <div class="stage-name">Scorer</div>
+                <div class="stage-status" id="ps-status-scorer">waiting</div>
+                <div class="stage-count" id="ps-count-scorer">—</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center">
+              <span class="pipeline-arrow">→</span>
+              <div class="queue-badge" id="qs-writer">0</div>
+            </div>
+            <div class="pipeline-stage">
+              <div class="stage-indicator" id="ps-dot-writer"></div>
+              <div class="stage-box" id="ps-box-writer">
+                <div class="stage-name">Writer</div>
+                <div class="stage-status" id="ps-status-writer">waiting</div>
+                <div class="stage-count" id="ps-count-writer">—</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center">
+              <span class="pipeline-arrow">→</span>
+              <div class="queue-badge" id="qs-delivery">0</div>
+            </div>
+            <div class="pipeline-stage">
+              <div class="stage-indicator" id="ps-dot-delivery"></div>
+              <div class="stage-box" id="ps-box-delivery">
+                <div class="stage-name">Delivery</div>
+                <div class="stage-status" id="ps-status-delivery">waiting</div>
+                <div class="stage-count" id="ps-count-delivery">—</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -806,7 +1102,93 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
       </div>
     </div>
 
-    
+    <!-- ── AI INTELLIGENCE ── -->
+    <div id="view-intelligence" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-title">AI <span class="accent">Intelligence</span></div>
+          <div class="page-sub">How your AI is learning and improving over time</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost btn-sm" onclick="loadIntelligenceDashboard()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="content">
+
+        <!-- Section A: Hero Stats -->
+        <div id="intel-hero-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+          <div class="skeleton-loader skeleton-block"></div>
+          <div class="skeleton-loader skeleton-block"></div>
+          <div class="skeleton-loader skeleton-block"></div>
+          <div class="skeleton-loader skeleton-block"></div>
+        </div>
+
+        <!-- Section B: Performance Timeline Chart -->
+        <div class="panel" style="margin-bottom:24px">
+          <div class="panel-title"><span class="dot"></span> Reply Rate Over Time — AI Learning Curve</div>
+          <div id="perf-chart-container" style="min-height:180px;display:flex;align-items:flex-end;gap:8px;padding:16px 0 8px;position:relative">
+            <div class="skeleton-loader" style="width:100%;height:150px;border-radius:8px"></div>
+          </div>
+        </div>
+
+        <!-- Section C: Prompt Evolution Timeline -->
+        <div class="panel" style="margin-bottom:24px">
+          <div class="panel-title"><span class="dot"></span> How Your AI Prompts Have Evolved</div>
+          <div id="prompt-timeline-container" style="padding:8px 0">
+            <div class="skeleton-loader skeleton-block"></div>
+          </div>
+        </div>
+
+        <!-- Section D & E side-by-side -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+          <!-- Section D: Lessons -->
+          <div class="panel">
+            <div class="panel-title"><span class="dot"></span> What Your AI Has Learned</div>
+            <div id="lessons-container">
+              <div class="skeleton-loader skeleton-block"></div>
+            </div>
+            <button id="lessons-load-more" class="btn btn-ghost btn-sm" style="margin-top:8px;display:none" onclick="loadMoreLessons()">Load more</button>
+          </div>
+          <!-- Section E: ReAct Decisions -->
+          <div class="panel">
+            <div class="panel-title"><span class="dot"></span> Agent Reasoning Decisions</div>
+            <div id="react-decisions-container" style="overflow-x:auto">
+              <div class="skeleton-loader skeleton-block"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section F: Memory Stats -->
+        <div class="panel" style="margin-bottom:24px">
+          <div class="panel-title"><span class="dot"></span> Agent Memory Bank</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;padding-top:8px">
+            <div id="episodic-memory-panel">
+              <div class="skeleton-loader skeleton-block"></div>
+            </div>
+            <div id="semantic-memory-panel">
+              <div class="skeleton-loader skeleton-block"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section G: A/B Test Results -->
+        <div class="panel" style="margin-bottom:24px">
+          <div class="panel-title"><span class="dot" style="background:#7c3aed"></span> A/B Test Results</div>
+          <div id="ab-tests-container">
+            <div class="skeleton-loader skeleton-block"></div>
+          </div>
+        </div>
+
+        <!-- Section H: Message Quality Scores — AI Judge -->
+        <div class="panel" style="margin-bottom:24px">
+          <div class="panel-title"><span class="dot" style="background:#22c55e"></span> Message Quality Scores — AI Judge</div>
+          <div id="judge-analytics-container">
+            <div class="skeleton-loader skeleton-block"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── ANALYTICS DASHBOARD ── -->
     <div id="view-analytics" class="view">
       <div class="page-header">
@@ -1069,6 +1451,356 @@ function showView(name, el) {
   if (name === 'outreach')  { loadLeadSelects(); loadCampaignSelects(); }
   if (name === 'log')       loadLog();
   if (name === 'agent')     loadAgentCampaigns();
+  if (name === 'intelligence') loadIntelligenceDashboard();
+}
+
+
+// ── Intelligence Dashboard ────────────────────────────────────────────────
+let _allLessons = [];
+let _lessonsOffset = 0;
+
+async function loadIntelligenceDashboard() {
+  const clientId = currentUser?.client_id;
+  if (!clientId) {
+    document.getElementById('intel-stats-row').innerHTML = '<div style="color:var(--muted);font-size:13px;grid-column:1/-1">No client account linked.</div>';
+    return;
+  }
+  try {
+    const [summary, promptHistory, lessons, reactDecisions, timeline, judgeAnalytics] = await Promise.allSettled([
+      api(`/agent/intelligence/summary/${clientId}`),
+      api(`/agent/intelligence/prompt-history/${clientId}`),
+      api(`/agent/intelligence/lessons/${clientId}`),
+      api(`/agent/intelligence/react-decisions/${clientId}`),
+      api(`/analytics/ai-performance-timeline/${clientId}`),
+      api(`/analytics/judge-performance/${clientId}`),
+    ]);
+
+    // Section A
+    try {
+      const s = summary.value || {};
+      document.getElementById('intel-stats-row').innerHTML = `
+        <div class="stat-card purple">
+          <div class="stat-label">Prompt Versions</div>
+          <div class="stat-value">${s.opro?.active_prompt_version || 0}</div>
+          <div class="stat-delta">AI has rewritten its own prompts ${s.opro?.total_optimizations || 0} times</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Lessons Learned</div>
+          <div class="stat-value">${s.reflexion?.lessons_learned || 0}</div>
+          <div class="stat-delta">from ${s.reflexion?.total_reflections || 0} failed campaigns</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-label">Messages in Memory</div>
+          <div class="stat-value">${s.memory?.episodic_records || 0}</div>
+          <div class="stat-delta">teaching the AI what works</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Auto Replans</div>
+          <div class="stat-value">${s.autonomous_loop?.total_replans || 0}</div>
+          <div class="stat-delta">campaigns self-corrected</div>
+        </div>`;
+    } catch(e) { console.error('intel stats error', e); }
+
+    // Section B
+    try { renderPerformanceChart(Array.isArray(timeline.value) ? timeline.value : []); }
+    catch(e) { document.getElementById('perf-chart-container').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px">Start sending messages to see AI learning progress</div>'; }
+
+    // Section C
+    try { renderPromptTimeline((promptHistory.value?.versions) || []); }
+    catch(e) { document.getElementById('prompt-timeline-container').innerHTML = '<div style="color:var(--muted);font-size:13px">AI will optimize prompts after 15+ messages sent</div>'; }
+
+    // Section D
+    try {
+      _allLessons = lessons.value?.lessons || [];
+      _lessonsOffset = 0;
+      renderLessonsCards(_allLessons.slice(0, 5));
+      document.getElementById('lessons-load-more').style.display = _allLessons.length > 5 ? 'inline-flex' : 'none';
+    } catch(e) { document.getElementById('lessons-container').innerHTML = '<div style="color:var(--muted);font-size:13px">AI learns from failed campaigns automatically. Lessons appear after first campaign runs.</div>'; }
+
+    // Section E
+    try { renderReactTable(reactDecisions.value?.decisions || []); }
+    catch(e) { document.getElementById('react-decisions-container').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px">ReAct reasoning traces appear after agent runs</div>'; }
+
+    // Section F
+    try {
+      const s = summary.value || {};
+      const mem = s.memory || {};
+      const sem = s;
+      document.getElementById('memory-panels-container').innerHTML = `
+        <div class="panel" style="margin:0">
+          <div class="panel-title" style="margin-bottom:12px"><span class="dot" style="background:var(--accent)"></span> Episodic Memory</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px">What the agent remembers about each lead</div>
+          <div style="font-size:26px;font-weight:700;color:var(--text)">${mem.episodic_records || 0}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">interaction records</div>
+          ${mem.best_channel ? `<div style="margin-top:10px"><span class="badge badge-contacted">${mem.best_channel}</span> <span style="font-size:12px;color:var(--muted)">best channel</span></div>` : ''}
+        </div>
+        <div class="panel" style="margin:0">
+          <div class="panel-title" style="margin-bottom:12px"><span class="dot" style="background:var(--accent2)"></span> Semantic Memory</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Patterns the agent has identified</div>
+          <div style="font-size:26px;font-weight:700;color:var(--text)">${mem.semantic_patterns || 0}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">patterns learned</div>
+          ${mem.best_send_day ? `<div style="margin-top:6px;font-size:12px">Best send day: <strong>${mem.best_send_day}</strong></div>` : ''}
+        </div>`;
+    } catch(e) { console.error('memory panel error', e); }
+    // Section G
+    try { loadABTests(); } catch(e) { console.error('ab tests load error', e); }
+    // Section H
+    try {
+      const ja = judgeAnalytics.value || {};
+      const sc = ja.avg_scores_by_dimension || {};
+      const scoreColor = v => v >= 7 ? '#22c55e' : v >= 5 ? '#f59e0b' : '#ef4444';
+      const dimBars = Object.entries(sc).map(([k,v]) => `
+        <div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+            <span style="color:var(--muted);text-transform:capitalize">${k.replace(/_/g,' ')}</span>
+            <span style="color:${scoreColor(v)};font-weight:600">${v}/10</span>
+          </div>
+          <div style="background:var(--border);border-radius:3px;height:6px">
+            <div style="width:${v*10}%;background:${scoreColor(v)};height:6px;border-radius:3px"></div>
+          </div>
+        </div>`).join('');
+      const weeklyTrend = (ja.improvement_over_time || []).map((w,i,arr) => {
+        const maxScore = Math.max(...arr.map(x=>x.avg_score), 10);
+        const pct = Math.round(w.avg_score / maxScore * 100);
+        return `<div style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;min-width:40px">
+          <div style="height:${pct}px;min-height:4px;width:28px;background:var(--accent);border-radius:3px 3px 0 0"></div>
+          <div style="font-size:10px;color:var(--muted)">W${w.week}</div>
+          <div style="font-size:10px;color:var(--text)">${w.avg_score}</div>
+        </div>`;
+      }).join('');
+      document.getElementById('judge-analytics-container').innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+          <div class="stat-card green"><div class="stat-label">Avg Judge Score</div><div class="stat-value">${(ja.avg_weighted_score||0).toFixed(1)}</div><div class="stat-delta">out of 10</div></div>
+          <div class="stat-card amber"><div class="stat-label">Pass Rate</div><div class="stat-value">${Math.round((ja.pass_rate||0)*100)}%</div><div class="stat-delta">messages approved</div></div>
+          <div class="stat-card purple"><div class="stat-label">Auto-Rewrite Rate</div><div class="stat-value">${Math.round((ja.rewrite_rate||0)*100)}%</div><div class="stat-delta">judge improved</div></div>
+          <div class="stat-card"><div class="stat-label">Most Common Weakness</div><div class="stat-value" style="font-size:14px">${ja.most_common_weakness||'—'}</div><div class="stat-delta">${ja.total_evaluated||0} evaluated</div></div>
+        </div>
+        <div style="margin-bottom:20px">${dimBars || '<div style="color:var(--muted);font-size:13px">No dimension data yet</div>'}</div>
+        ${weeklyTrend ? `<div style="border-top:1px solid var(--border);padding-top:16px"><div style="font-size:12px;color:var(--muted);margin-bottom:10px">Weekly avg score trend</div><div style="display:flex;align-items:flex-end;gap:6px;height:80px">${weeklyTrend}</div></div>` : ''}`;
+    } catch(e) { document.getElementById('judge-analytics-container').innerHTML = '<div style="color:var(--muted);font-size:13px">Judge analytics will appear after first agent run</div>'; }
+  } catch(e) { console.error('loadIntelligenceDashboard error', e); }
+}
+
+function loadMoreLessons() {
+  _lessonsOffset += 5;
+  renderLessonsCards(_allLessons.slice(0, _lessonsOffset + 5));
+  document.getElementById('lessons-load-more').style.display = _allLessons.length > _lessonsOffset + 5 ? 'inline-flex' : 'none';
+}
+
+function renderPerformanceChart(weeklyData) {
+  const container = document.getElementById('perf-chart-container');
+  const last8 = weeklyData.slice(-8);
+  if (!last8.length) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px">Start sending messages to see AI learning progress</div>';
+    return;
+  }
+  const maxRate = Math.max(...last8.map(w => w.reply_rate), 10);
+  const bars = last8.map(w => {
+    const heightPct = maxRate > 0 ? Math.max(4, (w.reply_rate / maxRate) * 100) : 4;
+    const barColor = w.reply_rate >= 5 ? 'var(--accent2)' : w.reply_rate >= 2 ? 'var(--amber)' : 'var(--accent3)';
+    return `<div class="bar-col">
+      <div class="bar-label-top">${w.prompt_version ? `v${w.prompt_version}` : ''}</div>
+      <div style="flex:1;display:flex;align-items:flex-end;width:100%">
+        <div class="bar-body" style="height:${heightPct}%;background:${barColor}" title="${w.reply_rate}% reply rate, ${w.messages_sent} sent"></div>
+      </div>
+      ${w.had_replan ? '<div class="replan-line">Replan</div>' : '<div style="height:18px"></div>'}
+      <div class="bar-label-bot">${(w.week || '').split(' - ')[0]}</div>
+    </div>`;
+  }).join('');
+  container.innerHTML = `<div class="bar-chart">${bars}</div>`;
+}
+
+function renderPromptTimeline(versions) {
+  const container = document.getElementById('prompt-timeline-container');
+  if (!versions.length) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px">AI will optimize prompts after 15+ messages sent</div>';
+    return;
+  }
+  container.innerHTML = '<div class="timeline-list">' + versions.slice(0, 10).map((v, i) => {
+    const impBadge = v.improvement_vs_previous != null
+      ? `<span style="font-size:12px;color:${v.improvement_vs_previous >= 0 ? 'var(--accent2)' : 'var(--accent3)'};font-weight:600">${v.improvement_vs_previous >= 0 ? '▲' : '▼'} ${Math.abs(v.improvement_vs_previous)}%</span>`
+      : '';
+    const activeBadge = v.is_active ? '<span class="badge badge-contacted" style="margin-left:6px">Active</span>' : '';
+    const rateBadge = v.reply_rate_at_creation > 0 ? `<span class="badge" style="background:#eff6ff;color:var(--accent)">${(v.reply_rate_at_creation * 100).toFixed(1)}% reply</span>` : '';
+    const uid = `prompt-prev-${i}`;
+    return `<div class="timeline-node">
+      <div class="timeline-badge">v${v.version}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:600">${v.template_name || 'Generic'}</span>
+          ${activeBadge}${rateBadge}${impBadge}
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${v.created_at ? new Date(v.created_at).toLocaleDateString() : ''}</div>
+        ${v.prompt_preview ? `<button class="btn btn-ghost btn-sm" style="margin-top:6px;font-size:11px" onclick="document.getElementById('${uid}').classList.toggle('expanded');this.textContent=document.getElementById('${uid}').classList.contains('expanded')?'Hide preview':'Show preview'">Show preview</button>
+        <div class="prompt-preview-text" id="${uid}">${v.prompt_preview}...</div>` : ''}
+      </div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function renderLessonsCards(lessons) {
+  const container = document.getElementById('lessons-container');
+  if (!lessons.length) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px">AI learns from failed campaigns automatically. Lessons appear after first campaign runs.</div>';
+    return;
+  }
+  container.innerHTML = lessons.map(l => {
+    const confVal = (l.confidence || 0) * 100;
+    const confClass = confVal >= 80 ? 'conf-high' : confVal >= 60 ? 'conf-mid' : 'conf-low';
+    const lessonRows = (l.lessons || []).map(le => `
+      <div class="lesson-row">
+        <div class="lesson-col"><div class="lesson-col-label">Issue</div><div class="lesson-col-val">${le.issue || '—'}</div></div>
+        <div class="lesson-col"><div class="lesson-col-label">Root Cause</div><div class="lesson-col-val">${le.root_cause || '—'}</div></div>
+        <div class="lesson-col"><div class="lesson-col-label">Fix</div><div class="lesson-col-val">${le.fix || '—'}</div></div>
+      </div>`).join('');
+    const avoidPills = (l.patterns_to_avoid || []).map(p => `<span class="pill pill-avoid">${p}</span>`).join('');
+    return `<div class="lesson-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span class="${confClass}">${confVal.toFixed(0)}% confidence</span>
+        <span style="font-size:11px;color:var(--muted)">${l.date ? new Date(l.date).toLocaleDateString() : ''}</span>
+      </div>
+      ${lessonRows}
+      ${avoidPills ? `<div style="margin-top:8px"><span style="font-size:11px;color:var(--muted)">Patterns avoided: </span>${avoidPills}</div>` : ''}
+      <div style="margin-top:8px;font-size:11px;color:${l.was_applied ? 'var(--accent2)' : 'var(--muted)'}">${l.was_applied ? '✓ Applied to future runs' : 'Pending application'}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderReactTable(decisions) {
+  const container = document.getElementById('react-decisions-container');
+  if (!decisions.length) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px">ReAct reasoning traces appear after agent runs</div>';
+    return;
+  }
+  const rows = decisions.map(d => {
+    const confVal = (d.confidence || 0) * 100;
+    const confClass = confVal >= 80 ? 'conf-high' : confVal >= 60 ? 'conf-mid' : 'conf-low';
+    const decBadge = (d.decision || '').toLowerCase().includes('skip')
+      ? `<span class="badge badge-skipped">${d.decision}</span>`
+      : `<span class="badge badge-contacted">${d.decision || 'Processed'}</span>`;
+    const summary = (d.thought_summary || '').slice(0, 60);
+    const fullText = (d.thought_summary || '').replace(/"/g, '&quot;');
+    return `<tr>
+      <td style="font-size:12px">${d.date ? new Date(d.date).toLocaleDateString() : '—'}</td>
+      <td style="font-size:12px">${d.lead_id || '—'}</td>
+      <td>${decBadge}</td>
+      <td style="font-size:12px">${d.recommended_channel || '—'}</td>
+      <td><span class="${confClass}">${confVal.toFixed(0)}%</span></td>
+      <td style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${fullText}">${summary}${summary.length >= 60 ? '…' : ''}</td>
+    </tr>`;
+  }).join('');
+  container.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Lead</th><th>Decision</th><th>Channel</th><th>Confidence</th><th>Reasoning Preview</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function renderMemoryStats(summary) {
+  const mem = (summary || {}).memory || {};
+  const ep = document.getElementById('episodic-memory-panel');
+  const sem = document.getElementById('semantic-memory-panel');
+  if (ep) ep.innerHTML = `
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Episodic Memory</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">What the agent remembers about each lead</div>
+    <div style="font-size:28px;font-weight:700;color:var(--text)">${mem.episodic_records || 0}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">interaction records</div>
+    ${mem.best_channel ? `<div style="margin-top:10px;font-size:12px">Best channel: <span class="badge badge-contacted">${mem.best_channel}</span></div>` : ''}`;
+  if (sem) sem.innerHTML = `
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Semantic Memory</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Patterns the agent has identified</div>
+    <div style="font-size:28px;font-weight:700;color:var(--text)">${mem.semantic_patterns || 0}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">patterns learned</div>
+    ${mem.best_send_day ? `<div style="margin-top:10px;font-size:12px">Best send day: <strong>${mem.best_send_day}</strong></div>` : ''}`;
+}
+
+// ── A/B Testing ────────────────────────────────────────────────────────────
+let _abRefreshTimer = null;
+
+async function loadABTests() {
+  const clientId = currentUser?.client_id;
+  if (!clientId) return;
+  const data = await api(`/agent/ab-tests/${clientId}`).catch(() => null);
+  renderABTests(data?.tests || []);
+  if (_abRefreshTimer) clearInterval(_abRefreshTimer);
+  const hasRunning = (data?.tests || []).some(t => t.status === 'running');
+  if (hasRunning) {
+    _abRefreshTimer = setInterval(async () => {
+      const refresh = await api(`/agent/ab-tests/${clientId}`).catch(() => null);
+      renderABTests(refresh?.tests || []);
+      if (!(refresh?.tests || []).some(t => t.status === 'running')) {
+        clearInterval(_abRefreshTimer);
+        _abRefreshTimer = null;
+      }
+    }, 30000);
+  }
+}
+
+function renderABTests(tests) {
+  const container = document.getElementById('ab-tests-container');
+  if (!container) return;
+  if (!tests.length) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px">No A/B tests yet. Tests start automatically each Monday after enough messages are sent.</div>';
+    return;
+  }
+  container.innerHTML = tests.map(t => {
+    const statusColor = t.status === 'running' ? 'var(--amber)' :
+      t.winner === 'treatment' ? 'var(--accent2)' :
+      t.winner === 'control' ? 'var(--accent)' :
+      t.winner === 'no_winner' ? 'var(--muted)' : 'var(--accent3)';
+    const statusLabel = t.status === 'running' ? '● Running' :
+      t.winner === 'treatment' ? '▲ Treatment Won' :
+      t.winner === 'control' ? '▲ Control Won' :
+      t.winner === 'no_winner' ? '— No Winner' : '✕ Cancelled';
+    const confBadge = `<span style="font-size:12px;font-weight:600;color:${t.confidence >= 95 ? 'var(--accent2)' : t.confidence >= 80 ? 'var(--amber)' : 'var(--muted)'}">${t.confidence}% confidence</span>`;
+    const MIN_NEEDED = 20;
+    const ctrlProgress = Math.min(100, Math.round((t.control_stats.sent / MIN_NEEDED) * 100));
+    const trtProgress = Math.min(100, Math.round((t.treatment_stats.sent / MIN_NEEDED) * 100));
+    const progressBar = t.status === 'running' ? `
+      <div style="margin-top:12px;font-size:11px;color:var(--muted)">
+        Control: ${t.control_stats.sent}/${MIN_NEEDED} &nbsp; Treatment: ${t.treatment_stats.sent}/${MIN_NEEDED} messages needed for significance
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+          <div style="height:4px;background:var(--border);border-radius:2px"><div style="width:${ctrlProgress}%;height:100%;background:var(--accent);border-radius:2px"></div></div>
+          <div style="height:4px;background:var(--border);border-radius:2px"><div style="width:${trtProgress}%;height:100%;background:var(--accent2);border-radius:2px"></div></div>
+        </div>
+      </div>` : '';
+    const winnerCrown = t.winner && t.winner !== 'no_winner' && t.winner !== 'cancelled'
+      ? `<span style="font-size:16px">${t.winner === 'treatment' ? '👑' : '🛡'}</span>` : '';
+
+    const statCol = (label, stats, highlight) => `
+      <div style="flex:1;background:${highlight ? '#f0fdf4' : 'var(--bg)'};border-radius:10px;padding:16px;border:1px solid ${highlight ? '#bbf7d0' : 'var(--border)'}">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px">${label} ${highlight ? winnerCrown : ''}</div>
+        <div style="font-size:28px;font-weight:700;color:${stats.rate >= 5 ? 'var(--accent2)' : stats.rate >= 2 ? 'var(--amber)' : 'var(--text)'}">${stats.rate}%</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">reply rate</div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px;font-size:12px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Sent</span><strong>${stats.sent}</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Replies</span><strong>${stats.replies}</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Opens</span><strong>${stats.opens}</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Bounces</span><strong style="color:var(--accent3)">${stats.bounces}</strong></div>
+        </div>
+      </div>`;
+
+    const ctrlWon = t.winner === 'control';
+    const trtWon = t.winner === 'treatment';
+
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <div>
+          <span style="font-weight:600;font-size:14px">${t.template_name || 'Generic'} Template</span>
+          <span style="font-size:12px;color:var(--muted);margin-left:10px">${t.days_running} days running</span>
+        </div>
+        <span style="font-size:12px;font-weight:600;color:${statusColor}">${statusLabel}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center">
+        ${statCol('Control', t.control_stats, ctrlWon)}
+        <div style="text-align:center;padding:0 8px">
+          <div style="font-size:16px;font-weight:700;color:var(--muted)">vs</div>
+          <div style="margin-top:8px">${confBadge}</div>
+        </div>
+        ${statCol('Treatment', t.treatment_stats, trtWon)}
+      </div>
+      ${progressBar}
+    </div>`;
+  }).join('');
 }
 
 // ── Toast ──────────────────────────────────────────────────────────────────
@@ -1340,6 +2072,17 @@ async function loadAgentCampaigns() {
   sel.innerHTML = data.campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 }
 
+let agentMode = 'standard';
+
+function setAgentMode(mode) {
+  agentMode = mode;
+  document.getElementById('mode-standard').style.background = mode === 'standard' ? 'var(--accent)' : 'transparent';
+  document.getElementById('mode-standard').style.color = mode === 'standard' ? '#fff' : 'var(--muted)';
+  document.getElementById('mode-multi').style.background = mode === 'multi' ? 'var(--accent)' : 'transparent';
+  document.getElementById('mode-multi').style.color = mode === 'multi' ? '#fff' : 'var(--muted)';
+  document.getElementById('multi-agent-banner').style.display = mode === 'multi' ? 'block' : 'none';
+}
+
 async function runAgent() {
   const campaign_id = document.getElementById('agent-campaign').value;
   const industry    = document.getElementById('agent-industry').value;
@@ -1350,14 +2093,22 @@ async function runAgent() {
   document.getElementById('agent-config-panel').style.display = 'none';
   document.getElementById('agent-review-panel').style.display = 'none';
   document.getElementById('agent-done-panel').style.display   = 'none';
-  document.getElementById('agent-status-panel').style.display = 'block';
 
-  const data = await api('/agent/run', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ campaign_id, industry, count, source_url }) });
-
-  if (!data?.success) { toast('Failed to start agent', 'error'); resetAgent(); return; }
-  _agentJobId = data.job_id;
-  pollAgentJob();
+  if (agentMode === 'multi') {
+    document.getElementById('agent-pipeline-panel').style.display = 'block';
+    const data = await api('/agent/run-multi', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ campaign_id, industry, count, source_url }) });
+    if (!data?.success) { toast('Failed to start agent', 'error'); resetAgent(); return; }
+    _agentJobId = data.job_id;
+    updatePipelineStatus(_agentJobId);
+  } else {
+    document.getElementById('agent-status-panel').style.display = 'block';
+    const data = await api('/agent/run', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ campaign_id, industry, count, source_url }) });
+    if (!data?.success) { toast('Failed to start agent', 'error'); resetAgent(); return; }
+    _agentJobId = data.job_id;
+    pollAgentJob();
+  }
 }
 
 function pollAgentJob() {
@@ -1381,6 +2132,47 @@ function pollAgentJob() {
   }, 2000);
 }
 
+function updatePipelineStatus(jobId) {
+  const TERMINAL = ['pending_approval','auto_approved','error','timeout','approved'];
+  function _updateStage(name, stageData) {
+    const dot = document.getElementById(`ps-dot-${name}`);
+    const box = document.getElementById(`ps-box-${name}`);
+    const statusEl = document.getElementById(`ps-status-${name}`);
+    const countEl = document.getElementById(`ps-count-${name}`);
+    if (!dot) return;
+    dot.className = 'stage-indicator ' + (stageData.status === 'complete' ? 'complete' : stageData.status === 'not_started' ? '' : 'running');
+    box.className = 'stage-box ' + (stageData.status === 'complete' ? 'complete' : stageData.status === 'not_started' ? '' : 'running');
+    statusEl.textContent = stageData.status || 'waiting';
+    const count = stageData.leads_found ?? stageData.leads_scored ?? stageData.leads_written ?? stageData.auto_approved ?? '—';
+    countEl.textContent = count;
+  }
+  _agentPollTimer = setInterval(async () => {
+    const data = await api(`/agent/jobs/${jobId}/pipeline-status`);
+    if (!data) return;
+    const p = data.pipeline || {};
+    _updateStage('prospector', p.prospector || {});
+    _updateStage('scorer', p.scorer || {});
+    _updateStage('writer', p.writer || {});
+    _updateStage('delivery', p.delivery || {});
+    const qs = data.redis_queue_sizes || {};
+    document.getElementById('qs-scorer').textContent = qs.scorer_queue ?? 0;
+    document.getElementById('qs-writer').textContent = qs.writer_queue ?? 0;
+    document.getElementById('qs-delivery').textContent = qs.delivery_queue ?? 0;
+    if (TERMINAL.includes(data.overall_status)) {
+      clearInterval(_agentPollTimer);
+      document.getElementById('pipeline-dot').style.background = data.overall_status === 'error' ? 'var(--accent3)' : 'var(--accent2)';
+      if (data.overall_status === 'pending_approval' || data.overall_status === 'auto_approved') {
+        document.getElementById('agent-pipeline-panel').style.display = 'none';
+        const jobData = await api(`/agent/jobs/${jobId}`);
+        if (jobData?.items?.length) showAgentReview(jobData);
+      } else if (data.overall_status === 'error' || data.overall_status === 'timeout') {
+        toast('Agent pipeline error: ' + data.overall_status, 'error');
+        resetAgent();
+      }
+    }
+  }, 3000);
+}
+
 function showAgentReview(data) {
   document.getElementById('agent-status-panel').style.display = 'none';
   document.getElementById('agent-review-panel').style.display = 'block';
@@ -1399,7 +2191,61 @@ function showAgentReview(data) {
         </div>
       </div>
       <div style="background:var(--bg);border-radius:8px;padding:12px;font-size:12px;color:var(--muted);white-space:pre-wrap;line-height:1.6">${item.email_message}</div>
+      <div id="judge-scores-${item.lead_id}-${item.id}" style="margin-top:10px">
+        <button onclick="toggleJudgeScores('${item.lead_id}','${item.id}')" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:6px;cursor:pointer;font-size:11px">▸ AI Judge Score</button>
+        <div id="judge-detail-${item.lead_id}-${item.id}" style="display:none;margin-top:8px"></div>
+      </div>
     </div>`).join('');
+  fetchJudgeScores(_agentJobId);
+}
+
+async function fetchJudgeScores(jobId) {
+  if (!jobId) return;
+  try {
+    const scores = await api(`/analytics/judge-scores/${jobId}`);
+    if (!Array.isArray(scores)) return;
+    scores.forEach(s => {
+      const container = document.getElementById(`judge-detail-${s.lead_id}-${s.lead_id}`);
+      // store data on element for toggle
+      const els = document.querySelectorAll(`[id^="judge-detail-${s.lead_id}-"]`);
+      els.forEach(el => { el.dataset.judgeJson = JSON.stringify(s); });
+    });
+  } catch(e) { console.warn('fetchJudgeScores error', e); }
+}
+
+function toggleJudgeScores(leadId, itemId) {
+  const detail = document.getElementById(`judge-detail-${leadId}-${itemId}`);
+  if (!detail) return;
+  if (detail.style.display !== 'none') { detail.style.display = 'none'; return; }
+  const s = detail.dataset.judgeJson ? JSON.parse(detail.dataset.judgeJson) : null;
+  if (!s) { detail.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:6px">No judge data yet</div>'; detail.style.display = 'block'; return; }
+  const dims = s.scores_by_dimension || {};
+  const scoreColor = v => v >= 7 ? '#22c55e' : v >= 5 ? '#f59e0b' : '#ef4444';
+  const dimBars = Object.entries(dims).map(([k,v]) => `
+    <div style="margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">
+        <span style="color:var(--muted);text-transform:capitalize">${k.replace('_',' ')}</span>
+        <span style="color:${scoreColor(v)};font-weight:600">${v}/10</span>
+      </div>
+      <div style="background:var(--border);border-radius:3px;height:5px">
+        <div style="width:${v*10}%;background:${scoreColor(v)};height:5px;border-radius:3px"></div>
+      </div>
+    </div>`).join('');
+  const verdictColor = s.verdict === 'pass' ? '#22c55e' : s.verdict === 'borderline' ? '#f59e0b' : '#ef4444';
+  const rewriteBanner = s.was_rewritten ? `<div style="background:#14532d;color:#86efac;padding:6px 10px;border-radius:6px;font-size:11px;margin-bottom:8px">✓ Message was auto-improved by AI judge</div>` : '';
+  const redFlagLines = (s.red_flags||[]).length ? `<div style="margin-top:6px;font-size:11px;color:#ef4444">Red flags: ${s.red_flags.join(' · ')}</div>` : '';
+  detail.innerHTML = `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px">
+      ${rewriteBanner}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:12px;color:var(--muted)">Overall Judge Score</span>
+        <span style="font-size:20px;font-weight:700;color:${scoreColor(s.weighted_score)}">${(s.weighted_score||0).toFixed(1)}/10</span>
+      </div>
+      ${dimBars}
+      ${s.primary_weakness ? `<div style="margin-top:8px;padding:6px 10px;background:#451a03;border-radius:6px;font-size:11px;color:#f59e0b">Weakness: ${s.primary_weakness}</div>` : ''}
+      ${redFlagLines}
+    </div>`;
+  detail.style.display = 'block';
 }
 
 async function rejectAgentItem(itemId) {
@@ -1424,7 +2270,7 @@ async function approveAgentJob() {
 function resetAgent() {
   _agentJobId = null;
   if (_agentPollTimer) clearInterval(_agentPollTimer);
-  document.getElementById('agent-config-panel').style.display = 'block';
+  document.getElementById('agent-pipeline-panel').style.display = 'none';
   document.getElementById('agent-status-panel').style.display = 'none';
   document.getElementById('agent-review-panel').style.display = 'none';
   document.getElementById('agent-done-panel').style.display   = 'none';

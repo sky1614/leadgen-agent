@@ -44,6 +44,37 @@ async def sendgrid_webhook(request: Request):
 
             elif event_type == "open" and log:
                 log.opened_at = dt
+                try:
+                    from ..services.memory_service import store_episodic_outcome
+                    store_episodic_outcome(log.client_id or "", log.lead_id or "", "opened", "email", log.message or "", db)
+                except Exception:
+                    pass
+
+                try:
+                    from ..services.rag_service import sync_new_outcome
+                    import threading
+                    threading.Thread(
+                        target=sync_new_outcome,
+                        args=(log.client_id or "", log.lead_id or "", "opened", db),
+                        daemon=True
+                    ).start()
+                except Exception:
+                    pass
+                
+                try:
+                    if log.ab_test_id and log.ab_test_variant:
+                        from ..services.ab_testing_service import record_outcome
+                        record_outcome(log.ab_test_id, log.ab_test_variant, "open", db)
+                except Exception:
+                    pass
+
+                try:
+                    if log.ab_test_id and log.ab_test_variant:
+                        from ..services.ab_testing_service import record_outcome
+                        record_outcome(log.ab_test_id, log.ab_test_variant, "open", db)
+                except Exception:
+                    pass
+
 
             elif event_type == "click" and log:
                 log.clicked_at = dt
@@ -52,11 +83,37 @@ async def sendgrid_webhook(request: Request):
                 if log:
                     log.bounced = True
                     log.bounce_type = event.get("type", "hard")
-                # Mark lead email as unverified
-                if lead_id:
-                    lead = db.query(LeadDB).filter(LeadDB.id == lead_id).first()
-                    if lead:
-                        lead.email_verified = False
+                    try:
+                        from ..services.memory_service import store_episodic_outcome
+                        store_episodic_outcome(log.client_id or "", log.lead_id or "", "bounced", "email", log.message or "", db)
+                    except Exception:
+                        pass
+                    try:
+                        from ..services.rag_service import sync_new_outcome
+                        import threading
+                        threading.Thread(
+                            target=sync_new_outcome,
+                            args=(log.client_id or "", log.lead_id or "", "bounced", db),
+                            daemon=True
+                        ).start()
+                    except Exception:
+                        pass
+
+                    try:
+                        if log.ab_test_id and log.ab_test_variant:
+                            from ..services.ab_testing_service import record_outcome
+                            record_outcome(log.ab_test_id, log.ab_test_variant, "bounce", db)
+                    except Exception:
+                        pass
+
+                    try:
+                        if log.ab_test_id and log.ab_test_variant:
+                            from ..services.ab_testing_service import record_outcome
+                            record_outcome(log.ab_test_id, log.ab_test_variant, "bounce", db)
+                    except Exception:
+                        pass
+
+
 
             elif event_type == "spamreport":
                 if log:
@@ -162,6 +219,52 @@ async def gupshup_webhook(request: Request):
                 # User sent a message (reply)
                 if lead:
                     lead.status = "replied"
+                    try:
+                        from ..services.memory_service import store_episodic_outcome
+                        last_log = db.query(MessageLogDB).filter(
+                            MessageLogDB.lead_id == lead.id,
+                            MessageLogDB.channel == "whatsapp"
+                        ).order_by(MessageLogDB.sent_at.desc()).first()
+                        store_episodic_outcome(lead.client_id or "", lead.id, "replied", "whatsapp",
+                                               last_log.message if last_log else "", db)
+                    except Exception:
+                        pass
+                    try:
+                        from ..services.rag_service import sync_new_outcome
+                        import threading
+                        threading.Thread(
+                            target=sync_new_outcome,
+                            args=(lead.client_id or "", lead.id, "replied", db),
+                            daemon=True
+                        ).start()
+                    except Exception:
+                        pass
+
+                    try:
+                        last_log = db.query(MessageLogDB).filter(
+                            MessageLogDB.lead_id == lead.id,
+                            MessageLogDB.channel == "whatsapp"
+                        ).order_by(MessageLogDB.sent_at.desc()).first()
+                        if last_log and last_log.ab_test_id and last_log.ab_test_variant:
+                            from ..services.ab_testing_service import record_outcome
+                            record_outcome(last_log.ab_test_id, last_log.ab_test_variant, "reply", db)
+                    except Exception:
+                        pass
+
+                    try:
+                        last_log = db.query(MessageLogDB).filter(
+                            MessageLogDB.lead_id == lead.id,
+                            MessageLogDB.channel == "whatsapp",
+                            MessageLogDB.ab_test_id != None,
+                        ).order_by(MessageLogDB.sent_at.desc()).first()
+                        if last_log and last_log.ab_test_id:
+                            from ..services.ab_testing_service import record_outcome
+                            record_outcome(last_log.ab_test_id, last_log.ab_test_variant or "control", "reply", db)
+                    except Exception:
+                        pass
+
+
+
                     from ..models import ConversationDB
                     db.add(ConversationDB(
                         lead_id=lead.id,

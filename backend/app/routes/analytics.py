@@ -252,13 +252,33 @@ def client_detail(db: Session = Depends(get_db), cu: UserDB = Depends(get_curren
             usage = db.query(AIUsageDB).filter(cost_filter, AIUsageDB.created_at >= month_start).all()
             cost_inr = round(sum(u.cost_inr or 0 for u in usage), 2)
 
+                # Autonomous loop status (read-only, no evaluation triggered)
+        autonomous_status = {"replan_count": 0, "last_replan_at": None, "is_underperforming": False}
+        try:
+            from ..models import AutonomousLoopDB
+            loop_records = db.query(AutonomousLoopDB).filter(
+                AutonomousLoopDB.client_id == cu.client_id
+            ).order_by(AutonomousLoopDB.updated_at.desc()).all() if cu.client_id else []
+            if loop_records:
+                total_replans = sum(r.replan_count for r in loop_records)
+                last_replan = max((r.last_replan_at for r in loop_records if r.last_replan_at), default=None)
+                autonomous_status = {
+                    "replan_count": total_replans,
+                    "last_replan_at": last_replan.isoformat() if last_replan else None,
+                    "is_underperforming": any(r.replan_count > 0 for r in loop_records),
+                }
+        except Exception:
+            pass
+
         return {
             "funnel": funnel,
             "email_metrics": email_metrics,
             "wa_metrics": wa_metrics,
             "cost_inr_this_month": cost_inr,
             "last_messages": last_messages,
+            "autonomous_loop_status": autonomous_status,
         }
+
     except Exception as e:
         logger.error({"event": "client_detail_error", "error": str(e)})
         raise HTTPException(500, str(e))
@@ -319,3 +339,114 @@ def campaigns_performance(db: Session = Depends(get_db), cu: UserDB = Depends(ge
     except Exception as e:
         logger.error({"event": "campaigns_performance_error", "error": str(e)})
         raise HTTPException(500, str(e))
+
+@router.get("/judge-performance/{client_id}")
+def judge_performance(
+    client_id: str,
+    days: int = 30,
+    db: Session = Depends(get_db),
+    cu: UserDB = Depends(get_current_user)
+):
+    try:
+        from ..services.llm_judge_service import get_judge_analytics
+        return get_judge_analytics(client_id, days=days, db=db)
+    except Exception as e:
+        logger.error({"event": "judge_performance_error", "client_id": client_id, "error": str(e)})
+        raise HTTPException(500, str(e))
+
+
+@router.get("/judge-scores/{job_id}")
+def judge_scores_for_job(
+    job_id: str,
+    db: Session = Depends(get_db),
+    cu: UserDB = Depends(get_current_user)
+):
+    try:
+        import json as _json
+        from ..models import JudgeEvaluationDB
+        records = db.query(JudgeEvaluationDB).filter(
+            JudgeEvaluationDB.job_id == job_id
+        ).all()
+        result = []
+        for r in records:
+            result.append({
+                "lead_id": r.lead_id,
+                "channel": r.channel,
+                "verdict": r.verdict,
+                "weighted_score": r.weighted_score,
+                "primary_weakness": r.primary_weakness,
+                "was_rewritten": r.was_rewritten,
+                "scores_by_dimension": {
+                    "personalization": r.personalization_score,
+                    "cultural_fit": r.cultural_fit_score,
+                    "cta_strength": r.cta_strength_score,
+                    "tone_match": r.tone_match_score,
+                    "clarity": r.clarity_score,
+                },
+                "red_flags": _json.loads(r.red_flags_json or "[]"),
+                "improvement_suggestion": r.improvement_suggestion,
+            })
+        return result
+    except Exception as e:
+        logger.error({"event": "judge_scores_error", "job_id": job_id, "error": str(e)})
+        raise HTTPException(500, str(e))
+
+@router.get("/ai-performance-timeline/{client_id}")
+def ai_performance_timeline(client_id: str, db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
+    import json as _json
+    from datetime import timedelta
+    try:
+        from ..models import PromptVersionDB, AutonomousLoopDB
+        now = datetime.utcnow()
+        weeks = []
+        for i in range(11, -1, -1):
+            week_start = (now - timedelta(weeks=i)).replace(hour=0, minute=0, second=0, microsecond=0)
+            week_start -= timedelta(days=week_start.weekday())
+            week_end = week_start + timedelta(days=6)
+            msgs = db.query(MessageLogDB).filter(
+                MessageLogDB.client_id == client_id,
+                MessageLogDB.sent_at >= week_start,
+                MessageLogDB.sent_at <= week_end,
+            ).all()
+            total = len(msgs)
+            opened = sum(1 for m in msgs if m.opened_at)
+            replied_leads = 0
+            if msgs:
+                lead_ids = list({m.lead_id for m in msgs if m.lead_id})
+                from ..models import LeadDB
+                replied_leads = db.query(LeadDB).filter(
+                    LeadDB.id.in_(lead_ids),
+                    LeadDB.status.in_(["replied", "meeting_booked"]),
+                ).count()
+            quality_logs = db.query(QualityLogDB).filter(
+                QualityLogDB.client_id == client_id,
+                QualityLogDB.created_at >= week_start,
+                QualityLogDB.created_at <= week_end,
+            ).all()
+            q_total = len(quality_logs)
+            q_passed = sum(1 for q in quality_logs if q.passed or q.passed_after_regen)
+            active_version = db.query(PromptVersionDB).filter(
+                PromptVersionDB.client_id == client_id,
+                PromptVersionDB.created_at <= week_end,
+            ).order_by(PromptVersionDB.created_at.desc()).first()
+            had_replan = db.query(AutonomousLoopDB).filter(
+                AutonomousLoopDB.client_id == client_id,
+                AutonomousLoopDB.last_replan_at >= week_start,
+                AutonomousLoopDB.last_replan_at <= week_end,
+            ).count() > 0
+            weeks.append({
+                "week": f"{week_start.strftime('%b %-d')} - {week_end.strftime('%b %-d')}",
+                "reply_rate": round(replied_leads / total * 100, 1) if total else 0.0,
+                "open_rate": round(opened / total * 100, 1) if total else 0.0,
+                "quality_pass_rate": round(q_passed / q_total * 100, 1) if q_total else 0.0,
+                "messages_sent": total,
+                "prompt_version": db.query(PromptVersionDB).filter(
+                    PromptVersionDB.client_id == client_id,
+                    PromptVersionDB.created_at <= week_end,
+                ).count(),
+                "had_replan": had_replan,
+            })
+        return weeks
+    except Exception as e:
+        logger.error({"event": "ai_performance_timeline_error", "error": str(e)})
+        return []

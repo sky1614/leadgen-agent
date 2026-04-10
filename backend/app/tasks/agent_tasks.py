@@ -60,6 +60,14 @@ def run_agent_for_client(self, client_id: str):
         raw_leads = SAMPLE_LEADS.get(client.industry or "SaaS", [])
         processed = 0
 
+        # ── Reflexion: load context ───────────────────────────────────────
+        reflection_context = ""
+        try:
+            from ..services.reflexion_service import build_reflection_context
+            reflection_context = build_reflection_context(client_id, client.industry or "SaaS", db)
+        except Exception as _re:
+            print(f"REFLEXION context load non-blocking error: {_re}")
+
         for ld in raw_leads:
             if user.leads_used >= user.leads_limit:
                 break
@@ -89,8 +97,12 @@ def run_agent_for_client(self, client_id: str):
             lead.status = "enriched"
             db.commit()
 
-            email_msg = ai_message(lead, camp, "email")
-            wa_msg = ai_message(lead, camp, "whatsapp")
+            from ..services.groq_service import generate_message
+            email_msg = generate_message(lead, camp, "email", client_id=client_id,
+                                         reflection_context=reflection_context).get("message", "")
+            wa_msg = generate_message(lead, camp, "whatsapp", client_id=client_id,
+                                      reflection_context=reflection_context).get("message", "")
+
 
             item = AgentJobItemDB(
                 job_id=job.id, client_id=client_id,
@@ -105,6 +117,37 @@ def run_agent_for_client(self, client_id: str):
             db.commit()
 
         job.status = "pending_approval"
+        
+        # ── Autonomous loop: trigger post-run evaluation ──────────────────
+        try:
+            import threading as _threading
+            from ..database import SessionLocal as _SL
+            from ..services.autonomous_loop import run_autonomous_evaluation as _eval
+
+            def _bg_eval():
+                _db = _SL()
+                try:
+                    _eval(client_id, _db)
+                except Exception as _e:
+                    print(f"AUTONOMOUS LOOP bg eval error: {_e}")
+                finally:
+                    _db.close()
+
+            _threading.Thread(target=_bg_eval, daemon=True).start()
+        except Exception as _ae:
+            print(f"AUTONOMOUS LOOP trigger failed (non-blocking): {_ae}")
+
+        # ── Reflexion: analyze and store ─────────────────────────────────
+        try:
+            from ..services.reflexion_service import analyze_job_failures, generate_reflection, save_reflection
+            failures = analyze_job_failures(job.id, client_id, db)
+            if failures:
+                camp_ctx = {"industry": client.industry or "SaaS", "tone": getattr(camp, "tone", "professional")}
+                reflection = generate_reflection(failures, camp_ctx, client_id)
+                if reflection:
+                    save_reflection(client_id, job.id, reflection, db, industry=client.industry or "SaaS")
+        except Exception as _re:
+            print(f"REFLEXION non-blocking error: {_re}")
         db.commit()
         return {"success": True, "client_id": client_id, "leads_processed": processed}
 
