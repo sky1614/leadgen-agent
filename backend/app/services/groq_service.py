@@ -1,31 +1,13 @@
 import json
-import time
-import uuid
-from collections import deque
 import httpx
-from ..config import OPENROUTER_API_KEY, PRIMARY_MODEL, FALLBACK_MODEL
-from openai import OpenAI
-from ..config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, PRIMARY_MODEL, FALLBACK_MODEL
 
-# ── Client ────────────────────────────────────────────────────────────────────
-_openrouter_client = OpenAI(
-    api_key=OPENROUTER_API_KEY,
-    base_url=OPENROUTER_BASE_URL,
-    default_headers={
-        "HTTP-Referer": "https://leadgenai.in",
-        "X-Title": "LeadGen AI",
-    }
-) if OPENROUTER_API_KEY else None
+from ..config import OPENROUTER_API_KEY, PRIMARY_MODEL, FALLBACK_MODEL
 
 # ── Cost table (USD per 1M tokens) ───────────────────────────────────────────
 _COSTS = {
-    "anthropic/claude-sonnet-4-20250514": {"input": 3.0, "output": 15.0},
-    "openai/gpt-4o-mini": {"input": 0.15, "output": 0.60},
+    "anthropic/claude-sonnet-4-20250514": {"input": 3.0,  "output": 15.0},
+    "openai/gpt-4o-mini":                 {"input": 0.15, "output": 0.60},
 }
-
-# ── Rate limit tracker (kept for compatibility) ───────────────────────────────
-_groq_calls = deque()
-_GROQ_RPM_LIMIT = 28
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -34,76 +16,53 @@ def _estimate_cost(model: str, inp: int, out: int) -> float:
     return round((inp * c["input"] + out * c["output"]) / 1_000_000, 8)
 
 
-def _is_groq_rate_limited() -> bool:
-    now = time.time()
-    while _groq_calls and now - _groq_calls[0] > 60:
-        _groq_calls.popleft()
-    return len(_groq_calls) >= _GROQ_RPM_LIMIT
-
-
 def _log_usage(client_id, model, inp, out, task_type):
     try:
-        from .cost_tracker import log_groq, log_openai
-        if "gpt" in model.lower() or "openai" in model.lower():
-            log_openai(client_id, inp, out, task_type)
-        else:
-            log_groq(client_id, inp, out, task_type)
+        from .cost_tracker import log_openai
+        log_openai(client_id, inp, out, task_type)
     except Exception as e:
         print(f"USAGE LOG ERROR: {e}")
 
 
 def _call_openrouter(prompt: str, model: str) -> tuple:
-    res = _openrouter_client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}],
-        model=model,
-        timeout=30
+    resp = httpx.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "HTTP-Referer": "https://leadgenai.in",
+            "X-Title": "LeadGen AI",
+            "Content-Type": "application/json",
+        },
+        json={"model": model, "messages": [{"role": "user", "content": prompt}]},
+        timeout=30,
     )
-    u = res.usage
-    return res.choices[0].message.content.strip(), u.prompt_tokens, u.completion_tokens
+    resp.raise_for_status()
+    data = resp.json()
+    text = data["choices"][0]["message"]["content"].strip()
+    usage = data.get("usage", {})
+    return text, usage.get("prompt_tokens", 0), usage.get("completion_tokens", 0)
 
 
 # ── Unified AI call ────────────────────────────────────────────────────────────
-def generate_ai(prompt: str, task_type: str = "general", client_id: str = None,
-                model_override: str = None) -> dict:
-    """
-    Try PRIMARY_MODEL first. If fails, fall back to FALLBACK_MODEL.
-    If model_override is provided and OpenRouter is configured, use it directly.
-    Returns: {text, model_used, input_tokens, output_tokens, cost_estimate}
-    """
-    if not _openrouter_client:
-        raise RuntimeError("No AI provider available — set OPENROUTER_API_KEY in .env")
-
-    if model_override and _openrouter_client:
+def generate_ai(prompt: str, task_type: str = "general", client_id: str = None, model_override: str = None) -> dict:
+    model = model_override or PRIMARY_MODEL
+    try:
+        text, inp, out = _call_openrouter(prompt, model)
+        _log_usage(client_id, model, inp, out, task_type)
+        return {"text": text, "model_used": model,
+                "input_tokens": inp, "output_tokens": out,
+                "cost_estimate": _estimate_cost(model, inp, out)}
+    except Exception as e:
+        print(f"PRIMARY MODEL FAILED ({model}): {e}, trying fallback")
         try:
-            text, inp, out = _call_openrouter(prompt, model_override)
-            _log_usage(client_id, model_override, inp, out, task_type)
-            return {"text": text, "model_used": model_override,
+            text, inp, out = _call_openrouter(prompt, FALLBACK_MODEL)
+            _log_usage(client_id, FALLBACK_MODEL, inp, out, task_type)
+            return {"text": text, "model_used": FALLBACK_MODEL,
                     "input_tokens": inp, "output_tokens": out,
-                    "cost_estimate": _estimate_cost(model_override, inp, out)}
-        except Exception as e:
-            print(f"MODEL OVERRIDE FAILED ({model_override}), falling through: {e}")
-
-    try:
-        text, inp, out = _call_openrouter(prompt, PRIMARY_MODEL)
-        _log_usage(client_id, PRIMARY_MODEL, inp, out, task_type)
-        return {"text": text, "model_used": PRIMARY_MODEL,
-                "input_tokens": inp, "output_tokens": out,
-                "cost_estimate": _estimate_cost(PRIMARY_MODEL, inp, out)}
-    except Exception as e:
-        print(f"PRIMARY MODEL FAILED ({type(e).__name__}), trying fallback: {e}")
-
-    try:
-        text, inp, out = _call_openrouter(prompt, FALLBACK_MODEL)
-        _log_usage(client_id, FALLBACK_MODEL, inp, out, task_type)
-        print(f"FALLBACK: {FALLBACK_MODEL} used for task={task_type}")
-        return {"text": text, "model_used": FALLBACK_MODEL,
-                "input_tokens": inp, "output_tokens": out,
-                "cost_estimate": _estimate_cost(FALLBACK_MODEL, inp, out)}
-    except Exception as e:
-        print(f"FALLBACK ALSO FAILED: {e}")
-        raise
-
-    raise RuntimeError("No AI provider available")
+                    "cost_estimate": _estimate_cost(FALLBACK_MODEL, inp, out)}
+        except Exception as e2:
+            print(f"FALLBACK ALSO FAILED: {e2}")
+            raise RuntimeError("No AI provider available") from e2
 
 # ── Public interfaces (called by routes + agent_service) ──────────────────────
 def gemini(prompt: str, client_id: str = None) -> str:
