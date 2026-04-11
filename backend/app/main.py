@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .database import engine
 from .models import Base
-from .services.groq_service import gemini
 import requests
 
 # Create all tables

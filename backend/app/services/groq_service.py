@@ -2,9 +2,9 @@ import json
 import time
 import uuid
 from collections import deque
-
+import httpx
+from ..config import OPENROUTER_API_KEY, PRIMARY_MODEL, FALLBACK_MODEL
 from openai import OpenAI
-
 from ..config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, PRIMARY_MODEL, FALLBACK_MODEL
 
 # ── Client ────────────────────────────────────────────────────────────────────
@@ -19,8 +19,8 @@ _openrouter_client = OpenAI(
 
 # ── Cost table (USD per 1M tokens) ───────────────────────────────────────────
 _COSTS = {
-    "meta-llama/llama-3.3-70b-instruct": {"input": 0.12, "output": 0.30},
-    "openai/gpt-4o-mini":                {"input": 0.15, "output": 0.60},
+    "anthropic/claude-sonnet-4-20250514": {"input": 3.0, "output": 15.0},
+    "openai/gpt-4o-mini": {"input": 0.15, "output": 0.60},
 }
 
 # ── Rate limit tracker (kept for compatibility) ───────────────────────────────
