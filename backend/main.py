@@ -464,7 +464,7 @@ def auto_generate(req:AutoGenReq,db:Session=Depends(get_db),cu:UserDB=Depends(ge
         l = LeadDB(user_id=cu.id,fingerprint=fp,source="auto",**{k:v for k,v in ld.items()})
         db.add(l); cu.leads_used+=1; added.append(l.id)
     db.commit()
-    return {"success":True,"added":len(added),"duplicates_skipped":dups,"available_industries":list(SAMPLE_LEADS.keys()),"leads":[_ld(db.query(LeadDB).get(i)) for i in added]}
+    return {"success":True,"added":len(added),"duplicates_skipped":dups,"available_industries":list(SAMPLE_LEADS.keys()),"leads":[_ld(db.query(LeadDB).get(i)) for i in added if db.query(LeadDB).get(i)]
 
 @app.get("/leads/industries")
 def get_industries(): return {"industries":list(SAMPLE_LEADS.keys())}
@@ -541,7 +541,7 @@ def search_places(req:PlacesSearchReq, db:Session=Depends(get_db), cu:UserDB=Dep
         db.add(l); cu.leads_used+=1; added.append(l.id)
     db.commit()
     return {"success":True,"found":len(raw),"added":len(added),"duplicates_skipped":dups,
-            "leads":[_ld(db.query(LeadDB).get(i)) for i in added]}
+            "leads":[_ld(db.query(LeadDB).get(i)) for i in added if db.query(LeadDB).get(i)]
 
 def search_apollo(industry:str, city:str, count:int=5):
     api_key = os.getenv("APOLLO_API_KEY","")
