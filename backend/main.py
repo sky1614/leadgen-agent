@@ -17,6 +17,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 from bs4 import BeautifulSoup
 
+GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")
 SECRET_KEY = os.getenv("SECRET_KEY", "nsai-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
@@ -539,7 +540,7 @@ def search_places(req:PlacesSearchReq, db:Session=Depends(get_db), cu:UserDB=Dep
     added, dups = [], 0
     for ld in raw:
         if cu.leads_used >= cu.leads_limit: break
-        fp = make_fingerprint(ld["name"], ld["company"], ld["email"], ld["whatsapp"])
+        fp = make_fingerprint(ld.get("name",""), ld.get("company",""), ld.get("email",""), ld.get("whatsapp",""))
         if db.query(LeadDB).filter(LeadDB.fingerprint==fp, LeadDB.user_id==cu.id).first(): dups+=1; continue
         l = LeadDB(user_id=cu.id, fingerprint=fp, source="google_places", industry=req.industry,
                    **{k:v for k,v in ld.items() if k in ["name","company","email","whatsapp","role","website","notes"]})
