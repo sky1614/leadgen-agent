@@ -530,13 +530,18 @@ def search_osm_businesses(industry:str, city:str, count:int=5):
 
 @app.post("/leads/search-places")
 def search_places(req:PlacesSearchReq, db:Session=Depends(get_db), cu:UserDB=Depends(get_current_user)):
-    raw = search_osm_businesses(req.industry, req.city, req.count)
+    from app.services.scraper_service import search_google_places
+    query = f"{req.industry} companies in {req.city}"
+    raw = search_google_places(query, client_id=cu.client_id)
+    if not raw:
+        raw = search_osm_businesses(req.industry, req.city, req.count)
+    raw = raw[:req.count]
     added, dups = [], 0
     for ld in raw:
         if cu.leads_used >= cu.leads_limit: break
         fp = make_fingerprint(ld["name"], ld["company"], ld["email"], ld["whatsapp"])
         if db.query(LeadDB).filter(LeadDB.fingerprint==fp, LeadDB.user_id==cu.id).first(): dups+=1; continue
-        l = LeadDB(user_id=cu.id, fingerprint=fp, source="openstreetmap", industry=req.industry,
+        l = LeadDB(user_id=cu.id, fingerprint=fp, source="google_places", industry=req.industry,
                    **{k:v for k,v in ld.items() if k in ["name","company","email","whatsapp","role","website","notes"]})
         db.add(l); cu.leads_used+=1; added.append(l.id)
     db.commit()
