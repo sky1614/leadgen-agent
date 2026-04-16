@@ -33,57 +33,39 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 14px; min-height: 100vh; }
 
-  /* ── Auth Screen ── */
-  #auth-screen {
-    min-height: 100vh; display: flex; align-items: stretch;
-  }
-  .auth-left {
-    width: 420px; flex-shrink: 0; background: var(--accent-navy);
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 56px 48px; color: #fff;
-  }
-  .auth-left-logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; color: #fff; }
-  .auth-left-logo span { color: #60a5fa; }
-  .auth-left-tag { font-size: 13px; color: rgba(255,255,255,.55); margin-bottom: 48px; font-weight: 400; }
-  .auth-left-props { display: flex; flex-direction: column; gap: 20px; }
-  .auth-prop { display: flex; align-items: flex-start; gap: 14px; }
-  .auth-prop-icon { width: 36px; height: 36px; background: rgba(255,255,255,.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .auth-prop-icon svg { width: 18px; height: 18px; color: #60a5fa; }
-  .auth-prop-text strong { display: block; font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 2px; }
-  .auth-prop-text span { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.5; }
-  .auth-right {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    background: #fff; padding: 40px;
-  }
-  .auth-box {
-    width: 100%; max-width: 380px;
-  }
-  .auth-logo { font-size: 20px; font-weight: 700; margin-bottom: 4px; color: var(--text); letter-spacing: -0.3px; }
-  .auth-logo span { color: var(--accent); }
-  .auth-sub { font-size: 12px; color: var(--muted); margin-bottom: 28px; }
-  .auth-tabs { display: flex; gap: 0; margin-bottom: 24px; background: var(--bg); border-radius: 8px; padding: 3px; }
-  .auth-tab {
-    flex: 1; padding: 8px; text-align: center; border-radius: 6px; cursor: pointer;
-    font-size: 13px; font-weight: 500; color: var(--muted); transition: all .15s;
-  }
-  .auth-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-  .auth-form { display: none; }
-  .auth-form.active { display: block; }
-  .auth-field { margin-bottom: 14px; }
-  .auth-field label { display: block; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 5px; }
-  .auth-field input {
-    width: 100%; background: #fff; border: 1px solid var(--border);
-    color: var(--text); padding: 10px 13px; border-radius: 8px; font-size: 13px;
-    font-family: var(--font-body); outline: none; transition: border-color .15s, box-shadow .15s;
-  }
-  .auth-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-  .auth-btn {
-    width: 100%; padding: 11px; background: var(--accent2); color: #fff; border: none;
-    border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
-    font-family: var(--font-body); transition: all .15s; margin-top: 4px;
-  }
-  .auth-btn:hover { background: #047857; }
-  .auth-error { color: var(--accent3); font-size: 12px; margin-top: 10px; min-height: 18px; }
+#auth-screen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: #F7F7F5;
+  background-image: radial-gradient(circle at 20% 50%, rgba(21,112,239,0.06) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(21,112,239,0.04) 0%, transparent 40%);
+}
+.auth-box {
+  width: 420px; background: #FFFFFF; border: 1px solid #E5E5E5;
+  border-radius: 12px; padding: 48px 40px; text-align: center;
+}
+.auth-logo { font-size: 32px; margin-bottom: 12px; }
+.auth-title { font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+.auth-sub { font-size: 14px; color: #6B7280; margin-bottom: 28px; }
+.auth-tabs { display: flex; gap: 0; margin-bottom: 24px; background: #F3F4F6; border-radius: 8px; padding: 3px; }
+.auth-tab { flex: 1; padding: 8px; text-align: center; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; color: #6B7280; transition: all .15s; }
+.auth-tab.active { background: #FFFFFF; color: #111827; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.auth-form { display: none; text-align: left; }
+.auth-form.active { display: block; }
+.auth-field { margin-bottom: 16px; }
+.auth-field label { display: block; font-size: 12px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+.auth-field input {
+  width: 100%; background: #FFFFFF; border: 1px solid #D1D5DB;
+  color: #111827; padding: 10px 14px; border-radius: 8px; font-size: 14px;
+  font-family: var(--font-body); outline: none; transition: border-color .15s;
+}
+.auth-field input:focus { border-color: #1570EF; box-shadow: 0 0 0 3px rgba(21,112,239,0.1); }
+.auth-btn {
+  width: 100%; padding: 11px; background: #1570EF; color: #fff; border: none;
+  border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: var(--font-body); transition: all .15s; margin-top: 4px;
+}
+.auth-btn:hover { background: #1048A8; }
+.auth-error { color: #D92D20; font-size: 12px; margin-top: 8px; min-height: 18px; }
 
   /* ── App Shell ── */
   #app-shell { display: none; }
@@ -100,8 +82,7 @@
   .logo-mark span { color: var(--accent); }
   .logo-sub { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: .04em; font-weight: 400; }
   .nav { padding: 12px 10px; flex: 1; }
-  .nav-label {
-    font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase;
+  .nav-label { font-size: 9px; color: #475467; letter-spacing: .1em; text-transform: uppercase;
     font-weight: 600; padding: 0 8px; margin-bottom: 4px; margin-top: 16px;
   }
   .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 8px; cursor: pointer; color: #CECFD2; font-size: 13px; font-weight: 500;
@@ -125,11 +106,11 @@
   .skeleton-line { height: 14px; margin-bottom: 8px; border-radius: 4px; }
   .skeleton-block { height: 80px; border-radius: 8px; margin-bottom: 12px; }
   .sidebar-footer { padding: 14px 16px; border-top: 1px solid var(--border); }
-  .user-info { font-size: 12px; color: var(--muted); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-info { font-size: 12px; color: #CECFD2; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-info strong { color: var(--text); display: block; font-size: 13px; font-weight: 600; }
   .btn-logout {
-    width: 100%; padding: 7px 10px; background: transparent; color: var(--muted);
-    border: 1px solid var(--border); border-radius: 6px; font-size: 12px;
+    width: 100%; padding: 8px 12px; background: transparent; color: #CECFD2;
+    border: 1px solid #344054; border-radius: 6px; font-size: 12px;
     cursor: pointer; font-family: var(--font-body); transition: all .15s; text-align: left;
     display: flex; align-items: center; gap: 6px;
   }
@@ -408,65 +389,37 @@
 
 <!-- ── AUTH SCREEN ── -->
 <div id="auth-screen">
-  <div class="auth-left">
-    <div class="auth-left-logo">Lead<span>Gen</span> AI</div>
-    <div class="auth-left-tag">Agentic B2B Sales Platform</div>
-    <div class="auth-left-props">
-      <div class="auth-prop">
-        <div class="auth-prop-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        </div>
-        <div class="auth-prop-text">
-          <strong>AI-Powered Lead Enrichment</strong>
-          <span>Score, qualify and enrich every lead automatically with AI analysis.</span>
-        </div>
-      </div>
-      <div class="auth-prop">
-        <div class="auth-prop-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-        </div>
-        <div class="auth-prop-text">
-          <strong>Personalized Outreach at Scale</strong>
-          <span>Send hyper-personalized email and WhatsApp messages to every lead.</span>
-        </div>
-      </div>
-      <div class="auth-prop">
-        <div class="auth-prop-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        </div>
-        <div class="auth-prop-text">
-          <strong>Full Pipeline Analytics</strong>
-          <span>Track every stage from discovery to closed deal in one dashboard.</span>
-        </div>
-      </div>
+  <div class="auth-box">
+    <div class="auth-logo">⚡</div>
+    <div class="auth-title">LeadGen AI</div>
+    <div class="auth-sub">Sign in to your account</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')">Register</div>
     </div>
-  </div>
-  <div class="auth-right">
-    <div class="auth-box">
-      <div class="auth-logo">Lead<span>Gen</span> AI</div>
-      <div class="auth-sub">Sign in to your account</div>
-
-      <div class="auth-tabs">
-        <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
-        <div class="auth-tab" onclick="switchAuthTab('register')">Register</div>
+    <div id="auth-login" class="auth-form active">
+      <div class="auth-field"><label>Email</label><input id="login-email" type="email" placeholder="you@company.com"></div>
+      <div class="auth-field"><label>Password</label><input id="login-password" type="password" placeholder="••••••••"></div>
+      <button class="auth-btn" style="background:#fff;color:#111827;border:1px solid #D1D5DB;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px" onclick="toast('Google login coming soon','error')">
+        <img src="https://www.google.com/favicon.ico" style="width:16px;height:16px"> Continue with Google
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="flex:1;height:1px;background:#E5E7EB"></div>
+        <span style="font-size:12px;color:#9CA3AF">or continue with email</span>
+        <div style="flex:1;height:1px;background:#E5E7EB"></div>
       </div>
-
-      <!-- Login form -->
-      <div id="auth-login" class="auth-form active">
-        <div class="auth-field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"></div>
-        <div class="auth-field"><label>Password</label><input id="login-password" type="password" placeholder="••••••••"></div>
-        <button class="auth-btn" onclick="doLogin()">Sign In</button>
-        <div class="auth-error" id="login-error"></div>
-      </div>
-
-      <!-- Register form -->
-      <div id="auth-register" class="auth-form">
-        <div class="auth-field"><label>Name</label><input id="reg-name" placeholder="Your Name"></div>
-        <div class="auth-field"><label>Email</label><input id="reg-email" type="email" placeholder="you@example.com"></div>
-        <div class="auth-field"><label>Password</label><input id="reg-password" type="password" placeholder="••••••••"></div>
-        <button class="auth-btn" onclick="doRegister()">Create Account</button>
-        <div class="auth-error" id="reg-error"></div>
-      </div>
+      <button class="auth-btn" onclick="doLogin()">Sign In</button>
+      <div class="auth-error" id="login-error"></div>
+      <p style="font-size:11px;color:#9CA3AF;text-align:center;margin-top:20px;line-height:1.6">
+        By continuing, you agree to our <a href="#" style="color:#1570EF">Terms of Service</a> and <a href="#" style="color:#1570EF">Privacy Policy</a>
+      </p>
+    </div>
+    <div id="auth-register" class="auth-form">
+      <div class="auth-field"><label>Name</label><input id="reg-name" placeholder="Your Name"></div>
+      <div class="auth-field"><label>Email</label><input id="reg-email" type="email" placeholder="you@company.com"></div>
+      <div class="auth-field"><label>Password</label><input id="reg-password" type="password" placeholder="••••••••"></div>
+      <button class="auth-btn" onclick="doRegister()">Create Account</button>
+      <div class="auth-error" id="reg-error"></div>
     </div>
   </div>
 </div>
@@ -480,54 +433,22 @@
       <div class="logo-mark">Lead<span>Gen</span> AI</div>
       <div class="logo-sub">agentic sales platform</div>
     </div>
-      <nav class="nav">
-      <div class="nav-label">Core</div>
+    <nav class="nav">
       <div class="nav-item active" onclick="showView('dashboard', this)">
         <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
         <span>Dashboard</span>
       </div>
-      <div class="nav-item" onclick="showView('leads', this)">
-        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span>
-        <span>Leads</span>
-      </div>
-      <div class="nav-item" onclick="showView('campaigns', this)">
-        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg></span>
-        <span>Campaigns</span>
-      </div>
-      <div class="nav-label">Outreach</div>
-      <div class="nav-item" onclick="showView('outreach', this)">
-        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg></span>
-        <span>Outreach</span>
-      </div>
-      <div class="nav-item" onclick="showView('log', this)">
-        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg></span>
-        <span>Message Log</span>
-      </div>
-      <div class="nav-label">Agent</div>
       <div class="nav-item" onclick="showView('agent', this)">
         <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
-        <span>Auto Agent</span>
-      </div>
-      <div class="nav-item" onclick="showView('approve', this)">
-        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
-        <span>Approve Queue</span>
+        <span>Agent</span>
       </div>
       <div class="nav-item" onclick="showView('analytics', this)">
         <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></span>
         <span>Analytics</span>
       </div>
-      <div class="nav-item" onclick="showView('intelligence', this)">
-        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></span>
-        <span>AI Intelligence</span>
-      </div>
-      <div class="nav-label">Tools</div>
-      <div class="nav-item" onclick="showView('import', this)">
-        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></span>
-        <span>Import Leads</span>
-      </div>
-      <div class="nav-item" onclick="showView('scrape', this)">
-        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></span>
-        <span>Scrape Leads</span>
+      <div class="nav-item" onclick="showView('settings', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <span>Settings</span>
       </div>
     </nav>
     <div class="sidebar-footer">
@@ -848,11 +769,18 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
     <!-- ── AGENT ── -->
     <div id="view-agent" class="view">
       <div class="page-header">
-        <div><div class="page-title">Auto <span class="accent">Agent</span></div><div class="page-sub">Agent finds leads, enriches them, writes messages — you just approve</div></div>
+        <div class="page-title">Agent</div>
+        <div class="page-sub">Find leads, generate messages, approve and send</div>
       </div>
       <div class="content">
+      <div style="display:flex;gap:4px;background:#F3F4F6;padding:4px;border-radius:10px;width:fit-content;margin-bottom:24px">
+        <button id="agent-tab-setup" onclick="switchAgentTab('setup')" style="padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:#FFFFFF;color:#111827;box-shadow:0 1px 3px rgba(0,0,0,0.1)">⚙ Setup</button>
+        <button id="agent-tab-find" onclick="switchAgentTab('find')" style="padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;background:transparent;color:#6B7280">⚡ Find Leads</button>
+        <button id="agent-tab-review" onclick="switchAgentTab('review')" style="padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;background:transparent;color:#6B7280">✓ Review</button>
+        <button id="agent-tab-results" onclick="switchAgentTab('results')" style="padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;background:transparent;color:#6B7280">📊 Results</button>
+      </div>
 
-        <!-- Config Panel -->
+        <div id="setup-section">
         <div class="panel" id="agent-config-panel">
           <div class="panel-title"><span class="dot" style="background:var(--accent)"></span> Configure Agent Run</div>
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
@@ -862,11 +790,6 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
               <button id="mode-multi" onclick="setAgentMode('multi')" style="padding:6px 14px;font-size:12px;font-weight:600;background:transparent;color:var(--muted);border:none;cursor:pointer">Multi-Agent</button>
             </div>
           </div>
-          <div id="multi-agent-banner" style="display:none;background:rgba(124,92,252,0.08);border:1px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--accent);margin-bottom:16px">
-            Multi-Agent mode runs 4 specialized AI agents in parallel — faster and more thorough than standard mode.
-          </div>
-
-          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Select a campaign and industry. The agent will automatically find leads, score them with AI, generate personalized messages, and wait for your approval before doing anything.</p>
           <div class="form-grid">
             <div class="form-group">
               <label>Campaign</label>
@@ -874,36 +797,49 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
                 <option value="">Loading campaigns...</option>
               </select>
             </div>
+          </div>
+        </div>
+        </div>
+
+        <div id="find-leads-section" style="display:none">
+        <div class="panel">
+          <div class="panel-title"><span class="dot" style="background:var(--accent)"></span> Find Leads</div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Select industry, city and count. The agent will find real leads, enrich them with AI and generate personalized messages.</p>
+          <div class="form-grid">
             <div class="form-group">
               <label>Target Industry</label>
               <select id="agent-industry" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px">
                 <option value="SaaS">SaaS</option>
-                <option value="E-commerce">E-commerce</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Finance">Finance</option>
-                <option value="Healthcare">Healthcare</option>
+                <option value="IT Staffing">IT Staffing</option>
                 <option value="Real Estate">Real Estate</option>
+                <option value="EdTech">EdTech</option>
+                <option value="E-commerce">E-commerce</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Finance">Finance</option>
                 <option value="FMCG">FMCG</option>
                 <option value="Manufacturing">Manufacturing</option>
-                <option value="Retail">Retail</option>
-                <option value="Logistics">Logistics</option>
-                <option value="Education">Education</option>
-                <option value="Construction">Construction</option>
               </select>
+            </div>
+            <div class="form-group">
+              <label>Target City</label>
+              <input id="agent-city" placeholder="Mumbai, Delhi, Ahmedabad..." style="width:100%;background:var(--bg-surface);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:14px">
             </div>
             <div class="form-group">
               <label>Number of Leads</label>
               <select id="agent-count" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px">
                 <option value="3">3 leads</option>
                 <option value="5" selected>5 leads</option>
+                <option value="10">10 leads</option>
+                <option value="20">20 leads</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Source URL (optional — leave blank to use sample data)</label>
+              <label>Source URL (optional)</label>
               <input id="agent-url" placeholder="https://example.com/team">
             </div>
           </div>
           <button class="btn btn-primary" onclick="runAgent()" style="font-size:14px;padding:12px 24px">⚡ Run Agent</button>
+        </div>
         </div>
 
         <!-- Status Panel (Standard) -->
@@ -2091,6 +2027,7 @@ async function runAgent() {
   const industry    = document.getElementById('agent-industry').value;
   const count       = parseInt(document.getElementById('agent-count').value);
   const source_url  = document.getElementById('agent-url').value;
+  const city = document.getElementById('agent-city').value || 'Mumbai';
   if (!campaign_id) { toast('Select a campaign first', 'error'); return; }
 
   document.getElementById('agent-config-panel').style.display = 'none';
@@ -2100,14 +2037,14 @@ async function runAgent() {
   if (agentMode === 'multi') {
     document.getElementById('agent-pipeline-panel').style.display = 'block';
     const data = await api('/agent/run-multi', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ campaign_id, industry, count, source_url }) });
+      body: JSON.stringify({ campaign_id, industry, count, source_url, city }) });
     if (!data?.success) { toast('Failed to start agent', 'error'); resetAgent(); return; }
     _agentJobId = data.job_id;
     updatePipelineStatus(_agentJobId);
   } else {
     document.getElementById('agent-status-panel').style.display = 'block';
     const data = await api('/agent/run', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ campaign_id, industry, count, source_url }) });
+      body: JSON.stringify({ campaign_id, industry, count, source_url, city }) });
     if (!data?.success) { toast('Failed to start agent', 'error'); resetAgent(); return; }
     _agentJobId = data.job_id;
     pollAgentJob();
@@ -2693,6 +2630,31 @@ function printShareCard() {
     .share-card{background:linear-gradient(135deg,#0a0a0f,#111118);border:1px solid #7c5cfc;border-radius:16px;padding:32px;width:480px}
   </style></head><body>${content}<script>window.print()<\/script></body></html>`);
   win.document.close();
+}
+
+function switchAgentTab(tab) {
+  const tabs = ['setup','find','review','results'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('agent-tab-'+t);
+    if(t === tab) {
+      btn.style.background = '#FFFFFF';
+      btn.style.color = '#111827';
+      btn.style.fontWeight = '600';
+      btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.color = '#6B7280';
+      btn.style.fontWeight = '500';
+      btn.style.boxShadow = 'none';
+    }
+  });
+  // Show/hide panels
+  document.getElementById('agent-status-panel').style.display = 'none';
+  document.getElementById('agent-review-panel').style.display = tab === 'review' ? 'block' : 'none';
+  document.getElementById('agent-done-panel').style.display = tab === 'results' ? 'block' : 'none';
+  document.getElementById('agent-config-panel').style.display = (tab === 'setup' || tab === 'find') ? 'block' : 'none';
+  document.getElementById('setup-section').style.display = tab === 'setup' ? 'block' : 'none';
+  document.getElementById('find-leads-section').style.display = tab === 'find' ? 'block' : 'none';
 }
 </script>
 </body>
