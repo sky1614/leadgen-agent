@@ -25,6 +25,7 @@ DATABASE_URL = "sqlite:///./leadgen.db"
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")
 _groq_client = Groq(api_key=GROQ_API_KEY)
+HUNTER_API_KEY = os.getenv("HUNTER_API_KEY", "")
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -381,7 +382,7 @@ class CampaignCreate(BaseModel):
 class OutreachReq(BaseModel): lead_id:str; campaign_id:str; channel:str="email"
 class ScrapeReq(BaseModel): url:str; industry:Optional[str]=""; schedule:Optional[str]="none"
 class AutoGenReq(BaseModel): industry:str; count:Optional[int]=5
-class AgentRunReq(BaseModel): campaign_id:str; industry:str; source_url:Optional[str]=""; count:Optional[int]=5
+class AgentRunReq(BaseModel): campaign_id:str; city: str = "Mumbai"; industry:str; source_url:Optional[str]=""; count:Optional[int]=5
 class PlacesSearchReq(BaseModel): industry:str; city:str; count:Optional[int]=5
 class ApolloSearchReq(BaseModel): industry:str; city:str; count:Optional[int]=5
 
@@ -401,6 +402,29 @@ def login(form:OAuth2PasswordRequestForm=Depends(), db:Session=Depends(get_db)):
 @app.get("/auth/me")
 def me(cu:UserDB=Depends(get_current_user)): return _user_dict(cu)
 
+def enrich_with_hunter(domain: str) -> dict:
+    if not HUNTER_API_KEY or not domain:
+        return {}
+    try:
+        domain = domain.replace("https://","").replace("http://","").split("/")[0]
+        r = requests.get(
+            "https://api.hunter.io/v2/domain-search",
+            params={"domain": domain, "api_key": HUNTER_API_KEY, "limit": 1},
+            timeout=10
+        )
+        data = r.json().get("data", {})
+        emails = data.get("emails", [])
+        if emails:
+            e = emails[0]
+            return {
+                "email": e.get("value", ""),
+                "name": f"{e.get('first_name','')} {e.get('last_name','')}".strip(),
+                "role": e.get("position", "")
+            }
+    except Exception:
+        pass
+    return {}
+    
 @app.get("/leads")
 def get_leads(db:Session=Depends(get_db),cu:UserDB=Depends(get_current_user)):
     leads = db.query(LeadDB).filter(LeadDB.user_id==cu.id).all()
@@ -707,7 +731,16 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
         camp = db.query(CampaignDB).filter(CampaignDB.id==req.campaign_id).first()
         if not camp: job.status="error"; db.commit(); return
 
-        raw_leads = scrape_url(req.source_url, req.industry) if req.source_url else SAMPLE_LEADS.get(req.industry, [])
+        if req.source_url:
+            raw_leads = scrape_url(req.source_url, req.industry)
+        else:
+            city = getattr(req, 'city', 'Mumbai') or 'Mumbai'
+            if GOOGLE_PLACES_API_KEY:
+                from app.services.scraper_service import search_google_places
+                query = f"{req.industry} companies in {city}"
+                raw_leads = search_google_places(query) or SAMPLE_LEADS.get(req.industry, [])
+            else:
+                raw_leads = SAMPLE_LEADS.get(req.industry, [])
         raw_leads = raw_leads[:req.count]
 
         for ld in raw_leads:
@@ -720,6 +753,16 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
                 lead = LeadDB(user_id=user_id, fingerprint=fp, source="agent",
                               **{k:v for k,v in ld.items() if k in ["name","company","email","whatsapp","industry","role","website","notes"]})
                 db.add(lead); user.leads_used += 1; db.commit(); db.refresh(lead)
+
+            if lead.website and not lead.email:
+                hunter = enrich_with_hunter(lead.website)
+                if hunter.get("email"):
+                    lead.email = hunter["email"]
+                    if not lead.name or lead.name == lead.company:
+                        lead.name = hunter.get("name") or lead.name
+                    if not lead.role:
+                        lead.role = hunter.get("role", "")
+                    db.commit()
 
             enrichment = ai_enrich(lead)
             lead.enrichment_json = json.dumps(enrichment)
