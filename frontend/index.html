@@ -477,25 +477,25 @@
       </div>
       <div class="content">
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
-          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)">
+          <div onclick="showView('leads', document.querySelector('[onclick*=leads]'))" style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow 0.2s" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='var(--shadow)'">
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Total Leads</div>
             <div style="font-size:32px;font-weight:700;color:var(--text);margin:8px 0 4px" id="stat-leads">0</div>
-            <div style="font-size:12px;color:var(--text-muted)">in your pipeline</div>
+            <div style="font-size:12px;color:var(--text-muted)">in your pipeline →</div>
           </div>
-          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)">
+          <div onclick="showView('leads', document.querySelector('[onclick*=leads]'));document.getElementById('leads-filter-status').value='enriched';loadLeads()" style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow 0.2s" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='var(--shadow)'">
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Enriched</div>
             <div style="font-size:32px;font-weight:700;color:var(--text);margin:8px 0 4px" id="stat-enriched">0</div>
-            <div style="font-size:12px;color:var(--text-muted)">AI-analyzed leads</div>
+            <div style="font-size:12px;color:var(--text-muted)">AI-analyzed leads →</div>
           </div>
-          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)">
+          <div onclick="showView('leads', document.querySelector('[onclick*=leads]'));document.getElementById('leads-filter-status').value='contacted';loadLeads()" style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow 0.2s" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='var(--shadow)'">
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Contacted</div>
             <div style="font-size:32px;font-weight:700;color:var(--text);margin:8px 0 4px" id="stat-contacted">0</div>
-            <div style="font-size:12px;color:var(--text-muted)">outreach sent</div>
+            <div style="font-size:12px;color:var(--text-muted)">outreach sent →</div>
           </div>
-          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)">
+          <div onclick="showView('analytics', document.querySelector('[onclick*=analytics]'))" style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow 0.2s" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='var(--shadow)'">
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Avg Fit Score</div>
             <div style="font-size:32px;font-weight:700;color:var(--text);margin:8px 0 4px" id="stat-fit">—</div>
-            <div style="font-size:12px;color:var(--text-muted)">out of 10</div>
+            <div style="font-size:12px;color:var(--text-muted)">out of 10 →</div>
           </div>
         </div>
 
@@ -656,7 +656,7 @@
           </div>
           <table>
             <thead><tr>
-              <th>Name</th><th>Company</th><th>Industry</th><th>Source</th><th>Fit Score</th><th>Status</th><th>Actions</th>
+              <th>Name</th><th>Company</th><th>Industry</th><th>Source</th><th>Fit Score</th><th>Status</th><th>CREATED</th><th>Actions</th>
             </tr></thead>
             <tbody id="leads-table-body">
               <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◎</div><div class="empty-text">No leads yet. Import a CSV or add manually.</div></div></td></tr>
@@ -894,10 +894,12 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
 
         <!-- Status Panel (Standard) -->
         <div class="panel" id="agent-status-panel" style="display:none">
-          <div class="panel-title"><span class="dot" style="background:var(--amber)"></span> Agent Running...</div>
-          <div id="agent-status-msg" style="color:var(--muted);font-size:13px;margin-bottom:8px">Finding and enriching leads with AI...</div>
-          <div style="height:4px;background:var(--border);border-radius:4px;overflow:hidden">
-            <div id="agent-progress-bar" style="height:100%;width:30%;background:var(--accent);border-radius:4px;transition:width 1s"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;padding:40px 20px;text-align:center">
+            <div style="width:48px;height:48px;border:3px solid var(--border);border-top:3px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px"></div>
+            <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px" id="agent-status-msg">Finding and enriching leads with AI...</div>
+            <div style="width:300px;height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:16px">
+              <div id="agent-progress-bar" style="height:100%;width:30%;background:var(--accent);border-radius:4px;transition:width 1s"></div>
+            </div>
           </div>
         </div>
 
@@ -920,6 +922,7 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
             .pipeline-arrow { color:var(--muted);font-size:18px;align-self:center;padding:0 4px }
             .queue-badge { font-size:10px;color:var(--muted);text-align:center;margin-top:2px }
             @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+            @keyframes spin { to { transform: rotate(360deg); } }
           </style>
           <div style="display:flex;align-items:flex-start;gap:4px;margin-top:16px">
             <div class="pipeline-stage">
@@ -1951,8 +1954,21 @@ async function loadLeads() {
   const statusFilter = document.getElementById('leads-filter-status')?.value || '';
   const data = await api('/leads');
   if (!data) return;
+  let leads = data.leads || [];
+  leads.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  if (statusFilter) leads = leads.filter(l => l.status === statusFilter);
+  if (dateFilter) {
+    const now = new Date();
+    leads = leads.filter(l => {
+      const created = new Date(l.created_at);
+      if (dateFilter === 'today') return created.toDateString() === now.toDateString();
+      if (dateFilter === 'week') return (now - created) < 7*24*60*60*1000;
+      if (dateFilter === 'month') return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+      return true;
+    });
+  }
   const tbody = document.getElementById('leads-table-body');
-  if (!leads.length) {
+  if (!leads || !leads.length) {
     tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◎</div><div class="empty-text">No leads yet. Import a CSV or add manually.</div></div></td></tr>';
     return;
   }
@@ -1969,6 +1985,7 @@ async function loadLeads() {
       <td><span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">${l.source || 'manual'}</span></td>
       <td>${scoreHtml}</td>
       <td>${statusBadge}</td>
+      <td style="font-size:11px;color:var(--text-muted)">${l.created_at ? new Date(l.created_at).toLocaleString('en-IN', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
       <td>
         <div style="display:flex;gap:6px">
           <button class="btn btn-ghost btn-sm" onclick="enrichLead('${l.id}')">✦ Enrich</button>
@@ -2049,18 +2066,6 @@ async function createCampaign() {
 async function loadCampaigns() {
   const data = await api('/campaigns');
   if (!data) return;
-  let leads = data.leads || [];
-  if (statusFilter) leads = leads.filter(l => l.status === statusFilter);
-  if (dateFilter) {
-    const now = new Date();
-    leads = leads.filter(l => {
-      const created = new Date(l.created_at);
-      if (dateFilter === 'today') return created.toDateString() === now.toDateString();
-      if (dateFilter === 'week') return (now - created) < 7*24*60*60*1000;
-      if (dateFilter === 'month') return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
-      return true;
-    });
-  }
   const tbody = document.getElementById('campaigns-table-body');
   if (!data.campaigns.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">◇</div><div class="empty-text">No campaigns yet.</div></div></td></tr>'; return; }
   tbody.innerHTML = data.campaigns.map(c =>
