@@ -406,7 +406,7 @@ def enrich_with_hunter(domain: str) -> dict:
     if not HUNTER_API_KEY or not domain:
         return {}
     try:
-        domain = domain.replace("https://","").replace("http://","").split("/")[0]
+        domain = domain.replace("https://","").replace("http://","").split("/")[0].replace("www.","")
         r = requests.get(
             "https://api.hunter.io/v2/domain-search",
             params={"domain": domain, "api_key": HUNTER_API_KEY, "limit": 1},
@@ -424,7 +424,7 @@ def enrich_with_hunter(domain: str) -> dict:
     except Exception:
         pass
     return {}
-    
+
 @app.get("/leads")
 def get_leads(db:Session=Depends(get_db),cu:UserDB=Depends(get_current_user)):
     leads = db.query(LeadDB).filter(LeadDB.user_id==cu.id).all()
@@ -839,6 +839,11 @@ def test_osm(industry:str="retail", city:str="Mumbai"):
     bbox = get_city_bbox(city)
     leads = search_osm_businesses(industry, city, 5)
     return {"bbox": bbox, "leads_found": len(leads), "leads": leads}
+
+@app.get("/test-hunter")
+def test_hunter(domain: str = "stripe.com"):
+    result = enrich_with_hunter(domain)
+    return {"domain": domain, "result": result}
 
 @app.get("/test-apollo")
 def test_apollo(industry:str="retail", city:str="Mumbai"):
