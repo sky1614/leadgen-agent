@@ -23,6 +23,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 DATABASE_URL = "sqlite:///./leadgen.db"
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")
 _groq_client = Groq(api_key=GROQ_API_KEY)
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
