@@ -438,6 +438,10 @@
         <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
         <span>Dashboard</span>
       </div>
+      <div class="nav-item" onclick="showView('leads', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span>
+        <span>Leads</span>
+      </div>
       <div class="nav-item" onclick="showView('agent', this)">
         <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
         <span>Agent</span>
@@ -502,6 +506,7 @@
             <button class="btn btn-ghost" onclick="showView('agent', document.querySelector('[onclick*=agent]'));switchAgentTab('setup')">⚙ Setup Campaign</button>
             <button class="btn btn-ghost" onclick="showView('agent', document.querySelector('[onclick*=agent]'));switchAgentTab('review')">✓ Review Messages</button>
             <button class="btn btn-ghost" onclick="showView('analytics', document.querySelector('[onclick*=analytics]'))">↗ View Analytics</button>
+            <button class="btn btn-ghost" onclick="showView('leads', document.querySelector('[onclick*=leads]'))">◎ View Leads</button>
           </div>
         </div>
 
@@ -634,6 +639,19 @@
             <div class="table-title">All Leads</div>
             <div style="display:flex;gap:8px">
               <button class="btn btn-ghost btn-sm" onclick="loadLeads()">↻ Refresh</button>
+              <select id="leads-filter-date" onchange="loadLeads()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)">
+                <option value="">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+              </select>
+              <select id="leads-filter-status" onchange="loadLeads()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)">
+                <option value="">All Status</option>
+                <option value="new">New</option>
+                <option value="enriched">Enriched</option>
+                <option value="contacted">Contacted</option>
+                <option value="replied">Replied</option>
+              </select>
             </div>
           </div>
           <table>
@@ -841,7 +859,20 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
             </div>
             <div class="form-group">
               <label>Target City</label>
-              <input id="agent-city" placeholder="Mumbai, Delhi, Ahmedabad..." style="width:100%;background:var(--bg-surface);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:14px">
+              <select id="agent-country" onchange="updateStateDropdown()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:8px">
+                <option value="">Select Country</option>
+                <option value="India">India</option>
+                <option value="United States">United States</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Germany">Germany</option>
+                <option value="Singapore">Singapore</option>
+                <option value="UAE">UAE</option>
+                <option value="Australia">Australia</option>
+                <option value="Canada">Canada</option>
+              </select>
+              <select id="agent-state" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px">
+                <option value="">All States/Cities (entire country)</option>
+              </select>
             </div>
             <div class="form-group">
               <label>Number of Leads</label>
@@ -1916,14 +1947,16 @@ function scoreColor(s) {
 }
 
 async function loadLeads() {
+  const dateFilter = document.getElementById('leads-filter-date')?.value || '';
+  const statusFilter = document.getElementById('leads-filter-status')?.value || '';
   const data = await api('/leads');
   if (!data) return;
   const tbody = document.getElementById('leads-table-body');
-  if (!data.leads.length) {
+  if (!leads.length) {
     tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◎</div><div class="empty-text">No leads yet. Import a CSV or add manually.</div></div></td></tr>';
     return;
   }
-  tbody.innerHTML = data.leads.map(l => {
+  tbody.innerHTML = leads.map(l => {
     const score = l.fit_score || l.enrichment?.fit_score;
     const scoreHtml = score
       ? `<div class="score-bar"><div class="score-track"><div class="score-fill" style="width:${score*10}%;background:${scoreColor(score)}"></div></div><span class="score-num" style="color:${scoreColor(score)}">${score}</span></div>`
@@ -2016,6 +2049,18 @@ async function createCampaign() {
 async function loadCampaigns() {
   const data = await api('/campaigns');
   if (!data) return;
+  let leads = data.leads || [];
+  if (statusFilter) leads = leads.filter(l => l.status === statusFilter);
+  if (dateFilter) {
+    const now = new Date();
+    leads = leads.filter(l => {
+      const created = new Date(l.created_at);
+      if (dateFilter === 'today') return created.toDateString() === now.toDateString();
+      if (dateFilter === 'week') return (now - created) < 7*24*60*60*1000;
+      if (dateFilter === 'month') return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+      return true;
+    });
+  }
   const tbody = document.getElementById('campaigns-table-body');
   if (!data.campaigns.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">◇</div><div class="empty-text">No campaigns yet.</div></div></td></tr>'; return; }
   tbody.innerHTML = data.campaigns.map(c =>
@@ -2148,7 +2193,9 @@ async function runAgent() {
   const industry    = document.getElementById('agent-industry').value;
   const count       = parseInt(document.getElementById('agent-count').value);
   const source_url  = document.getElementById('agent-url').value;
-  const city = document.getElementById('agent-city').value || 'Mumbai';
+  const country = document.getElementById('agent-country').value || 'India';
+  const state = document.getElementById('agent-state').value;
+  const city = state ? `${state}, ${country}` : country;
   if (!campaign_id) { toast('Select a campaign first', 'error'); return; }
 
   document.getElementById('agent-config-panel').style.display = 'none';
@@ -2793,6 +2840,28 @@ if (authToken && currentUser) {
   document.getElementById('sidebar-username').textContent = currentUser.name || currentUser.email;
   document.getElementById('sidebar-email').textContent = currentUser.email || '';
   loadAnalytics();
+}
+
+const STATES = {
+  "India": ["Mumbai","Delhi","Bangalore","Hyderabad","Chennai","Ahmedabad","Pune","Kolkata","Jaipur","Surat","Lucknow","Chandigarh"],
+  "United States": ["New York","San Francisco","Los Angeles","Chicago","Austin","Seattle","Boston","Miami","Denver","Atlanta"],
+  "United Kingdom": ["London","Manchester","Birmingham","Leeds","Edinburgh","Bristol","Glasgow"],
+  "Germany": ["Berlin","Munich","Hamburg","Frankfurt","Cologne","Stuttgart","Düsseldorf"],
+  "Singapore": ["Singapore"],
+  "UAE": ["Dubai","Abu Dhabi","Sharjah"],
+  "Australia": ["Sydney","Melbourne","Brisbane","Perth","Adelaide"],
+  "Canada": ["Toronto","Vancouver","Montreal","Calgary","Ottawa"]
+};
+
+function updateStateDropdown() {
+  const country = document.getElementById('agent-country').value;
+  const stateSelect = document.getElementById('agent-state');
+  stateSelect.innerHTML = '<option value="">All Cities (entire country)</option>';
+  if (country && STATES[country]) {
+    STATES[country].forEach(s => {
+      stateSelect.innerHTML += `<option value="${s}">${s}</option>`;
+    });
+  }
 }
 </script>
 </body>
