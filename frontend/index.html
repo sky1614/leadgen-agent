@@ -464,28 +464,44 @@
     <div id="view-dashboard" class="view active">
       <div class="page-header">
         <div>
-          <div class="page-title">Dashboard <span class="accent">Overview</span></div>
-          <div class="page-sub">Your AI sales agent — live and running</div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Your AI agent — live and running</div>
         </div>
         <div class="header-actions">
           <button class="btn btn-ghost" onclick="loadAnalytics()">↻ Refresh</button>
         </div>
       </div>
       <div class="content">
-        <div class="stats-row">
-          <div class="stat-card purple"><div class="stat-label">Total Leads</div><div class="stat-value" id="stat-leads">0</div><div class="stat-delta">in your pipeline</div></div>
-          <div class="stat-card green"><div class="stat-label">Enriched</div><div class="stat-value" id="stat-enriched">0</div><div class="stat-delta">AI-analyzed leads</div></div>
-          <div class="stat-card amber"><div class="stat-label">Contacted</div><div class="stat-value" id="stat-contacted">0</div><div class="stat-delta">outreach sent</div></div>
-          <div class="stat-card red"><div class="stat-label">Avg Fit Score</div><div class="stat-value" id="stat-fit">—</div><div class="stat-delta">out of 10</div></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)">
+            <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Total Leads</div>
+            <div style="font-size:32px;font-weight:700;color:var(--text);margin:8px 0 4px" id="stat-leads">0</div>
+            <div style="font-size:12px;color:var(--text-muted)">in your pipeline</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)">
+            <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Enriched</div>
+            <div style="font-size:32px;font-weight:700;color:var(--text);margin:8px 0 4px" id="stat-enriched">0</div>
+            <div style="font-size:12px;color:var(--text-muted)">AI-analyzed leads</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)">
+            <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Contacted</div>
+            <div style="font-size:32px;font-weight:700;color:var(--text);margin:8px 0 4px" id="stat-contacted">0</div>
+            <div style="font-size:12px;color:var(--text-muted)">outreach sent</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)">
+            <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Avg Fit Score</div>
+            <div style="font-size:32px;font-weight:700;color:var(--text);margin:8px 0 4px" id="stat-fit">—</div>
+            <div style="font-size:12px;color:var(--text-muted)">out of 10</div>
+          </div>
         </div>
 
         <div class="panel">
           <div class="panel-title"><span class="dot"></span> Quick Actions</div>
           <div style="display:flex;gap:12px;flex-wrap:wrap">
-            <button class="btn btn-primary" onclick="showView('import', document.querySelector('[onclick*=import]'))">↑ Import CSV</button>
-            <button class="btn btn-ghost" onclick="showView('scrape', document.querySelector('[onclick*=scrape]'))">⊕ Scrape Leads</button>
-            <button class="btn btn-ghost" onclick="showView('leads', document.querySelector('[onclick*=leads]'))">◎ View All Leads</button>
-            <button class="btn btn-ghost" onclick="showView('campaigns', document.querySelector('[onclick*=campaigns]'))">◇ New Campaign</button>
+            <button class="btn btn-primary" onclick="showView('agent', document.querySelector('[onclick*=agent]'));switchAgentTab('find')">⚡ Run Agent</button>
+            <button class="btn btn-ghost" onclick="showView('agent', document.querySelector('[onclick*=agent]'));switchAgentTab('setup')">⚙ Setup Campaign</button>
+            <button class="btn btn-ghost" onclick="showView('agent', document.querySelector('[onclick*=agent]'));switchAgentTab('review')">✓ Review Messages</button>
+            <button class="btn btn-ghost" onclick="showView('analytics', document.querySelector('[onclick*=analytics]'))">↗ View Analytics</button>
           </div>
         </div>
 
@@ -798,6 +814,9 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
               </select>
             </div>
           </div>
+          <div style="margin-top:20px">
+            <button class="btn btn-primary" onclick="switchAgentTab('find')" style="padding:10px 24px;font-size:14px">Continue to Find Leads →</button>
+          </div>
         </div>
         </div>
 
@@ -930,10 +949,32 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
         </div>
 
         <!-- Done Panel -->
-        <div class="panel" id="agent-done-panel" style="display:none;border-color:var(--accent2)">
-          <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span> Agent Complete</div>
-          <p id="agent-done-msg" style="color:var(--muted);font-size:13px;margin-bottom:16px"></p>
-          <button class="btn btn-primary" onclick="resetAgent()">Run Agent Again</button>
+        <div class="panel" id="agent-done-panel" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <div>
+              <div style="font-size:16px;font-weight:700;color:var(--text)">Agent Results</div>
+              <div style="font-size:13px;color:var(--text-muted);margin-top:2px" id="agent-done-msg"></div>
+            </div>
+            <button class="btn btn-primary" onclick="switchAgentTab('setup')">⚡ Run Agent Again</button>
+          </div>
+          <div id="results-table-container">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead>
+                <tr style="border-bottom:2px solid var(--border)">
+                  <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Lead</th>
+                  <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Company</th>
+                  <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Channel</th>
+                  <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Status</th>
+                  <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600">Score</th>
+                </tr>
+              </thead>
+              <tbody id="results-table-body">
+                <tr>
+                  <td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">No results yet — run the agent first</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
       </div>
@@ -1289,7 +1330,85 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div id="view-settings" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Settings</div>
+          <div class="page-sub">Manage your account and integrations</div>
+        </div>
+      </div>
+      <div class="content">
+        <div style="display:flex;gap:8px;margin-bottom:24px">
+          <button id="settings-tab-account" onclick="switchSettingsTab('account')" style="padding:8px 20px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;background:#fff;color:#111827">Account</button>
+          <button id="settings-tab-integrations" onclick="switchSettingsTab('integrations')" style="padding:8px 20px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;background:transparent;color:#6B7280">Integrations</button>
+          <button id="settings-tab-billing" onclick="switchSettingsTab('billing')" style="padding:8px 20px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;background:transparent;color:#6B7280">Billing</button>
+        </div>
 
+        <div id="settings-account">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:560px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:20px">Account Information</div>
+            <div style="margin-bottom:16px">
+              <label style="font-size:12px;font-weight:600;color:#6B7280;display:block;margin-bottom:6px">Name</label>
+              <input id="settings-name" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="Your name">
+            </div>
+            <div style="margin-bottom:16px">
+              <label style="font-size:12px;font-weight:600;color:#6B7280;display:block;margin-bottom:6px">Email</label>
+              <input id="settings-email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#F9FAFB" placeholder="you@company.com" disabled>
+            </div>
+            <div style="margin-bottom:20px">
+              <label style="font-size:12px;font-weight:600;color:#6B7280;display:block;margin-bottom:6px">New Password</label>
+              <input type="password" id="settings-password" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="Leave blank to keep current">
+            </div>
+            <button class="btn btn-primary" style="padding:10px 24px">Save Changes</button>
+          </div>
+        </div>
+
+        <div id="settings-integrations" style="display:none">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:560px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:20px">API Integrations</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:600">OpenRouter</div><div style="font-size:12px;color:#6B7280">LLM API</div></div>
+              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div><span style="font-size:12px;color:#6B7280">Connected</span></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:600">Apollo</div><div style="font-size:12px;color:#6B7280">Lead sourcing</div></div>
+              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div><span style="font-size:12px;color:#6B7280">Connected</span></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:600">Google Places</div><div style="font-size:12px;color:#6B7280">Business search</div></div>
+              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div><span style="font-size:12px;color:#6B7280">Connected</span></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:600">SendGrid</div><div style="font-size:12px;color:#6B7280">Email delivery</div></div>
+              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></div><span style="font-size:12px;color:#6B7280">Not configured</span></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+              <div><div style="font-size:13px;font-weight:600">Gupshup</div><div style="font-size:12px;color:#6B7280">WhatsApp</div></div>
+              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></div><span style="font-size:12px;color:#6B7280">Not configured</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="settings-billing" style="display:none">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:560px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:20px">Billing & Plan</div>
+            <div style="background:#F9FAFB;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:20px">
+              <div style="font-size:12px;color:#6B7280;margin-bottom:4px">Current Plan</div>
+              <div style="font-size:20px;font-weight:700">Starter</div>
+              <div style="font-size:13px;color:#6B7280">₹15,000/month</div>
+            </div>
+            <div style="margin-bottom:8px">
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+                <span>Leads Used</span><span id="billing-leads">0 / 500</span>
+              </div>
+              <div style="height:6px;background:#E5E7EB;border-radius:4px">
+                <div id="billing-bar" style="height:100%;width:0%;background:#1570EF;border-radius:4px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -1302,8 +1421,8 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
 const API = 'http://localhost:8000';
 
 // ── Auth state (in-memory) ──────────────────────────────────────────────────
-let authToken = null;
-let currentUser = null;
+let authToken = localStorage.getItem('authToken') || null;
+let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
 // ── Auth helpers ───────────────────────────────────────────────────────────
 function switchAuthTab(tab) {
@@ -1357,8 +1476,8 @@ async function doRegister() {
 }
 
 function onAuthSuccess(data) {
-  authToken   = data.access_token;
-  currentUser = data.user;
+  localStorage.setItem('authToken', data.access_token);
+  localStorage.setItem('currentUser', JSON.stringify(data.user));
   document.getElementById('auth-screen').style.display  = 'none';
   document.getElementById('app-shell').style.display    = 'block';
   document.getElementById('sidebar-username').textContent = currentUser.name  || currentUser.email;
@@ -1367,8 +1486,8 @@ function onAuthSuccess(data) {
 }
 
 function doLogout() {
-  authToken   = null;
-  currentUser = null;
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('currentUser');
   document.getElementById('app-shell').style.display   = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('login-email').value    = '';
@@ -1390,6 +1509,7 @@ function showView(name, el) {
   if (name === 'outreach')  { loadLeadSelects(); loadCampaignSelects(); }
   if (name === 'log')       loadLog();
   if (name === 'agent')     loadAgentCampaigns();
+  if (name === 'settings')  switchSettingsTab('account');
   if (name === 'intelligence') loadIntelligenceDashboard();
 }
 
@@ -2019,7 +2139,8 @@ function setAgentMode(mode) {
   document.getElementById('mode-standard').style.color = mode === 'standard' ? '#fff' : 'var(--muted)';
   document.getElementById('mode-multi').style.background = mode === 'multi' ? 'var(--accent)' : 'transparent';
   document.getElementById('mode-multi').style.color = mode === 'multi' ? '#fff' : 'var(--muted)';
-  document.getElementById('multi-agent-banner').style.display = mode === 'multi' ? 'block' : 'none';
+  const banner = document.getElementById('multi-agent-banner');
+  if (banner) banner.style.display = mode === 'multi' ? 'block' : 'none';
 }
 
 async function runAgent() {
@@ -2035,13 +2156,14 @@ async function runAgent() {
   document.getElementById('agent-done-panel').style.display   = 'none';
 
   if (agentMode === 'multi') {
-    document.getElementById('agent-pipeline-panel').style.display = 'block';
-    const data = await api('/agent/run-multi', { method:'POST', headers:{'Content-Type':'application/json'},
+    document.getElementById('agent-pipeline-panel') && (document.getElementById('agent-pipeline-panel').style.display = 'block');
+    const data = await api('/agent/run', { method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ campaign_id, industry, count, source_url, city }) });
     if (!data?.success) { toast('Failed to start agent', 'error'); resetAgent(); return; }
     _agentJobId = data.job_id;
-    updatePipelineStatus(_agentJobId);
-  } else {
+    pollAgentJob();
+  } 
+  else {
     document.getElementById('agent-status-panel').style.display = 'block';
     const data = await api('/agent/run', { method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ campaign_id, industry, count, source_url, city }) });
@@ -2205,6 +2327,7 @@ async function approveAgentJob() {
     toast(`${data.approved} messages approved!`);
     loadLeads();
   }
+  switchAgentTab('results');
 }
 
 function resetAgent() {
@@ -2652,9 +2775,24 @@ function switchAgentTab(tab) {
   document.getElementById('agent-status-panel').style.display = 'none';
   document.getElementById('agent-review-panel').style.display = tab === 'review' ? 'block' : 'none';
   document.getElementById('agent-done-panel').style.display = tab === 'results' ? 'block' : 'none';
-  document.getElementById('agent-config-panel').style.display = (tab === 'setup' || tab === 'find') ? 'block' : 'none';
   document.getElementById('setup-section').style.display = tab === 'setup' ? 'block' : 'none';
   document.getElementById('find-leads-section').style.display = tab === 'find' ? 'block' : 'none';
+}
+function switchSettingsTab(tab) {
+  ['account','integrations','billing'].forEach(t => {
+    document.getElementById('settings-'+t).style.display = t === tab ? 'block' : 'none';
+    const btn = document.getElementById('settings-tab-'+t);
+    btn.style.background = t === tab ? '#fff' : 'transparent';
+    btn.style.color = t === tab ? '#111827' : '#6B7280';
+    btn.style.fontWeight = t === tab ? '600' : '500';
+  });
+}
+if (authToken && currentUser) {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'block';
+  document.getElementById('sidebar-username').textContent = currentUser.name || currentUser.email;
+  document.getElementById('sidebar-email').textContent = currentUser.email || '';
+  loadAnalytics();
 }
 </script>
 </body>
