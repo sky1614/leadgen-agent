@@ -2828,6 +2828,7 @@ function switchAgentTab(tab) {
   document.getElementById('agent-status-panel').style.display = 'none';
   document.getElementById('agent-review-panel').style.display = tab === 'review' ? 'block' : 'none';
   document.getElementById('agent-done-panel').style.display = tab === 'results' ? 'block' : 'none';
+  if (tab === 'results') loadResultsTab();
   document.getElementById('setup-section').style.display = tab === 'setup' ? 'block' : 'none';
   document.getElementById('find-leads-section').style.display = tab === 'find' ? 'block' : 'none';
 }
@@ -2870,6 +2871,29 @@ function updateStateDropdown() {
       stateSelect.innerHTML += `<option value="${s}">${s}</option>`;
     });
   }
+}
+async function loadResultsTab() {
+  const data = await api('/outreach/log');
+  if (!data) return;
+  const tbody = document.getElementById('results-table-body');
+  if (!data.log || !data.log.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">No messages sent yet — approve messages first</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.log.map(l => {
+    const statusColor = l.status === 'sent' ? '#10B981' : l.status === 'failed' ? '#EF4444' : '#F59E0B';
+    const shortMsg = (l.message || '').substring(0, 80) + ((l.message || '').length > 80 ? '...' : '');
+    return `<tr>
+      <td style="font-weight:500">${l.lead_id || '—'}</td>
+      <td style="color:var(--text-muted)">${l.channel || '—'}</td>
+      <td style="font-size:12px;color:var(--text-muted);max-width:300px">
+        <div>${shortMsg}</div>
+        <a href="#" onclick="this.parentElement.innerHTML='<div style=white-space:pre-wrap>${(l.message || '').replace(/'/g, "\\'")}';return false" style="font-size:11px;color:var(--accent)">Read full</a>
+      </td>
+      <td><span style="color:${statusColor};font-weight:600;font-size:12px">● ${l.status || 'pending'}</span></td>
+      <td style="font-size:11px;color:var(--text-muted)">${l.sent_at ? new Date(l.sent_at).toLocaleString() : '—'}</td>
+    </tr>`;
+  }).join('');
 }
 </script>
 </body>
