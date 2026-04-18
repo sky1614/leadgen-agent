@@ -1531,6 +1531,7 @@ function doLogout() {
 
 // ── Navigation ─────────────────────────────────────────────────────────────
 function showView(name, el) {
+  localStorage.setItem('lastView', name);
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
@@ -2844,7 +2845,9 @@ if (authToken && currentUser) {
   document.getElementById('app-shell').style.display = 'block';
   document.getElementById('sidebar-username').textContent = currentUser.name || currentUser.email;
   document.getElementById('sidebar-email').textContent = currentUser.email || '';
-  loadAnalytics();
+  const lastView = localStorage.getItem('lastView') || 'dashboard';
+  const navEl = document.querySelector(`[onclick*="'${lastView}'"]`);
+  showView(lastView, navEl);
 }
 
 const STATES = {
