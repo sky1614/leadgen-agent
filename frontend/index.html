@@ -638,7 +638,7 @@
           <div class="table-toolbar">
             <div class="table-title">All Leads</div>
             <div style="display:flex;gap:8px">
-              <button class="btn btn-ghost btn-sm" onclick="loadLeads()">↻ Refresh</button>
+              <button id="bulk-delete-btn" class="btn btn-danger btn-sm" style="display:none" onclick="deleteSelected()">✕ Delete Selected</button>
               <select id="leads-filter-date" onchange="loadLeads()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)">
                 <option value="">All Time</option>
                 <option value="today">Today</option>
@@ -699,6 +699,7 @@
         <div class="table-wrap">
           <div class="table-toolbar"><div class="table-title">Active Campaigns</div><button class="btn btn-ghost btn-sm" onclick="loadCampaigns()">↻ Refresh</button></div>
           <table>
+            <th style="width:40px"><input type="checkbox" id="leads-select-all" onchange="toggleSelectAll(this)"></th>
             <thead><tr><th>Name</th><th>Industry</th><th>Channel</th><th>Tone</th><th>Sent</th><th>Status</th></tr></thead>
             <tbody id="campaigns-table-body">
               <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">◇</div><div class="empty-text">No campaigns yet.</div></div></td></tr>
@@ -1980,6 +1981,7 @@ async function loadLeads() {
       : `<span style="color:var(--muted);font-size:11px">not enriched</span>`;
     const statusBadge = `<span class="badge badge-${l.status}"><span class="badge-dot"></span>${l.status}</span>`;
     return `<tr>
+      <td><input type="checkbox" class="lead-checkbox" value="${l.id}"></td>
       <td style="font-weight:500">${l.name || '—'}</td>
       <td style="color:var(--muted)">${l.company || '—'}</td>
       <td style="color:var(--muted);font-size:12px">${l.industry || '—'}</td>
@@ -1995,6 +1997,7 @@ async function loadLeads() {
       </td>
     </tr>`;
   }).join('');
+  document.querySelectorAll('.lead-checkbox').forEach(c => c.addEventListener('change', updateBulkDeleteBtn));
 }
 
 function openAddLead() {
@@ -2900,6 +2903,27 @@ async function loadResultsTab() {
 }
 function showFullMessage(el, msg) {
   el.parentElement.innerHTML = '<div style="white-space:pre-wrap;font-size:13px;line-height:1.6">' + msg.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+}
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.lead-checkbox').forEach(c => c.checked = cb.checked);
+  updateBulkDeleteBtn();
+}
+
+function updateBulkDeleteBtn() {
+  const checked = document.querySelectorAll('.lead-checkbox:checked').length;
+  const btn = document.getElementById('bulk-delete-btn');
+  if (btn) btn.style.display = checked > 0 ? 'inline-block' : 'none';
+}
+
+async function deleteSelected() {
+  const ids = [...document.querySelectorAll('.lead-checkbox:checked')].map(c => c.value);
+  if (!ids.length) return;
+  if (!confirm(`Delete ${ids.length} selected leads?`)) return;
+  for (const id of ids) {
+    await api(`/leads/${id}`, { method: 'DELETE' });
+  }
+  toast(`${ids.length} leads deleted`);
+  loadLeads();
 }
 </script>
 </body>
