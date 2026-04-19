@@ -703,7 +703,14 @@ def bulk(campaign_id:str,channel:str="email",db:Session=Depends(get_db),cu:UserD
 @app.get("/outreach/log")
 def log(db:Session=Depends(get_db),cu:UserDB=Depends(get_current_user)):
     logs=db.query(MessageLogDB).filter(MessageLogDB.user_id==cu.id).order_by(MessageLogDB.sent_at.desc()).limit(100).all()
-    return {"log":[_ld2(l) for l in logs],"total":len(logs)}
+    result = []
+    for l in logs:
+        d = _ld2(l)
+        lead = db.query(LeadDB).filter(LeadDB.id == l.lead_id).first()
+        d["lead_name"] = lead.name if lead else l.lead_id
+        d["lead_company"] = lead.company if lead else ""
+        result.append(d)
+    return {"log": result, "total": len(result)}
 
 @app.get("/analytics")
 def analytics(db:Session=Depends(get_db),cu:UserDB=Depends(get_current_user)):
