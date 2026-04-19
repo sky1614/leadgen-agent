@@ -778,6 +778,8 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
             lead.status = "enriched"; db.commit()
 
             email_msg = ai_message(lead, camp, "email")
+            user_name = user.name or "Sales Team"
+            email_msg = email_msg.replace("[Your Name]", user_name).replace("[your name]", user_name)
             wa_msg = ai_message(lead, camp, "whatsapp")
             item = AgentJobItemDB(job_id=job_id, lead_id=lead.id, lead_name=lead.name,
                                   lead_company=lead.company, lead_email=lead.email,
@@ -828,6 +830,37 @@ def approve_agent_job(job_id:str, db:Session=Depends(get_db), cu:UserDB=Depends(
         lead.status = "contacted"; lead.last_contacted = datetime.utcnow(); lead.follow_up_day = 0
         item.status = "approved"
         if camp: camp.sent_count += 1
+        # Actually send the email
+        if lead.email and item.email_message:
+            try:
+                from app.services.email_service import send_email
+                subject = "Following up"
+                body = item.email_message
+                if body.startswith("Subject:"):
+                    lines = body.split("\n", 2)
+                    subject = lines[0].replace("Subject:", "").strip()
+                    body = lines[2].strip() if len(lines) > 2 else body
+                sg_result = send_email(
+                    to_email=lead.email,
+                    subject=subject,
+                    body_html=body.replace("\n", "<br>"),
+                    body_text=body,
+                    from_email=os.getenv("SENDER_EMAIL", "info@nsai.in"),
+                    from_name="LeadGen AI",
+                    client_id=cu.client_id,
+                    lead_id=lead.id,
+                    campaign_id=job.campaign_id
+                )
+                # Update message log status
+                log = db.query(MessageLogDB).filter(
+                    MessageLogDB.lead_id == lead.id,
+                    MessageLogDB.channel == "email"
+                ).order_by(MessageLogDB.sent_at.desc()).first()
+                if log:
+                    log.status = "sent" if sg_result.get("success") else "failed"
+                    log.sent_at = datetime.utcnow()
+            except Exception as e:
+                print(f"EMAIL SEND ERROR: {e}")
     job.status = "approved"; db.commit()
     return {"success":True, "approved":len(items)}
 
