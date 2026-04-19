@@ -2884,8 +2884,9 @@ async function loadResultsTab() {
     const statusColor = l.status === 'sent' ? '#10B981' : l.status === 'failed' ? '#EF4444' : '#F59E0B';
     const shortMsg = (l.message || '').substring(0, 80) + ((l.message || '').length > 80 ? '...' : '');
     return `<tr>
-      <td style="font-weight:500">${l.lead_id || '—'}</td>
-      <td style="color:var(--text-muted)">${l.channel || '—'}</td>
+      <td style="font-weight:500">${l.lead_name || l.lead_id || '—'}</td>
+        <td style="color:var(--text-muted)">${l.lead_company || '—'}</td>
+        <td style="color:var(--text-muted)">${l.channel || '—'}</td>
       <td style="font-size:12px;color:var(--text-muted);max-width:300px">
         <div>${shortMsg}</div>
         <a href="#" onclick="this.parentElement.innerHTML='<div style=white-space:pre-wrap>${(l.message || '').replace(/'/g, "\\'")}';return false" style="font-size:11px;color:var(--accent)">Read full</a>
