@@ -150,6 +150,10 @@ def get_db():
     finally: db.close()
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_admin_user(cu: UserDB = Depends(get_current_user)):
+    if cu.email != "ceo@nsai.in":
+        raise HTTPException(403, "Admin access required")
+    return cu
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
@@ -879,6 +883,19 @@ def test_osm(industry:str="retail", city:str="Mumbai"):
     bbox = get_city_bbox(city)
     leads = search_osm_businesses(industry, city, 5)
     return {"bbox": bbox, "leads_found": len(leads), "leads": leads}
+
+@app.get("/admin/overview")
+def admin_overview(db: Session = Depends(get_db), cu: UserDB = Depends(get_admin_user)):
+    total_users = db.query(UserDB).count()
+    total_leads = db.query(LeadDB).count()
+    total_messages = db.query(MessageLogDB).count()
+    active_users = db.query(UserDB).filter(UserDB.is_active == True).count()
+    return {
+        "total_users": total_users,
+        "active_users": active_users,
+        "total_leads": total_leads,
+        "total_messages": total_messages,
+    }
 
 @app.get("/test-hunter")
 def test_hunter(domain: str = "stripe.com"):
