@@ -1556,23 +1556,26 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
           <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
             <div style="font-size:15px;font-weight:700;margin-bottom:4px">Notification Preferences</div>
             <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">Choose what you want to be notified about</div>
-            ${[
-              {label:'Agent run completed', desc:'When agent finishes finding and generating messages', id:'notif-agent'},
-              {label:'New reply received', desc:'When a lead replies to your outreach', id:'notif-reply'},
-              {label:'Weekly performance report', desc:'Summary of leads, messages and replies every Monday', id:'notif-weekly'},
-              {label:'Lead limit warning', desc:'When you reach 80% of your monthly lead limit', id:'notif-limit'},
-              {label:'Bounce rate alert', desc:'When email bounce rate exceeds 10%', id:'notif-bounce'},
-            ].map(n => `
             <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
-              <div>
-                <div style="font-size:13px;font-weight:600">${n.label}</div>
-                <div style="font-size:12px;color:#6B7280">${n.desc}</div>
-              </div>
-              <label style="position:relative;display:inline-block;width:44px;height:24px">
-                <input type="checkbox" id="${n.id}" checked style="opacity:0;width:0;height:0">
-                <span onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#1570EF':'#E5E7EB'" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#1570EF;border-radius:24px;transition:.3s"></span>
-              </label>
-            </div>`).join('')}
+              <div><div style="font-size:13px;font-weight:600">Agent run completed</div><div style="font-size:12px;color:#6B7280">When agent finishes finding and generating messages</div></div>
+              <input type="checkbox" id="notif-agent" checked style="width:18px;height:18px;cursor:pointer">
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:600">New reply received</div><div style="font-size:12px;color:#6B7280">When a lead replies to your outreach</div></div>
+              <input type="checkbox" id="notif-reply" checked style="width:18px;height:18px;cursor:pointer">
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:600">Weekly performance report</div><div style="font-size:12px;color:#6B7280">Summary of leads, messages and replies every Monday</div></div>
+              <input type="checkbox" id="notif-weekly" checked style="width:18px;height:18px;cursor:pointer">
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:600">Lead limit warning</div><div style="font-size:12px;color:#6B7280">When you reach 80% of your monthly lead limit</div></div>
+              <input type="checkbox" id="notif-limit" checked style="width:18px;height:18px;cursor:pointer">
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+              <div><div style="font-size:13px;font-weight:600">Bounce rate alert</div><div style="font-size:12px;color:#6B7280">When email bounce rate exceeds 10%</div></div>
+              <input type="checkbox" id="notif-bounce" checked style="width:18px;height:18px;cursor:pointer">
+            </div>
             <button class="btn btn-primary" style="margin-top:20px;padding:10px 20px" onclick="toast('Notification preferences saved', 'success')">Save Preferences</button>
           </div>
         </div>
