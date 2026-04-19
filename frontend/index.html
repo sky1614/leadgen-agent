@@ -1459,30 +1459,50 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
         </div>
 
         <!-- Integrations Tab -->
-        <div id="settings-integrations" style="display:none;max-width:600px">
-          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
-            <div style="font-size:15px;font-weight:700;margin-bottom:4px">API Integrations</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">Connected services powering your agent</div>
-            <div id="integrations-list">
-              ${[
-                {name:'OpenRouter', desc:'LLM API — AI message generation', status:'connected'},
-                {name:'Google Places', desc:'Business search & lead sourcing', status:'connected'},
-                {name:'Hunter.io', desc:'Email finder & verification', status:'connected'},
-                {name:'Apollo', desc:'B2B contact database', status:'warning'},
-                {name:'SendGrid', desc:'Email delivery', status:'connected'},
-                {name:'Gupshup', desc:'WhatsApp Business API', status:'inactive'},
-              ].map(i => `
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
-                <div style="display:flex;align-items:center;gap:12px">
-                  <div style="width:8px;height:8px;border-radius:50%;background:${i.status==='connected'?'#10B981':i.status==='warning'?'#F59E0B':'#9CA3AF'}"></div>
-                  <div>
-                    <div style="font-size:13px;font-weight:600">${i.name}</div>
-                    <div style="font-size:12px;color:#6B7280">${i.desc}</div>
-                  </div>
-                </div>
-                <span style="font-size:12px;color:${i.status==='connected'?'#10B981':i.status==='warning'?'#F59E0B':'#9CA3AF'};font-weight:500">${i.status==='connected'?'Connected':i.status==='warning'?'Limited access':'Not configured'}</span>
-              </div>`).join('')}
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+          <div style="font-size:15px;font-weight:700;margin-bottom:4px">API Integrations</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">Connected services powering your agent</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div>
+              <div><div style="font-size:13px;font-weight:600">OpenRouter</div><div style="font-size:12px;color:#6B7280">LLM API — AI message generation</div></div>
             </div>
+            <span style="font-size:12px;color:#10B981;font-weight:500">Connected</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div>
+              <div><div style="font-size:13px;font-weight:600">Google Places</div><div style="font-size:12px;color:#6B7280">Business search & lead sourcing</div></div>
+            </div>
+            <span style="font-size:12px;color:#10B981;font-weight:500">Connected</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div>
+              <div><div style="font-size:13px;font-weight:600">Hunter.io</div><div style="font-size:12px;color:#6B7280">Email finder & verification</div></div>
+            </div>
+            <span style="font-size:12px;color:#10B981;font-weight:500">Connected</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></div>
+              <div><div style="font-size:13px;font-weight:600">Apollo</div><div style="font-size:12px;color:#6B7280">B2B contact database</div></div>
+            </div>
+            <span style="font-size:12px;color:#F59E0B;font-weight:500">Limited access</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div>
+              <div><div style="font-size:13px;font-weight:600">SendGrid</div><div style="font-size:12px;color:#6B7280">Email delivery</div></div>
+            </div>
+            <span style="font-size:12px;color:#10B981;font-weight:500">Connected</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:#9CA3AF"></div>
+              <div><div style="font-size:13px;font-weight:600">Gupshup</div><div style="font-size:12px;color:#6B7280">WhatsApp Business API</div></div>
+            </div>
+            <span style="font-size:12px;color:#9CA3AF;font-weight:500">Not configured</span>
           </div>
         </div>
 
@@ -1510,11 +1530,18 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
             </div>
             <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
               <div style="font-size:15px;font-weight:700;margin-bottom:16px">Upgrade Plan</div>
-              ${['Starter $199','Growth $449','Pro $899'].map(p => `
               <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
-                <span style="font-size:13px;font-weight:500">${p}</span>
+                <span style="font-size:13px;font-weight:500">Starter $199</span>
                 <button style="padding:6px 14px;background:#1570EF;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer" onclick="toast('Contact sales to upgrade', 'success')">Select</button>
-              </div>`).join('')}
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+                <span style="font-size:13px;font-weight:500">Growth $449</span>
+                <button style="padding:6px 14px;background:#1570EF;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer" onclick="toast('Contact sales to upgrade', 'success')">Select</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+                <span style="font-size:13px;font-weight:500">Pro $899</span>
+                <button style="padding:6px 14px;background:#1570EF;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer" onclick="toast('Contact sales to upgrade', 'success')">Select</button>
+              </div>
             </div>
             <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
               <div style="font-size:15px;font-weight:700;margin-bottom:16px">Payment Method</div>
