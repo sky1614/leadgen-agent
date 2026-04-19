@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadGen AI — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #F8F9FC; color: #111827; font-size: 14px; }
+#login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0C111D; }
+.login-box { background:#1a2234; border:1px solid #2d3748; border-radius:12px; padding:40px; width:380px; text-align:center; }
+.login-logo { font-size:20px; font-weight:800; color:#fff; margin-bottom:4px; }
+.login-logo span { color:#1570EF; }
+.login-sub { font-size:12px; color:#6B7280; margin-bottom:28px; }
+.login-field { margin-bottom:14px; text-align:left; }
+.login-field label { display:block; font-size:12px; color:#9CA3AF; margin-bottom:6px; }
+.login-field input { width:100%; padding:10px 12px; background:#0C111D; border:1px solid #374151; border-radius:8px; color:#fff; font-size:14px; outline:none; }
+.login-field input:focus { border-color:#1570EF; }
+.login-btn { width:100%; padding:11px; background:#1570EF; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; margin-top:4px; }
+.login-error { color:#EF4444; font-size:12px; margin-top:8px; }
+#app { display:none; height:100vh; overflow:hidden; }
+.shell { display:flex; height:100vh; }
+.sidebar { width:220px; background:#0C111D; display:flex; flex-direction:column; flex-shrink:0; }
+.logo { padding:24px 20px; border-bottom:1px solid #1F2937; }
+.logo-mark { font-size:16px; font-weight:800; color:#fff; }
+.logo-mark span { color:#1570EF; }
+.logo-sub { font-size:10px; color:#6B7280; margin-top:2px; }
+.nav { padding:16px 12px; flex:1; }
+.nav-item { display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:8px; cursor:pointer; color:#CECFD2; font-size:13px; font-weight:500; margin-bottom:2px; transition:all .15s; }
+.nav-item:hover { background:#1F2937; }
+.nav-item.active { background:#1570EF; color:#fff; }
+.sidebar-footer { padding:16px 20px; border-top:1px solid #1F2937; }
+.user-info { font-size:12px; color:#CECFD2; margin-bottom:10px; }
+.user-info strong { color:#fff; display:block; }
+.btn-logout { width:100%; padding:8px 12px; background:transparent; color:#CECFD2; border:1px solid #344054; border-radius:8px; font-size:12px; cursor:pointer; }
+.main { flex:1; overflow-y:auto; background:#F8F9FC; }
+.page-header { padding:28px 32px 0; display:flex; align-items:center; justify-content:space-between; }
+.page-title { font-size:22px; font-weight:700; }
+.page-sub { font-size:13px; color:#6B7280; margin-top:4px; }
+.content { padding:24px 32px; }
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.stat-card { background:#fff; border:1px solid #E4E7EC; border-radius:8px; padding:20px; }
+.stat-label { font-size:11px; font-weight:600; color:#6B7280; text-transform:uppercase; letter-spacing:.06em; }
+.stat-value { font-size:32px; font-weight:700; color:#111827; margin:8px 0 4px; }
+.stat-sub { font-size:12px; color:#6B7280; }
+.view { display:none; }
+.view.active { display:block; }
+.panel { background:#fff; border:1px solid #E4E7EC; border-radius:8px; padding:24px; margin-bottom:20px; }
+.panel-title { font-size:15px; font-weight:700; margin-bottom:16px; }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Lead<span>Gen</span> AI</div>
+    <div class="login-sub">Admin Panel — Restricted Access</div>
+    <div class="login-field"><label>Email</label><input id="admin-email" type="email" placeholder="admin@nsai.in"></div>
+    <div class="login-field"><label>Password</label><input id="admin-password" type="password" placeholder="••••••••"></div>
+    <button class="login-btn" onclick="adminLogin()">Sign In</button>
+    <div class="login-error" id="admin-error"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-mark">Lead<span>Gen</span> AI</div>
+        <div class="logo-sub">admin panel</div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item active" onclick="showAdminView('overview', this)">📊 Overview</div>
+        <div class="nav-item" onclick="showAdminView('users', this)">👥 Users</div>
+        <div class="nav-item" onclick="showAdminView('activity', this)">⚡ Agent Activity</div>
+        <div class="nav-item" onclick="showAdminView('health', this)">🛡 System Health</div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info"><strong id="admin-username">—</strong><span id="admin-email-display"></span></div>
+        <button class="btn-logout" onclick="adminLogout()">↩ Sign Out</button>
+      </div>
+    </aside>
+    <main class="main">
+      <div id="admin-view-overview" class="view active">
+        <div class="page-header">
+          <div><div class="page-title">Overview</div><div class="page-sub">Platform-wide stats</div></div>
+          <button onclick="loadOverview()" style="padding:8px 16px;background:#1570EF;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px">↻ Refresh</button>
+        </div>
+        <div class="content">
+          <div class="stat-grid">
+            <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="adm-users">—</div><div class="stat-sub">registered accounts</div></div>
+            <div class="stat-card"><div class="stat-label">Active Users</div><div class="stat-value" id="adm-active">—</div><div class="stat-sub">currently active</div></div>
+            <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" id="adm-leads">—</div><div class="stat-sub">across all accounts</div></div>
+            <div class="stat-card"><div class="stat-label">Messages Sent</div><div class="stat-value" id="adm-messages">—</div><div class="stat-sub">total outreach</div></div>
+          </div>
+        </div>
+      </div>
+      <div id="admin-view-users" class="view">
+        <div class="page-header">
+            <div><div class="page-title">Users</div><div class="page-sub">All registered accounts</div></div>
+            <button onclick="loadUsers()" style="padding:8px 16px;background:#1570EF;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px">↻ Refresh</button>
+        </div>
+        <div class="content">
+            <div class="panel">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead>
+                <tr style="border-bottom:2px solid #E4E7EC">
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Name</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Email</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Plan</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Leads Used</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Messages</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Joined</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Status</th>
+                </tr>
+                </thead>
+                <tbody id="users-table-body">
+                <tr><td colspan="7" style="text-align:center;padding:40px;color:#6B7280">Loading...</td></tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+        </div>
+      <div id="admin-view-activity" class="view">
+        <div class="page-header"><div><div class="page-title">Agent Activity</div><div class="page-sub">All agent runs</div></div></div>
+        <div class="content"><div class="panel"><div class="panel-title">Coming soon</div><p style="color:#6B7280;font-size:13px">Agent activity logs will be available here.</p></div></div>
+      </div>
+      <div id="admin-view-health" class="view">
+        <div class="page-header"><div><div class="page-title">System Health</div><div class="page-sub">API status and monitoring</div></div></div>
+        <div class="content"><div class="panel"><div class="panel-title">Coming soon</div><p style="color:#6B7280;font-size:13px">System health monitoring will be available here.</p></div></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+let adminToken = localStorage.getItem('adminToken') || null;
+
+async function adminLogin() {
+  const email = document.getElementById('admin-email').value;
+  const password = document.getElementById('admin-password').value;
+  const err = document.getElementById('admin-error');
+  err.textContent = '';
+  try {
+    const form = new URLSearchParams();
+    form.append('username', email);
+    form.append('password', password);
+    const res = await fetch(API + '/auth/login', { method:'POST', body:form });
+    const data = await res.json();
+    if (!res.ok) { err.textContent = 'Invalid credentials'; return; }
+    if (data.user.email !== 'ceo@nsai.in') { err.textContent = 'Admin access denied'; return; }
+    adminToken = data.access_token;
+    localStorage.setItem('adminToken', adminToken);
+    showApp(data.user);
+  } catch(e) { err.textContent = 'Cannot reach backend'; }
+}
+
+function showApp(user) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('admin-username').textContent = user.name || user.email;
+  document.getElementById('admin-email-display').textContent = user.email;
+  loadOverview();
+}
+
+function adminLogout() {
+  adminToken = null;
+  localStorage.removeItem('adminToken');
+  window.location.href = 'landing.html';
+}
+
+function showAdminView(name, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('admin-view-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (name === 'users') loadUsers();
+}
+
+async function loadUsers() {
+  const res = await fetch(API + '/admin/users', { headers:{ 'Authorization':'Bearer ' + adminToken } });
+  const data = await res.json();
+  const tbody = document.getElementById('users-table-body');
+  if (!data.users.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#6B7280">No users found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.users.map(u => `
+    <tr style="border-bottom:1px solid #E4E7EC">
+      <td style="padding:12px;font-weight:500">${u.name || '—'}</td>
+      <td style="padding:12px;color:#6B7280">${u.email}</td>
+      <td style="padding:12px"><span style="background:#EFF6FF;color:#1570EF;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">${u.plan || 'free'}</span></td>
+      <td style="padding:12px">${u.leads_used} / ${u.leads_limit}</td>
+      <td style="padding:12px">${u.msg_count}</td>
+      <td style="padding:12px;color:#6B7280;font-size:12px">${new Date(u.created_at).toLocaleDateString()}</td>
+      <td style="padding:12px"><span style="color:${u.is_active?'#10B981':'#EF4444'};font-weight:600;font-size:12px">● ${u.is_active?'Active':'Inactive'}</span></td>
+    </tr>`).join('');
+}
+
+async function loadOverview() {
+  const res = await fetch(API + '/admin/overview', { headers:{ 'Authorization':'Bearer ' + adminToken } });
+  const data = await res.json();
+  document.getElementById('adm-users').textContent = data.total_users ?? '—';
+  document.getElementById('adm-active').textContent = data.active_users ?? '—';
+  document.getElementById('adm-leads').textContent = data.total_leads ?? '—';
+  document.getElementById('adm-messages').textContent = data.total_messages ?? '—';
+}
+
+if (adminToken) {
+  const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  if (user.email === 'ceo@nsai.in') showApp(user);
+  else { adminToken = null; localStorage.removeItem('adminToken'); }
+}
+</script>
+</body>
+</html>
