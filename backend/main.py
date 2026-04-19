@@ -150,10 +150,6 @@ def get_db():
     finally: db.close()
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-def get_admin_user(cu: UserDB = Depends(get_current_user)):
-    if cu.email != "ceo@nsai.in":
-        raise HTTPException(403, "Admin access required")
-    return cu
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
@@ -162,6 +158,13 @@ def get_admin_user(cu: UserDB = Depends(get_current_user)):
     user = db.query(UserDB).filter(UserDB.id == user_id).first()
     if not user: raise HTTPException(401, "User not found")
     return user
+
+ADMIN_EMAILS = ["ceo@nsai.in"]  # add your cofounder email here
+
+def get_admin_user(cu: UserDB = Depends(get_current_user)):
+    if cu.email not in ADMIN_EMAILS:
+        raise HTTPException(403, "Admin access required")
+    return cu
 
 def gemini(prompt):
     res = _groq_client.chat.completions.create(
@@ -896,6 +899,43 @@ def admin_overview(db: Session = Depends(get_db), cu: UserDB = Depends(get_admin
         "total_leads": total_leads,
         "total_messages": total_messages,
     }
+
+@app.get("/admin/users")
+def admin_users(db: Session = Depends(get_db), cu: UserDB = Depends(get_admin_user)):
+    users = db.query(UserDB).order_by(UserDB.created_at.desc()).all()
+    result = []
+    for u in users:
+        lead_count = db.query(LeadDB).filter(LeadDB.user_id == u.id).count()
+        msg_count = db.query(MessageLogDB).filter(MessageLogDB.user_id == u.id).count()
+        result.append({
+            "id": u.id,
+            "name": u.name,
+            "email": u.email,
+            "plan": u.plan,
+            "leads_used": u.leads_used,
+            "leads_limit": u.leads_limit,
+            "lead_count": lead_count,
+            "msg_count": msg_count,
+            "created_at": str(u.created_at),
+            "is_active": u.is_active
+        })
+    return {"users": result, "total": len(result)}
+
+@app.get("/admin/agent-activity")
+def admin_agent_activity(db: Session = Depends(get_db), cu: UserDB = Depends(get_admin_user)):
+    jobs = db.query(AgentJobDB).order_by(AgentJobDB.created_at.desc()).limit(50).all()
+    result = []
+    for j in jobs:
+        user = db.query(UserDB).filter(UserDB.id == j.user_id).first()
+        result.append({
+            "id": j.id,
+            "user_email": user.email if user else "unknown",
+            "industry": j.industry,
+            "status": j.status,
+            "total_leads": j.total_leads,
+            "created_at": str(j.created_at)
+        })
+    return {"jobs": result, "total": len(result)}
 
 @app.get("/test-hunter")
 def test_hunter(domain: str = "stripe.com"):
