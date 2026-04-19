@@ -123,9 +123,29 @@ body { font-family: 'Inter', sans-serif; background: #F8F9FC; color: #111827; fo
         </div>
         </div>
       <div id="admin-view-activity" class="view">
-        <div class="page-header"><div><div class="page-title">Agent Activity</div><div class="page-sub">All agent runs</div></div></div>
-        <div class="content"><div class="panel"><div class="panel-title">Coming soon</div><p style="color:#6B7280;font-size:13px">Agent activity logs will be available here.</p></div></div>
-      </div>
+        <div class="page-header">
+            <div><div class="page-title">Agent Activity</div><div class="page-sub">All agent runs across all users</div></div>
+            <button onclick="loadActivity()" style="padding:8px 16px;background:#1570EF;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px">↻ Refresh</button>
+        </div>
+        <div class="content">
+            <div class="panel">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead>
+                <tr style="border-bottom:2px solid #E4E7EC">
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">User</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Industry</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Status</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Leads Found</th>
+                    <th style="text-align:left;padding:10px 12px;color:#6B7280;font-weight:600">Date</th>
+                </tr>
+                </thead>
+                <tbody id="activity-table-body">
+                <tr><td colspan="5" style="text-align:center;padding:40px;color:#6B7280">Loading...</td></tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+        </div>
       <div id="admin-view-health" class="view">
         <div class="page-header"><div><div class="page-title">System Health</div><div class="page-sub">API status and monitoring</div></div></div>
         <div class="content"><div class="panel"><div class="panel-title">Coming soon</div><p style="color:#6B7280;font-size:13px">System health monitoring will be available here.</p></div></div>
@@ -177,6 +197,26 @@ function showAdminView(name, el) {
   document.getElementById('admin-view-' + name).classList.add('active');
   if (el) el.classList.add('active');
   if (name === 'users') loadUsers();
+  if (name === 'activity') loadActivity();
+}
+
+async function loadActivity() {
+  const res = await fetch(API + '/admin/agent-activity', { headers:{ 'Authorization':'Bearer ' + adminToken } });
+  const data = await res.json();
+  const tbody = document.getElementById('activity-table-body');
+  if (!data.jobs.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#6B7280">No agent runs yet</td></tr>';
+    return;
+  }
+  const statusColor = {approved:'#10B981', running:'#1570EF', error:'#EF4444', pending_approval:'#F59E0B'};
+  tbody.innerHTML = data.jobs.map(j => `
+    <tr style="border-bottom:1px solid #E4E7EC">
+      <td style="padding:12px;color:#6B7280">${j.user_email}</td>
+      <td style="padding:12px;font-weight:500">${j.industry || '—'}</td>
+      <td style="padding:12px"><span style="color:${statusColor[j.status]||'#6B7280'};font-weight:600;font-size:12px">● ${j.status}</span></td>
+      <td style="padding:12px">${j.total_leads}</td>
+      <td style="padding:12px;color:#6B7280;font-size:12px">${new Date(j.created_at).toLocaleString()}</td>
+    </tr>`).join('');
 }
 
 async function loadUsers() {
