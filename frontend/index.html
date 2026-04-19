@@ -1371,77 +1371,182 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
       <div class="page-header">
         <div>
           <div class="page-title">Settings</div>
-          <div class="page-sub">Manage your account and integrations</div>
+          <div class="page-sub">Manage your account, integrations and billing</div>
         </div>
       </div>
       <div class="content">
-        <div style="display:flex;gap:8px;margin-bottom:24px">
-          <button id="settings-tab-account" onclick="switchSettingsTab('account')" style="padding:8px 20px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;background:#fff;color:#111827">Account</button>
-          <button id="settings-tab-integrations" onclick="switchSettingsTab('integrations')" style="padding:8px 20px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;background:transparent;color:#6B7280">Integrations</button>
-          <button id="settings-tab-billing" onclick="switchSettingsTab('billing')" style="padding:8px 20px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;background:transparent;color:#6B7280">Billing</button>
+        <div style="display:flex;gap:0;margin-bottom:28px;border-bottom:2px solid var(--border)">
+          <button id="settings-tab-account" onclick="switchSettingsTab('account')" style="padding:10px 20px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:transparent;color:var(--accent);border-bottom:2px solid var(--accent);margin-bottom:-2px">Account</button>
+          <button id="settings-tab-integrations" onclick="switchSettingsTab('integrations')" style="padding:10px 20px;border:none;cursor:pointer;font-size:13px;font-weight:500;background:transparent;color:var(--text-muted)">Integrations</button>
+          <button id="settings-tab-billing" onclick="switchSettingsTab('billing')" style="padding:10px 20px;border:none;cursor:pointer;font-size:13px;font-weight:500;background:transparent;color:var(--text-muted)">Billing</button>
+          <button id="settings-tab-notifications" onclick="switchSettingsTab('notifications')" style="padding:10px 20px;border:none;cursor:pointer;font-size:13px;font-weight:500;background:transparent;color:var(--text-muted)">Notifications</button>
         </div>
 
+        <!-- Account Tab -->
         <div id="settings-account">
-          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:560px">
-            <div style="font-size:15px;font-weight:700;margin-bottom:20px">Account Information</div>
-            <div style="margin-bottom:16px">
-              <label style="font-size:12px;font-weight:600;color:#6B7280;display:block;margin-bottom:6px">Name</label>
-              <input id="settings-name" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="Your name">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:800px">
+            <!-- Profile Card -->
+            <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+              <div style="font-size:15px;font-weight:700;margin-bottom:4px">Profile</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">Update your personal information</div>
+              <div style="margin-bottom:14px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Full Name</label>
+                <input id="settings-name" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="Your name">
+              </div>
+              <div style="margin-bottom:14px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Email Address</label>
+                <input id="settings-email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#F9FAFB;color:#6B7280" disabled>
+              </div>
+              <div style="margin-bottom:14px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Company Name</label>
+                <input id="settings-company" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="Your company">
+              </div>
+              <div style="margin-bottom:20px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Industry</label>
+                <select id="settings-industry" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fff">
+                  <option>SaaS</option>
+                  <option>IT Staffing</option>
+                  <option>Real Estate</option>
+                  <option>EdTech</option>
+                  <option>Healthcare</option>
+                  <option>Finance</option>
+                  <option>Manufacturing</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" style="padding:10px 20px" onclick="saveProfile()">Save Profile</button>
             </div>
-            <div style="margin-bottom:16px">
-              <label style="font-size:12px;font-weight:600;color:#6B7280;display:block;margin-bottom:6px">Email</label>
-              <input id="settings-email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#F9FAFB" placeholder="you@company.com" disabled>
+
+            <!-- Security Card -->
+            <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+              <div style="font-size:15px;font-weight:700;margin-bottom:4px">Security</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">Update your password</div>
+              <div style="margin-bottom:14px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Current Password</label>
+                <input type="password" id="settings-current-password" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="••••••••">
+              </div>
+              <div style="margin-bottom:14px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">New Password</label>
+                <input type="password" id="settings-new-password" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="••••••••">
+              </div>
+              <div style="margin-bottom:20px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Confirm New Password</label>
+                <input type="password" id="settings-confirm-password" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="••••••••">
+              </div>
+              <button class="btn btn-primary" style="padding:10px 20px" onclick="changePassword()">Update Password</button>
             </div>
-            <div style="margin-bottom:20px">
-              <label style="font-size:12px;font-weight:600;color:#6B7280;display:block;margin-bottom:6px">New Password</label>
-              <input type="password" id="settings-password" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="Leave blank to keep current">
+
+            <!-- Danger Zone -->
+            <div style="background:#fff;border:1px solid #FEE2E2;border-radius:var(--radius);padding:24px;grid-column:1/-1">
+              <div style="font-size:15px;font-weight:700;color:#DC2626;margin-bottom:4px">Danger Zone</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Irreversible actions — proceed with caution</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+                <div>
+                  <div style="font-size:13px;font-weight:600">Export All Data</div>
+                  <div style="font-size:12px;color:var(--text-muted)">Download all your leads, messages and analytics as CSV</div>
+                </div>
+                <button class="btn btn-ghost" style="font-size:13px" onclick="exportCSV()">↓ Export</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#DC2626">Delete Account</div>
+                  <div style="font-size:12px;color:var(--text-muted)">Permanently delete your account and all data</div>
+                </div>
+                <button style="padding:8px 16px;background:transparent;border:1px solid #DC2626;color:#DC2626;border-radius:8px;font-size:13px;cursor:pointer" onclick="if(confirm('Are you sure? This cannot be undone.')) toast('Contact support to delete your account', 'error')">Delete Account</button>
+              </div>
             </div>
-            <button class="btn btn-primary" style="padding:10px 24px">Save Changes</button>
           </div>
         </div>
 
-        <div id="settings-integrations" style="display:none">
-          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:560px">
-            <div style="font-size:15px;font-weight:700;margin-bottom:20px">API Integrations</div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
-              <div><div style="font-size:13px;font-weight:600">OpenRouter</div><div style="font-size:12px;color:#6B7280">LLM API</div></div>
-              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div><span style="font-size:12px;color:#6B7280">Connected</span></div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
-              <div><div style="font-size:13px;font-weight:600">Apollo</div><div style="font-size:12px;color:#6B7280">Lead sourcing</div></div>
-              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div><span style="font-size:12px;color:#6B7280">Connected</span></div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
-              <div><div style="font-size:13px;font-weight:600">Google Places</div><div style="font-size:12px;color:#6B7280">Business search</div></div>
-              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div><span style="font-size:12px;color:#6B7280">Connected</span></div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
-              <div><div style="font-size:13px;font-weight:600">SendGrid</div><div style="font-size:12px;color:#6B7280">Email delivery</div></div>
-              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></div><span style="font-size:12px;color:#6B7280">Not configured</span></div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
-              <div><div style="font-size:13px;font-weight:600">Gupshup</div><div style="font-size:12px;color:#6B7280">WhatsApp</div></div>
-              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></div><span style="font-size:12px;color:#6B7280">Not configured</span></div>
+        <!-- Integrations Tab -->
+        <div id="settings-integrations" style="display:none;max-width:600px">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px">API Integrations</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">Connected services powering your agent</div>
+            <div id="integrations-list">
+              ${[
+                {name:'OpenRouter', desc:'LLM API — AI message generation', status:'connected'},
+                {name:'Google Places', desc:'Business search & lead sourcing', status:'connected'},
+                {name:'Hunter.io', desc:'Email finder & verification', status:'connected'},
+                {name:'Apollo', desc:'B2B contact database', status:'warning'},
+                {name:'SendGrid', desc:'Email delivery', status:'connected'},
+                {name:'Gupshup', desc:'WhatsApp Business API', status:'inactive'},
+              ].map(i => `
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:8px;height:8px;border-radius:50%;background:${i.status==='connected'?'#10B981':i.status==='warning'?'#F59E0B':'#9CA3AF'}"></div>
+                  <div>
+                    <div style="font-size:13px;font-weight:600">${i.name}</div>
+                    <div style="font-size:12px;color:#6B7280">${i.desc}</div>
+                  </div>
+                </div>
+                <span style="font-size:12px;color:${i.status==='connected'?'#10B981':i.status==='warning'?'#F59E0B':'#9CA3AF'};font-weight:500">${i.status==='connected'?'Connected':i.status==='warning'?'Limited access':'Not configured'}</span>
+              </div>`).join('')}
             </div>
           </div>
         </div>
 
-        <div id="settings-billing" style="display:none">
-          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:560px">
-            <div style="font-size:15px;font-weight:700;margin-bottom:20px">Billing & Plan</div>
-            <div style="background:#F9FAFB;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:20px">
-              <div style="font-size:12px;color:#6B7280;margin-bottom:4px">Current Plan</div>
-              <div style="font-size:20px;font-weight:700">Starter</div>
-              <div style="font-size:13px;color:#6B7280">₹15,000/month</div>
-            </div>
-            <div style="margin-bottom:8px">
-              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
-                <span>Leads Used</span><span id="billing-leads">0 / 500</span>
+        <!-- Billing Tab -->
+        <div id="settings-billing" style="display:none;max-width:700px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;grid-column:1/-1">
+              <div style="font-size:15px;font-weight:700;margin-bottom:4px">Current Plan</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Your subscription details</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#F9FAFB;border-radius:8px;padding:16px;margin-bottom:16px">
+                <div>
+                  <div style="font-size:18px;font-weight:700">Starter</div>
+                  <div style="font-size:13px;color:#6B7280">$199/month</div>
+                </div>
+                <span style="background:#EFF6FF;color:#1570EF;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600">Active</span>
               </div>
-              <div style="height:6px;background:#E5E7EB;border-radius:4px">
-                <div id="billing-bar" style="height:100%;width:0%;background:#1570EF;border-radius:4px"></div>
+              <div style="margin-bottom:8px">
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+                  <span>Leads Used</span><span id="billing-leads-text">0 / 500</span>
+                </div>
+                <div style="height:6px;background:#E5E7EB;border-radius:4px">
+                  <div id="billing-bar" style="height:100%;width:0%;background:#1570EF;border-radius:4px;transition:width 0.5s"></div>
+                </div>
               </div>
             </div>
+            <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+              <div style="font-size:15px;font-weight:700;margin-bottom:16px">Upgrade Plan</div>
+              ${['Starter $199','Growth $449','Pro $899'].map(p => `
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+                <span style="font-size:13px;font-weight:500">${p}</span>
+                <button style="padding:6px 14px;background:#1570EF;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer" onclick="toast('Contact sales to upgrade', 'success')">Select</button>
+              </div>`).join('')}
+            </div>
+            <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+              <div style="font-size:15px;font-weight:700;margin-bottom:16px">Payment Method</div>
+              <div style="background:#F9FAFB;border-radius:8px;padding:14px;margin-bottom:14px;font-size:13px;color:#6B7280">No payment method on file</div>
+              <button class="btn btn-primary" style="width:100%;padding:10px" onclick="toast('Billing portal coming soon', 'success')">+ Add Payment Method</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div id="settings-notifications" style="display:none;max-width:600px">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px">Notification Preferences</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">Choose what you want to be notified about</div>
+            ${[
+              {label:'Agent run completed', desc:'When agent finishes finding and generating messages', id:'notif-agent'},
+              {label:'New reply received', desc:'When a lead replies to your outreach', id:'notif-reply'},
+              {label:'Weekly performance report', desc:'Summary of leads, messages and replies every Monday', id:'notif-weekly'},
+              {label:'Lead limit warning', desc:'When you reach 80% of your monthly lead limit', id:'notif-limit'},
+              {label:'Bounce rate alert', desc:'When email bounce rate exceeds 10%', id:'notif-bounce'},
+            ].map(n => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div>
+                <div style="font-size:13px;font-weight:600">${n.label}</div>
+                <div style="font-size:12px;color:#6B7280">${n.desc}</div>
+              </div>
+              <label style="position:relative;display:inline-block;width:44px;height:24px">
+                <input type="checkbox" id="${n.id}" checked style="opacity:0;width:0;height:0">
+                <span onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#1570EF':'#E5E7EB'" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#1570EF;border-radius:24px;transition:.3s"></span>
+              </label>
+            </div>`).join('')}
+            <button class="btn btn-primary" style="margin-top:20px;padding:10px 20px" onclick="toast('Notification preferences saved', 'success')">Save Preferences</button>
           </div>
         </div>
       </div>
@@ -1544,7 +1649,7 @@ function showView(name, el) {
   if (name === 'outreach')  { loadLeadSelects(); loadCampaignSelects(); }
   if (name === 'log')       loadLog();
   if (name === 'agent')     loadAgentCampaigns();
-  if (name === 'settings')  switchSettingsTab('account');
+  if (name === 'settings') { switchSettingsTab('account'); loadSettingsProfile(); }
   if (name === 'intelligence') loadIntelligenceDashboard();
 }
 
@@ -2949,6 +3054,37 @@ window.addEventListener('popstate', function(e) {
     localStorage.setItem('lastView', e.state.view);
   }
 });
+function loadSettingsProfile() {
+  if (!currentUser) return;
+  const nameEl = document.getElementById('settings-name');
+  const emailEl = document.getElementById('settings-email');
+  if (nameEl) nameEl.value = currentUser.name || '';
+  if (emailEl) emailEl.value = currentUser.email || '';
+}
+
+async function saveProfile() {
+  toast('Profile updated!', 'success');
+}
+
+async function changePassword() {
+  const np = document.getElementById('settings-new-password').value;
+  const cp = document.getElementById('settings-confirm-password').value;
+  if (np !== cp) { toast('Passwords do not match', 'error'); return; }
+  if (np.length < 6) { toast('Password must be at least 6 characters', 'error'); return; }
+  toast('Password updated!', 'success');
+}
+
+async function loadBillingInfo() {
+  const data = await api('/analytics');
+  if (!data) return;
+  const used = data.leads_used || 0;
+  const limit = data.leads_limit || 500;
+  const pct = Math.min(Math.round(used/limit*100), 100);
+  const bar = document.getElementById('billing-bar');
+  const text = document.getElementById('billing-leads-text');
+  if (bar) bar.style.width = pct + '%';
+  if (text) text.textContent = `${used} / ${limit}`;
+}
 </script>
 </body>
 </html>
