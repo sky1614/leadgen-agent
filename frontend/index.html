@@ -1533,6 +1533,7 @@ function doLogout() {
 // ── Navigation ─────────────────────────────────────────────────────────────
 function showView(name, el) {
   localStorage.setItem('lastView', name);
+  history.replaceState({view: name}, '', '#' + name);
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
@@ -2925,6 +2926,19 @@ async function deleteSelected() {
   toast(`${ids.length} leads deleted`);
   loadLeads();
 }
+window.addEventListener('popstate', function(e) {
+  if (e.state && e.state.view) {
+    const navEl = document.querySelector(`[onclick*="'${e.state.view}'"]`);
+    const views = document.querySelectorAll('.view');
+    const navItems = document.querySelectorAll('.nav-item');
+    views.forEach(v => v.classList.remove('active'));
+    navItems.forEach(n => n.classList.remove('active'));
+    const viewEl = document.getElementById('view-' + e.state.view);
+    if (viewEl) viewEl.classList.add('active');
+    if (navEl) navEl.classList.add('active');
+    localStorage.setItem('lastView', e.state.view);
+  }
+});
 </script>
 </body>
 </html>
