@@ -2967,13 +2967,19 @@ function switchAgentTab(tab) {
   document.getElementById('find-leads-section').style.display = tab === 'find' ? 'block' : 'none';
 }
 function switchSettingsTab(tab) {
-  ['account','integrations','billing'].forEach(t => {
-    document.getElementById('settings-'+t).style.display = t === tab ? 'block' : 'none';
+  ['account','integrations','billing','notifications'].forEach(t => {
     const btn = document.getElementById('settings-tab-'+t);
-    btn.style.background = t === tab ? '#fff' : 'transparent';
-    btn.style.color = t === tab ? '#111827' : '#6B7280';
-    btn.style.fontWeight = t === tab ? '600' : '500';
+    const panel = document.getElementById('settings-'+t);
+    if (btn) {
+      btn.style.color = t === tab ? 'var(--accent)' : 'var(--text-muted)';
+      btn.style.fontWeight = t === tab ? '600' : '500';
+      btn.style.borderBottom = t === tab ? '2px solid var(--accent)' : 'none';
+      btn.style.marginBottom = t === tab ? '-2px' : '0';
+    }
+    if (panel) panel.style.display = t === tab ? 'block' : 'none';
   });
+  if (tab === 'account') loadSettingsProfile();
+  if (tab === 'billing') loadBillingInfo();
 }
 
 // If not logged in, redirect to landing page
