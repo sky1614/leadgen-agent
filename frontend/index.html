@@ -2846,8 +2846,12 @@ function switchSettingsTab(tab) {
 
 // If not logged in, redirect to landing page
 if (!authToken || !currentUser) {
-  if (!window.location.href.includes('landing.html')) {
-    document.getElementById('auth-screen').style.display = 'none';
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('login') === 'true') {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-shell').style.display = 'none';
+  } else {
+    window.location.href = 'landing.html';
   }
 }
 
