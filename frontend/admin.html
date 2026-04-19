@@ -147,9 +147,17 @@ body { font-family: 'Inter', sans-serif; background: #F8F9FC; color: #111827; fo
         </div>
         </div>
       <div id="admin-view-health" class="view">
-        <div class="page-header"><div><div class="page-title">System Health</div><div class="page-sub">API status and monitoring</div></div></div>
-        <div class="content"><div class="panel"><div class="panel-title">Coming soon</div><p style="color:#6B7280;font-size:13px">System health monitoring will be available here.</p></div></div>
-      </div>
+        <div class="page-header">
+            <div><div class="page-title">System Health</div><div class="page-sub">API status and monitoring</div></div>
+            <button onclick="loadHealth()" style="padding:8px 16px;background:#1570EF;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px">↻ Refresh</button>
+        </div>
+        <div class="content">
+            <div class="panel" style="max-width:600px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:16px">API Services</div>
+            <div id="health-list">Loading...</div>
+            </div>
+        </div>
+        </div>
     </main>
   </div>
 </div>
@@ -198,6 +206,25 @@ function showAdminView(name, el) {
   if (el) el.classList.add('active');
   if (name === 'users') loadUsers();
   if (name === 'activity') loadActivity();
+  if (name === 'health') loadHealth();  
+}
+
+async function loadHealth() {
+  const res = await fetch(API + '/admin/system-health', { headers:{ 'Authorization':'Bearer ' + adminToken } });
+  const data = await res.json();
+  const labels = {
+    openrouter:'OpenRouter (LLM)', sendgrid:'SendGrid (Email)',
+    hunter:'Hunter.io (Email Finder)', google_places:'Google Places (Lead Search)',
+    apollo:'Apollo (B2B Database)', database:'Database'
+  };
+  document.getElementById('health-list').innerHTML = Object.entries(data.checks).map(([k,v]) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #E4E7EC">
+      <div style="font-size:13px;font-weight:600">${labels[k]||k}</div>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:${v==='configured'||v==='healthy'?'#10B981':'#EF4444'}">
+        <span style="width:8px;height:8px;border-radius:50%;background:${v==='configured'||v==='healthy'?'#10B981':'#EF4444'};display:inline-block"></span>
+        ${v==='configured'?'Configured':v==='healthy'?'Healthy':'Not configured'}
+      </span>
+    </div>`).join('');
 }
 
 async function loadActivity() {
