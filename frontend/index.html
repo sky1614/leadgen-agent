@@ -2882,15 +2882,17 @@ async function loadResultsTab() {
   }
   tbody.innerHTML = data.log.map(l => {
     const statusColor = l.status === 'sent' ? '#10B981' : l.status === 'failed' ? '#EF4444' : '#F59E0B';
-    const shortMsg = (l.message || '').substring(0, 80) + ((l.message || '').length > 80 ? '...' : '');
-    return `<tr>
-      <td style="font-weight:500">${l.lead_name || l.lead_id || '—'}</td>
+    const msgId = 'msg_' + Math.random().toString(36).substr(2,9);
+      const shortMsg = (l.message || '').substring(0, 80) + ((l.message || '').length > 80 ? '...' : '');
+      const fullMsg = (l.message || '').replace(/`/g,'').replace(/\\/g,'');
+      return `<tr>
+        <td style="font-weight:500">${l.lead_name || l.lead_id || '—'}</td>
         <td style="color:var(--text-muted)">${l.lead_company || '—'}</td>
         <td style="color:var(--text-muted)">${l.channel || '—'}</td>
-      <td style="font-size:12px;color:var(--text-muted);max-width:300px">
-        <div>${shortMsg}</div>
-        <a href="#" onclick="showFullMessage(this, ${JSON.stringify(l.message || '')});return false"
-      </td>
+        <td style="font-size:12px;color:var(--text-muted);max-width:300px">
+          <div id="${msgId}">${shortMsg}</div>
+          <a href="#" onclick="document.getElementById('${msgId}').innerText='${fullMsg.replace(/'/g,"&#39;")}';this.style.display='none';return false" style="font-size:11px;color:var(--accent)">Read full</a>
+        </td>
       <td><span style="color:${statusColor};font-weight:600;font-size:12px">● ${l.status || 'pending'}</span></td>
       <td style="font-size:11px;color:var(--text-muted)">${l.sent_at ? new Date(l.sent_at).toLocaleString() : '—'}</td>
     </tr>`;
