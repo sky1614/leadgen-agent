@@ -1521,13 +1521,11 @@ function onAuthSuccess(data) {
 }
 
 function doLogout() {
+  authToken   = null;
+  currentUser = null;
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentUser');
-  document.getElementById('app-shell').style.display   = 'none';
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('login-email').value    = '';
-  document.getElementById('login-password').value = '';
-  document.getElementById('login-error').textContent = '';
+  window.location.href = 'landing.html';
 }
 
 // ── Navigation ─────────────────────────────────────────────────────────────
@@ -2845,6 +2843,14 @@ function switchSettingsTab(tab) {
     btn.style.fontWeight = t === tab ? '600' : '500';
   });
 }
+
+// If not logged in, redirect to landing page
+if (!authToken || !currentUser) {
+  if (!window.location.href.includes('landing.html')) {
+    document.getElementById('auth-screen').style.display = 'none';
+  }
+}
+
 if (authToken && currentUser) {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app-shell').style.display = 'block';
