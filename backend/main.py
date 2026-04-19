@@ -937,6 +937,27 @@ def admin_agent_activity(db: Session = Depends(get_db), cu: UserDB = Depends(get
         })
     return {"jobs": result, "total": len(result)}
 
+@app.get("/admin/system-health")
+def admin_system_health(db: Session = Depends(get_db), cu: UserDB = Depends(get_admin_user)):
+    checks = {}
+    # OpenRouter
+    checks["openrouter"] = "configured" if os.getenv("OPENROUTER_API_KEY") else "missing"
+    # SendGrid
+    checks["sendgrid"] = "configured" if os.getenv("SENDGRID_API_KEY") else "missing"
+    # Hunter
+    checks["hunter"] = "configured" if os.getenv("HUNTER_API_KEY") else "missing"
+    # Google Places
+    checks["google_places"] = "configured" if os.getenv("GOOGLE_PLACES_API_KEY") else "missing"
+    # Apollo
+    checks["apollo"] = "configured" if os.getenv("APOLLO_API_KEY") else "missing"
+    # DB
+    try:
+        db.execute(__import__('sqlalchemy').text("SELECT 1"))
+        checks["database"] = "healthy"
+    except:
+        checks["database"] = "error"
+    return {"checks": checks}
+
 @app.get("/test-hunter")
 def test_hunter(domain: str = "stripe.com"):
     result = enrich_with_hunter(domain)
