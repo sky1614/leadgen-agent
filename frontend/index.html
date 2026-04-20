@@ -1587,6 +1587,524 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
 
 <div id="toast"></div>
 
+<!-- ── ONBOARDING OVERLAY ── -->
+<div id="onboarding-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:#f9fafb;overflow-y:auto;">
+  <div style="min-height:100vh;display:flex;flex-direction:column;">
+
+    <!-- Top bar: progress + language toggle -->
+    <div style="padding:20px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;background:#fff;">
+      <div style="display:flex;align-items:center;gap:16px;flex:1;">
+        <span style="font-size:13px;font-weight:600;color:#6b7280;white-space:nowrap;" id="ob-step-label">Step 1 of 7</span>
+        <div style="flex:1;height:6px;background:#e5e7eb;border-radius:99px;max-width:320px;">
+          <div id="ob-progress-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#7c5cfc,#a78bfa);transition:width .4s ease;" ></div>
+        </div>
+      </div>
+      <!-- Language toggle -->
+      <div style="display:flex;align-items:center;gap:4px;background:#f3f4f6;border-radius:8px;padding:3px;">
+        <button id="lang-en" onclick="setObLang('en')" style="padding:5px 14px;border-radius:6px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.1);">EN</button>
+        <button id="lang-hi" onclick="setObLang('hi')" style="padding:5px 14px;border-radius:6px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#6b7280;cursor:pointer;">हिं</button>
+      </div>
+    </div>
+
+    <!-- Step content area -->
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;">
+      <div style="max-width:560px;width:100%;text-align:center;">
+
+        <!-- Step 1: Welcome -->
+        <div id="ob-step-1">
+          <div style="font-size:56px;margin-bottom:24px;">👋</div>
+          <div style="display:inline-block;background:#ede9fe;color:#7c5cfc;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:20px;" id="ob-badge">Welcome to LeadGen AI</div>
+          <h1 id="ob-headline" style="font-size:clamp(26px,4vw,40px);font-weight:800;color:#0f1117;line-height:1.2;letter-spacing:-.02em;margin-bottom:16px;">Your AI sales agent<br>is ready to work 🚀</h1>
+          <p id="ob-subline" style="font-size:16px;color:#6b7280;line-height:1.7;margin-bottom:36px;max-width:420px;margin-left:auto;margin-right:auto;">Set up takes under 5 minutes. Your 7-day free trial starts today — no credit card needed.</p>
+
+          <!-- 3 feature bullets -->
+          <div style="display:flex;flex-direction:column;gap:12px;text-align:left;margin-bottom:40px;" id="ob-bullets">
+            <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;">
+              <span style="font-size:22px;flex-shrink:0;">🎯</span>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#0f1117;" class="ob-b1-title">Find qualified leads automatically</div>
+                <div style="font-size:13px;color:#6b7280;margin-top:2px;" class="ob-b1-sub">AI searches Google, LinkedIn & databases for your exact target customer</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;">
+              <span style="font-size:22px;flex-shrink:0;">✉️</span>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#0f1117;" class="ob-b2-title">Personalised Email & WhatsApp outreach</div>
+                <div style="font-size:13px;color:#6b7280;margin-top:2px;" class="ob-b2-sub">Every message is written by AI, tailored to each lead — in English or Hindi</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;">
+              <span style="font-size:22px;flex-shrink:0;">📅</span>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#0f1117;" class="ob-b3-title">Book 15–20 meetings every month</div>
+                <div style="font-size:13px;color:#6b7280;margin-top:2px;" class="ob-b3-sub">Auto follow-ups, reply detection, and meeting booking — all on autopilot</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trial badge -->
+          <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 20px;margin-bottom:32px;display:flex;align-items:center;gap:10px;justify-content:center;">
+            <span style="font-size:18px;">⏱️</span>
+            <span id="ob-trial-text" style="font-size:14px;font-weight:600;color:#92400e;">7-day free trial · Starts today · No credit card required</span>
+          </div>
+
+          <!-- CTA -->
+          <button onclick="obNextStep()" style="width:100%;max-width:360px;padding:16px 32px;background:linear-gradient(135deg,#7c5cfc,#9d7cfc);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.01em;box-shadow:0 4px 16px rgba(124,92,252,.35);transition:transform .15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+            <span id="ob-cta-text">Let's Get Started →</span>
+          </button>
+          <div style="margin-top:14px;">
+            <span id="ob-skip-text" style="font-size:12px;color:#9ca3af;">You can always complete setup later from your profile</span>
+          </div>
+        </div>
+        <!-- future steps go here -->
+        <!-- Step 2: Identity / KYC -->
+        <div id="ob-step-2" style="display:none;text-align:left;">
+          <div style="text-align:center;margin-bottom:32px;">
+            <div style="font-size:48px;margin-bottom:16px;">🪪</div>
+            <div style="display:inline-block;background:#ede9fe;color:#7c5cfc;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:16px;" id="ob2-badge">Identity Verification</div>
+            <h2 id="ob2-headline" style="font-size:clamp(22px,3vw,32px);font-weight:800;color:#0f1117;line-height:1.2;letter-spacing:-.02em;margin-bottom:10px;">Verify your identity</h2>
+            <p id="ob2-subline" style="font-size:15px;color:#6b7280;line-height:1.6;max-width:400px;margin:0 auto;">Required once to activate your account. This ID is permanently linked and cannot be changed later.</p>
+          </div>
+
+          <!-- Country selector -->
+          <div style="margin-bottom:20px;">
+            <label id="ob2-country-label" style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Country</label>
+            <select id="ob2-country" onchange="obHandleCountryChange()" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;background:#fff;outline:none;cursor:pointer;">
+              <option value="IN" selected>🇮🇳 India</option>
+              <option value="US">🇺🇸 United States</option>
+              <option value="GB">🇬🇧 United Kingdom</option>
+              <option value="SG">🇸🇬 Singapore</option>
+              <option value="AE">🇦🇪 UAE</option>
+              <option value="AU">🇦🇺 Australia</option>
+              <option value="CA">🇨🇦 Canada</option>
+              <option value="OTHER">🌍 Other</option>
+            </select>
+          </div>
+
+          <!-- PAN field (India) -->
+          <div id="ob2-pan-block" style="margin-bottom:20px;">
+            <label id="ob2-pan-label" style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">PAN Card Number <span style="color:#ef4444;">*</span></label>
+            <input id="ob2-pan" type="text" maxlength="10" placeholder="ABCDE1234F"
+              oninput="this.value=this.value.toUpperCase()"
+              style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:monospace;letter-spacing:.08em;outline:none;transition:border-color .15s;"
+              onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+            <div id="ob2-pan-label" style="font-size:12px;color:#6b7280;margin-top:6px;">Format: 5 letters · 4 digits · 1 letter &nbsp;·&nbsp; e.g. ABCDE1234F</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:10px;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;">
+              <span style="font-size:16px;">🔒</span>
+              <span id="ob2-lock-note" style="font-size:12px;color:#92400e;font-weight:500;">This PAN will be permanently linked to your account and cannot be changed.</span>
+            </div>
+          </div>
+
+          <!-- Passport field (non-India) -->
+          <div id="ob2-passport-block" style="display:none;margin-bottom:20px;">
+            <label id="ob2-passport-label" style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Passport Number <span style="color:#ef4444;">*</span></label>
+            <input id="ob2-passport" type="text" maxlength="20" placeholder="A12345678"
+              oninput="this.value=this.value.toUpperCase()"
+              style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:monospace;letter-spacing:.08em;outline:none;transition:border-color .15s;"
+              onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+            <div style="font-size:12px;color:#6b7280;margin-top:6px;" id="ob2-passport-hint">Enter your passport number exactly as it appears on your passport.</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:10px;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;">
+              <span style="font-size:16px;">🔒</span>
+              <span id="ob2-lock-note-passport" style="font-size:12px;color:#92400e;font-weight:500;">This passport number will be permanently linked to your account and cannot be changed.</span>
+            </div>
+          </div>
+
+          <!-- Error -->
+          <div id="ob2-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;font-size:13px;color:#dc2626;margin-bottom:16px;"></div>
+
+          <!-- Buttons -->
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+            <button onclick="obStep2Submit()" id="ob2-submit-btn"
+              style="width:100%;padding:15px;background:linear-gradient(135deg,#7c5cfc,#9d7cfc);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(124,92,252,.3);transition:transform .15s;"
+              onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+              <span id="ob2-submit-text">Verify & Continue →</span>
+            </button>
+            <button onclick="obStep2Skip()"
+              style="width:100%;padding:12px;background:transparent;color:#9ca3af;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;transition:border-color .15s;"
+              onmouseover="this.style.borderColor='#d1d5db';this.style.color='#6b7280'" onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#9ca3af'">
+              <span id="ob2-skip-btn-text">Skip for now — I'll verify within 7 days</span>
+            </button>
+          </div>
+        </div> 
+        <!-- Step 3: Company Details -->
+        <div id="ob-step-3" style="display:none;text-align:left;">
+          <div style="text-align:center;margin-bottom:28px;">
+            <div style="font-size:44px;margin-bottom:12px;">🏢</div>
+            <h2 style="font-size:clamp(20px,3vw,30px);font-weight:800;color:#0f1117;margin-bottom:8px;">Your company details</h2>
+            <p style="font-size:14px;color:#6b7280;">This appears in your outreach messages and profile.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Company Name <span style="color:#ef4444;">*</span></label>
+              <input id="ob3-company" type="text" placeholder="Acme Technologies Pvt Ltd"
+                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;"
+                onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Industry <span style="color:#ef4444;">*</span></label>
+              <select id="ob3-industry" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;background:#fff;outline:none;">
+                <option value="">Select industry...</option>
+                <option>SaaS / Software</option>
+                <option>IT Staffing</option>
+                <option>Real Estate</option>
+                <option>EdTech</option>
+                <option>Marketing Agency</option>
+                <option>Finance / Fintech</option>
+                <option>Healthcare</option>
+                <option>Manufacturing</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Website</label>
+              <input id="ob3-website" type="url" placeholder="https://yourcompany.com"
+                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;"
+                onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">City <span style="color:#ef4444;">*</span></label>
+              <input id="ob3-city" type="text" placeholder="Ahmedabad"
+                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;"
+                onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+            </div>
+          </div>
+          <div id="ob3-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;font-size:13px;color:#dc2626;margin-top:14px;"></div>
+          <div style="display:flex;gap:10px;margin-top:20px;">
+            <button onclick="obGoToStep(2)" style="padding:13px 20px;background:#fff;color:#6b7280;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">← Back</button>
+            <button onclick="obStep3Submit()" style="flex:1;padding:13px;background:linear-gradient(135deg,#7c5cfc,#9d7cfc);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">Save & Continue →</button>
+          </div>
+          <div style="text-align:center;margin-top:10px;">
+            <span onclick="obGoToStep(4)" style="font-size:12px;color:#9ca3af;cursor:pointer;">Skip for now</span>
+          </div>
+        </div>
+        <!-- Step 4: Target Customer Profile -->
+        <div id="ob-step-4" style="display:none;text-align:left;">
+          <div style="text-align:center;margin-bottom:28px;">
+            <div style="font-size:44px;margin-bottom:12px;">🎯</div>
+            <h2 style="font-size:clamp(20px,3vw,30px);font-weight:800;color:#0f1117;margin-bottom:8px;">Who do you want to reach?</h2>
+            <p style="font-size:14px;color:#6b7280;">The AI uses this to find and qualify leads for you.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Target Industry <span style="color:#ef4444;">*</span></label>
+              <select id="ob4-industry" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;background:#fff;outline:none;">
+                <option value="">Select industry...</option>
+                <option>SaaS / Software</option>
+                <option>IT Staffing</option>
+                <option>Real Estate</option>
+                <option>EdTech</option>
+                <option>Marketing Agency</option>
+                <option>Finance / Fintech</option>
+                <option>Healthcare</option>
+                <option>Manufacturing</option>
+                <option>Retail / E-commerce</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Target City <span style="color:#ef4444;">*</span></label>
+              <input id="ob4-city" type="text" placeholder="Mumbai, Delhi, Bangalore..."
+                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;"
+                onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Company Size</label>
+              <select id="ob4-size" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;background:#fff;outline:none;">
+                <option value="">Any size</option>
+                <option>1–10 employees</option>
+                <option>11–50 employees</option>
+                <option>51–200 employees</option>
+                <option>201–500 employees</option>
+                <option>500+ employees</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Target Job Titles</label>
+              <input id="ob4-titles" type="text" placeholder="CEO, Founder, VP Sales, Head of Marketing"
+                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;"
+                onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+              <div style="font-size:12px;color:#9ca3af;margin-top:5px;">Comma separated. Leave blank to target all decision makers.</div>
+            </div>
+          </div>
+          <div id="ob4-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;font-size:13px;color:#dc2626;margin-top:14px;"></div>
+          <div style="display:flex;gap:10px;margin-top:20px;">
+            <button onclick="obGoToStep(3)" style="padding:13px 20px;background:#fff;color:#6b7280;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">← Back</button>
+            <button onclick="obStep4Submit()" style="flex:1;padding:13px;background:linear-gradient(135deg,#7c5cfc,#9d7cfc);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">Save & Continue →</button>
+          </div>
+          <div style="text-align:center;margin-top:10px;">
+            <span onclick="obGoToStep(5)" style="font-size:12px;color:#9ca3af;cursor:pointer;">Skip for now</span>
+          </div>
+        </div>
+        <!-- Step 5: Campaign Setup -->
+        <div id="ob-step-5" style="display:none;text-align:left;">
+          <div style="text-align:center;margin-bottom:28px;">
+            <div style="font-size:44px;margin-bottom:12px;">📣</div>
+            <h2 style="font-size:clamp(20px,3vw,30px);font-weight:800;color:#0f1117;margin-bottom:8px;">Set up your campaign</h2>
+            <p style="font-size:14px;color:#6b7280;">The AI uses this to write personalised outreach for every lead.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">What are you selling? <span style="color:#ef4444;">*</span></label>
+              <textarea id="ob5-product" rows="3" placeholder="e.g. AI-powered lead generation SaaS for Indian B2B businesses. Automates finding leads, writing personalised outreach and booking meetings. Starting ₹15,000/month."
+                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;resize:vertical;font-family:inherit;"
+                onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+              <div style="font-size:12px;color:#9ca3af;margin-top:5px;">Be specific — the more detail, the better the AI messages.</div>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Outreach Tone <span style="color:#ef4444;">*</span></label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="ob5-tone-grid">
+                <div onclick="obSelectTone('professional')" id="ob5-tone-professional"
+                  style="padding:12px;border:1.5px solid #7c5cfc;border-radius:10px;cursor:pointer;background:#f5f3ff;">
+                  <div style="font-size:16px;margin-bottom:4px;">💼</div>
+                  <div style="font-size:13px;font-weight:700;color:#0f1117;">Professional</div>
+                  <div style="font-size:11px;color:#6b7280;">Formal, data-driven</div>
+                </div>
+                <div onclick="obSelectTone('friendly')" id="ob5-tone-friendly"
+                  style="padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;background:#fff;">
+                  <div style="font-size:16px;margin-bottom:4px;">😊</div>
+                  <div style="font-size:13px;font-weight:700;color:#0f1117;">Friendly</div>
+                  <div style="font-size:11px;color:#6b7280;">Warm, conversational</div>
+                </div>
+                <div onclick="obSelectTone('direct')" id="ob5-tone-direct"
+                  style="padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;background:#fff;">
+                  <div style="font-size:16px;margin-bottom:4px;">⚡</div>
+                  <div style="font-size:13px;font-weight:700;color:#0f1117;">Direct</div>
+                  <div style="font-size:11px;color:#6b7280;">Short, to the point</div>
+                </div>
+                <div onclick="obSelectTone('consultative')" id="ob5-tone-consultative"
+                  style="padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;background:#fff;">
+                  <div style="font-size:16px;margin-bottom:4px;">🤝</div>
+                  <div style="font-size:13px;font-weight:700;color:#0f1117;">Consultative</div>
+                  <div style="font-size:11px;color:#6b7280;">Advisory, trust-building</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Primary Channel <span style="color:#ef4444;">*</span></label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div onclick="obSelectChannel('email')" id="ob5-ch-email"
+                  style="padding:12px;border:1.5px solid #7c5cfc;border-radius:10px;cursor:pointer;background:#f5f3ff;display:flex;align-items:center;gap:10px;">
+                  <span style="font-size:20px;">✉️</span>
+                  <div><div style="font-size:13px;font-weight:700;color:#0f1117;">Email</div><div style="font-size:11px;color:#6b7280;">Best for B2B</div></div>
+                </div>
+                <div onclick="obSelectChannel('whatsapp')" id="ob5-ch-whatsapp"
+                  style="padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;background:#fff;display:flex;align-items:center;gap:10px;">
+                  <span style="font-size:20px;">💬</span>
+                  <div><div style="font-size:13px;font-weight:700;color:#0f1117;">WhatsApp</div><div style="font-size:11px;color:#6b7280;">Higher open rates</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="ob5-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;font-size:13px;color:#dc2626;margin-top:14px;"></div>
+          <div style="display:flex;gap:10px;margin-top:20px;">
+            <button onclick="obGoToStep(4)" style="padding:13px 20px;background:#fff;color:#6b7280;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">← Back</button>
+            <button onclick="obStep5Submit()" style="flex:1;padding:13px;background:linear-gradient(135deg,#7c5cfc,#9d7cfc);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">Save & Continue →</button>
+          </div>
+          <div style="text-align:center;margin-top:10px;">
+            <span onclick="obGoToStep(6)" style="font-size:12px;color:#9ca3af;cursor:pointer;">Skip for now</span>
+          </div>
+        </div>
+        <!-- Step 6: Sender Details -->
+        <div id="ob-step-6" style="display:none;text-align:left;">
+          <div style="text-align:center;margin-bottom:28px;">
+            <div style="font-size:44px;margin-bottom:12px;">✍️</div>
+            <h2 style="font-size:clamp(20px,3vw,30px);font-weight:800;color:#0f1117;margin-bottom:8px;">Who is sending the messages?</h2>
+            <p style="font-size:14px;color:#6b7280;">This shows up as the sender name and reply address in every outreach.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Sender Name <span style="color:#ef4444;">*</span></label>
+              <input id="ob6-name" type="text" placeholder="Rahul Sharma"
+                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;"
+                onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+              <div style="font-size:12px;color:#9ca3af;margin-top:5px;">Your name or a team member's name — not your company name.</div>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Sender Title</label>
+              <input id="ob6-title" type="text" placeholder="Founder, Head of Sales, Business Development..."
+                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;"
+                onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Reply-to Email <span style="color:#ef4444;">*</span></label>
+              <input id="ob6-email" type="email" placeholder="rahul@yourcompany.com"
+                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;"
+                onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+              <div style="font-size:12px;color:#9ca3af;margin-top:5px;">Replies from leads go directly to this email.</div>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;">Phone / WhatsApp Number</label>
+              <input id="ob6-phone" type="tel" placeholder="+91 98765 43210"
+                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;"
+                onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+              <div style="font-size:12px;color:#9ca3af;margin-top:5px;">Used in WhatsApp outreach signature. Optional.</div>
+            </div>
+            <!-- Live preview -->
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;">
+              <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Preview — how leads will see you</div>
+              <div style="font-size:13px;color:#374151;line-height:1.8;">
+                <div>From: <strong id="ob6-prev-name">Your Name</strong> · <span id="ob6-prev-title" style="color:#6b7280;">Your Title</span></div>
+                <div>Reply-to: <span id="ob6-prev-email" style="color:#7c5cfc;">your@email.com</span></div>
+              </div>
+            </div>
+          </div>
+          <div id="ob6-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;font-size:13px;color:#dc2626;margin-top:14px;"></div>
+          <div style="display:flex;gap:10px;margin-top:20px;">
+            <button onclick="obGoToStep(5)" style="padding:13px 20px;background:#fff;color:#6b7280;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">← Back</button>
+            <button onclick="obStep6Submit()" style="flex:1;padding:13px;background:linear-gradient(135deg,#7c5cfc,#9d7cfc);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">Save & Continue →</button>
+          </div>
+          <div style="text-align:center;margin-top:10px;">
+            <span onclick="obGoToStep(7)" style="font-size:12px;color:#9ca3af;cursor:pointer;">Skip for now</span>
+          </div>
+        </div>
+        <!-- Step 7: Integrations + Demo Preview -->
+        <div id="ob-step-7" style="display:none;text-align:left;">
+          <div style="text-align:center;margin-bottom:28px;">
+            <div style="font-size:44px;margin-bottom:12px;">🔌</div>
+            <h2 style="font-size:clamp(20px,3vw,30px);font-weight:800;color:#0f1117;margin-bottom:8px;">Connect your tools</h2>
+            <p style="font-size:14px;color:#6b7280;">Optional — you can always connect these later from Settings.</p>
+          </div>
+
+          <!-- SendGrid -->
+          <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:16px 18px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:24px;">✉️</span>
+                <div>
+                  <div style="font-size:14px;font-weight:700;color:#0f1117;">SendGrid</div>
+                  <div style="font-size:12px;color:#6b7280;">Email delivery</div>
+                </div>
+              </div>
+              <div id="ob7-sg-status" style="font-size:12px;font-weight:600;color:#9ca3af;">Not connected</div>
+            </div>
+            <input id="ob7-sg-key" type="password" placeholder="SG.xxxxxxxxxxxxxxxxxx"
+              style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:monospace;outline:none;"
+              onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+            <button onclick="obTestSendGrid()" style="margin-top:8px;padding:8px 16px;background:#f5f3ff;color:#7c5cfc;border:1.5px solid #ede9fe;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Test Connection</button>
+          </div>
+
+          <!-- WhatsApp -->
+          <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:16px 18px;margin-bottom:24px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:24px;">💬</span>
+                <div>
+                  <div style="font-size:14px;font-weight:700;color:#0f1117;">WhatsApp (Gupshup)</div>
+                  <div style="font-size:12px;color:#6b7280;">WhatsApp Business outreach</div>
+                </div>
+              </div>
+              <div id="ob7-wa-status" style="font-size:12px;font-weight:600;color:#9ca3af;">Not connected</div>
+            </div>
+            <input id="ob7-wa-key" type="password" placeholder="Gupshup API Key"
+              style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:monospace;outline:none;"
+              onfocus="this.style.borderColor='#7c5cfc'" onblur="this.style.borderColor='#e5e7eb'">
+            <button onclick="obTestWhatsApp()" style="margin-top:8px;padding:8px 16px;background:#f0fdf4;color:#166534;border:1.5px solid #bbf7d0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Test Connection</button>
+          </div>
+
+          <!-- Demo Preview -->
+          <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1.5px solid #ddd6fe;border-radius:12px;padding:20px;margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:700;color:#7c5cfc;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">🎬 Preview — What your AI agent will do</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:flex-start;gap:12px;background:#fff;border-radius:10px;padding:12px 14px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#7c5cfc;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:#0f1117;">Find leads</div>
+                  <div style="font-size:12px;color:#6b7280;margin-top:2px;">Searches Google Places, Apollo & Hunter for <strong id="ob7-prev-target">your target customers</strong> in <strong id="ob7-prev-city">your city</strong></div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:12px;background:#fff;border-radius:10px;padding:12px 14px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#7c5cfc;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:#0f1117;">Score & enrich</div>
+                  <div style="font-size:12px;color:#6b7280;margin-top:2px;">AI scores each lead 1–10 for fit, finds contact details and identifies pain points</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:12px;background:#fff;border-radius:10px;padding:12px 14px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#7c5cfc;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:#0f1117;">Write personalised messages</div>
+                  <div style="font-size:12px;color:#6b7280;margin-top:2px;">Generates unique <strong id="ob7-prev-channel">email</strong> for each lead using a <strong id="ob7-prev-tone">professional</strong> tone</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:12px;background:#fff;border-radius:10px;padding:12px 14px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#7c5cfc;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:#0f1117;">Send & follow up</div>
+                  <div style="font-size:12px;color:#6b7280;margin-top:2px;">Sends outreach, tracks opens & replies, auto follows-up on day 3 and day 7</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:4px;">
+            <button onclick="obGoToStep(6)" style="padding:13px 20px;background:#fff;color:#6b7280;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">← Back</button>
+            <button onclick="obStep7Submit()" style="flex:1;padding:13px;background:linear-gradient(135deg,#7c5cfc,#9d7cfc);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(124,92,252,.3);">Go to Preview & Finish →</button>
+          </div>
+        </div>
+
+        <!-- Step 8: Summary Preview -->
+        <div id="ob-step-8" style="display:none;text-align:left;">
+          <div style="text-align:center;margin-bottom:28px;">
+            <div style="font-size:44px;margin-bottom:12px;">✅</div>
+            <h2 style="font-size:clamp(20px,3vw,30px);font-weight:800;color:#0f1117;margin-bottom:8px;">You're all set!</h2>
+            <p style="font-size:14px;color:#6b7280;">Review your setup before launching your first campaign.</p>
+          </div>
+
+          <!-- Summary cards -->
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+
+            <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Identity</div>
+                <div style="font-size:14px;color:#0f1117;" id="sum-identity">—</div>
+              </div>
+              <button onclick="obGoToStep(2)" style="font-size:12px;color:#7c5cfc;background:#f5f3ff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button>
+            </div>
+
+            <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Company</div>
+                <div style="font-size:14px;color:#0f1117;" id="sum-company">—</div>
+              </div>
+              <button onclick="obGoToStep(3)" style="font-size:12px;color:#7c5cfc;background:#f5f3ff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button>
+            </div>
+
+            <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Target Customer</div>
+                <div style="font-size:14px;color:#0f1117;" id="sum-target">—</div>
+              </div>
+              <button onclick="obGoToStep(4)" style="font-size:12px;color:#7c5cfc;background:#f5f3ff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button>
+            </div>
+
+            <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Campaign</div>
+                <div style="font-size:14px;color:#0f1117;" id="sum-campaign">—</div>
+              </div>
+              <button onclick="obGoToStep(5)" style="font-size:12px;color:#7c5cfc;background:#f5f3ff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button>
+            </div>
+
+            <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Sender</div>
+                <div style="font-size:14px;color:#0f1117;" id="sum-sender">—</div>
+              </div>
+              <button onclick="obGoToStep(6)" style="font-size:12px;color:#7c5cfc;background:#f5f3ff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button>
+            </div>
+
+          </div>
+
+          <button onclick="obFinish()" style="width:100%;padding:15px;background:linear-gradient(135deg,#7c5cfc,#9d7cfc);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(124,92,252,.3);">🚀 Launch My AI Agent →</button>
+          <div style="text-align:center;margin-top:12px;font-size:12px;color:#9ca3af;">Your 7-day free trial is now active · No credit card needed</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
 const API = 'http://localhost:8000';
 
@@ -1654,6 +2172,7 @@ async function doRegister() {
     const data = await res.json();
     if (!res.ok) { errEl.textContent = data.detail || 'Registration failed.'; return; }
     onAuthSuccess(data);
+    showOnboarding(); 
   } catch (e) {
     errEl.textContent = 'Cannot reach backend. Is it running on port 8000?';
   }
@@ -1679,6 +2198,355 @@ function doLogout() {
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentUser');
   window.location.href = 'landing.html';
+}
+
+// ── Onboarding ─────────────────────────────────────────────────────────────
+let _obLang = 'en';
+let _obStep = 1;
+const _obTotal = 7;
+
+const _obCopy = {
+  en: {
+    badge:    'Welcome to LeadGen AI',
+    headline: 'Your AI sales agent<br>is ready to work 🚀',
+    subline:  'Set up takes under 5 minutes. Your 7-day free trial starts today — no credit card needed.',
+    trial:    '7-day free trial · Starts today · No credit card required',
+    cta:      "Let's Get Started →",
+    skip:     'You can always complete setup later from your profile',
+    b1title:  'Find qualified leads automatically',
+    b1sub:    'AI searches Google, LinkedIn & databases for your exact target customer',
+    b2title:  'Personalised Email & WhatsApp outreach',
+    b2sub:    'Every message is written by AI, tailored to each lead — in English or Hindi',
+    b3title:  'Book 15–20 meetings every month',
+    b3sub:    'Auto follow-ups, reply detection, and meeting booking — all on autopilot',
+  },
+  hi: {
+    badge:    'LeadGen AI में आपका स्वागत है',
+    headline: 'आपका AI सेल्स एजेंट<br>काम के लिए तैयार है 🚀',
+    subline:  'सेटअप में 5 मिनट से कम लगेगा। आज से 7 दिन का फ्री ट्रायल शुरू — कोई क्रेडिट कार्ड नहीं।',
+    trial:    '7 दिन का फ्री ट्रायल · आज से शुरू · क्रेडिट कार्ड की जरूरत नहीं',
+    cta:      'शुरू करें →',
+    skip:     'आप बाद में प्रोफ़ाइल से सेटअप पूरा कर सकते हैं',
+    b1title:  'अपने आप योग्य लीड्स खोजें',
+    b1sub:    'AI आपके सटीक टार्गेट कस्टमर को Google, LinkedIn और डेटाबेस में खोजता है',
+    b2title:  'पर्सनलाइज़्ड Email और WhatsApp आउटरीच',
+    b2sub:    'हर मैसेज AI द्वारा लिखा जाता है, हर लीड के लिए — हिंदी या अंग्रेजी में',
+    b3title:  'हर महीने 15–20 मीटिंग बुक करें',
+    b3sub:    'ऑटो फॉलो-अप, रिप्लाई डिटेक्शन और मीटिंग बुकिंग — सब ऑटोपायलट पर',
+  }
+};
+
+function setObLang(lang) {
+  _obLang = lang;
+  document.getElementById('lang-en').style.background = lang === 'en' ? '#fff' : 'transparent';
+  document.getElementById('lang-en').style.color      = lang === 'en' ? '#111' : '#6b7280';
+  document.getElementById('lang-en').style.boxShadow  = lang === 'en' ? '0 1px 3px rgba(0,0,0,.1)' : 'none';
+  document.getElementById('lang-hi').style.background = lang === 'hi' ? '#fff' : 'transparent';
+  document.getElementById('lang-hi').style.color      = lang === 'hi' ? '#111' : '#6b7280';
+  document.getElementById('lang-hi').style.boxShadow  = lang === 'hi' ? '0 1px 3px rgba(0,0,0,.1)' : 'none';
+  const c = _obCopy[lang];
+  document.getElementById('ob-badge').textContent        = c.badge;
+  document.getElementById('ob-headline').innerHTML       = c.headline;
+  document.getElementById('ob-subline').textContent      = c.subline;
+  document.getElementById('ob-trial-text').textContent   = c.trial;
+  document.getElementById('ob-cta-text').textContent     = c.cta;
+  document.getElementById('ob-skip-text').textContent    = c.skip;
+  document.querySelectorAll('.ob-b1-title').forEach(el => el.textContent = c.b1title);
+  document.querySelectorAll('.ob-b1-sub').forEach(el  => el.textContent = c.b1sub);
+  document.querySelectorAll('.ob-b2-title').forEach(el => el.textContent = c.b2title);
+  document.querySelectorAll('.ob-b2-sub').forEach(el  => el.textContent = c.b2sub);
+  document.querySelectorAll('.ob-b3-title').forEach(el => el.textContent = c.b3title);
+  document.querySelectorAll('.ob-b3-sub').forEach(el  => el.textContent = c.b3sub);
+}
+
+// ── Step 2 helpers ─────────────────────────────────────────────────────────
+function obHandleCountryChange() {
+  const country = document.getElementById('ob2-country').value;
+  const isIndia = country === 'IN';
+  document.getElementById('ob2-pan-block').style.display      = isIndia ? 'block' : 'none';
+  document.getElementById('ob2-passport-block').style.display = isIndia ? 'none'  : 'block';
+}
+
+function obValidatePAN(pan) {
+  return /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan);
+}
+
+function obValidatePassport(pp) {
+  return pp.trim().length >= 6;
+}
+
+function obStep2Submit() {
+  const country  = document.getElementById('ob2-country').value;
+  const isIndia  = country === 'IN';
+  const errEl    = document.getElementById('ob2-error');
+  errEl.style.display = 'none';
+
+  if (isIndia) {
+    const pan = document.getElementById('ob2-pan').value.trim();
+    if (!obValidatePAN(pan)) {
+      errEl.textContent = 'Please enter a valid PAN number (e.g. ABCDE1234F).';
+      errEl.style.display = 'block';
+      return;
+    }
+    localStorage.setItem('ob_id_type',  'PAN');
+    localStorage.setItem('ob_id_value', pan);
+    localStorage.setItem('ob_country',  'IN');
+  } else {
+    const pp = document.getElementById('ob2-passport').value.trim();
+    if (!obValidatePassport(pp)) {
+      errEl.textContent = 'Please enter a valid passport number.';
+      errEl.style.display = 'block';
+      return;
+    }
+    localStorage.setItem('ob_id_type',  'PASSPORT');
+    localStorage.setItem('ob_id_value', pp);
+    localStorage.setItem('ob_country',  country);
+  }
+
+  localStorage.setItem('ob_kyc_done', '1');
+  obGoToStep(3);
+}
+
+function obStep2Skip() {
+  localStorage.setItem('ob_kyc_done',  '0');
+  localStorage.setItem('ob_id_type',   '');
+  localStorage.setItem('ob_id_value',  '');
+  obGoToStep(3);
+}
+
+function obStep3Submit() {
+  const company  = document.getElementById('ob3-company').value.trim();
+  const industry = document.getElementById('ob3-industry').value;
+  const city     = document.getElementById('ob3-city').value.trim();
+  const errEl    = document.getElementById('ob3-error');
+  errEl.style.display = 'none';
+  if (!company || !industry || !city) {
+    errEl.textContent = 'Please fill Company Name, Industry and City.';
+    errEl.style.display = 'block'; return;
+  }
+  localStorage.setItem('ob_company',  company);
+  localStorage.setItem('ob_industry', industry);
+  localStorage.setItem('ob_website',  document.getElementById('ob3-website').value.trim());
+  localStorage.setItem('ob_city',     city);
+  obGoToStep(4);
+}
+
+function obStep4Submit() {
+  const industry = document.getElementById('ob4-industry').value;
+  const city     = document.getElementById('ob4-city').value.trim();
+  const errEl    = document.getElementById('ob4-error');
+  errEl.style.display = 'none';
+  if (!industry || !city) {
+    errEl.textContent = 'Please fill Target Industry and City.';
+    errEl.style.display = 'block'; return;
+  }
+  localStorage.setItem('ob_target_industry', industry);
+  localStorage.setItem('ob_target_city',     city);
+  localStorage.setItem('ob_target_size',     document.getElementById('ob4-size').value);
+  localStorage.setItem('ob_target_titles',   document.getElementById('ob4-titles').value.trim());
+  obGoToStep(5);
+}
+
+let _obTone = 'professional';
+let _obChannel = 'email';
+
+function obSelectTone(t) {
+  _obTone = t;
+  ['professional','friendly','direct','consultative'].forEach(x => {
+    const el = document.getElementById('ob5-tone-' + x);
+    el.style.border = x === t ? '1.5px solid #7c5cfc' : '1.5px solid #e5e7eb';
+    el.style.background = x === t ? '#f5f3ff' : '#fff';
+  });
+}
+
+function obSelectChannel(c) {
+  _obChannel = c;
+  ['email','whatsapp'].forEach(x => {
+    const el = document.getElementById('ob5-ch-' + x);
+    el.style.border = x === c ? '1.5px solid #7c5cfc' : '1.5px solid #e5e7eb';
+    el.style.background = x === c ? '#f5f3ff' : '#fff';
+  });
+}
+
+function obStep5Submit() {
+  const product = document.getElementById('ob5-product').value.trim();
+  const errEl   = document.getElementById('ob5-error');
+  errEl.style.display = 'none';
+  if (!product) {
+    errEl.textContent = 'Please describe what you are selling.';
+    errEl.style.display = 'block'; return;
+  }
+  localStorage.setItem('ob_product', product);
+  localStorage.setItem('ob_tone',    _obTone);
+  localStorage.setItem('ob_channel', _obChannel);
+  obGoToStep(6);
+}
+
+function obStep6Submit() {
+  const name  = document.getElementById('ob6-name').value.trim();
+  const email = document.getElementById('ob6-email').value.trim();
+  const errEl = document.getElementById('ob6-error');
+  errEl.style.display = 'none';
+  if (!name || !email) {
+    errEl.textContent = 'Sender Name and Reply-to Email are required.';
+    errEl.style.display = 'block'; return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'block'; return;
+  }
+  localStorage.setItem('ob_sender_name',  name);
+  localStorage.setItem('ob_sender_title', document.getElementById('ob6-title').value.trim());
+  localStorage.setItem('ob_sender_email', email);
+  localStorage.setItem('ob_sender_phone', document.getElementById('ob6-phone').value.trim());
+  obGoToStep(7);
+}
+
+function obTestSendGrid() {
+  const key = document.getElementById('ob7-sg-key').value.trim();
+  if (!key) { toast('Enter your SendGrid API key first.', 'error'); return; }
+  localStorage.setItem('ob_sendgrid_key', key);
+  document.getElementById('ob7-sg-status').textContent = '✓ Saved';
+  document.getElementById('ob7-sg-status').style.color = '#16a34a';
+  toast('SendGrid key saved — will be verified on first send.', 'success');
+}
+
+function obTestWhatsApp() {
+  const key = document.getElementById('ob7-wa-key').value.trim();
+  if (!key) { toast('Enter your Gupshup API key first.', 'error'); return; }
+  localStorage.setItem('ob_gupshup_key', key);
+  document.getElementById('ob7-wa-status').textContent = '✓ Saved';
+  document.getElementById('ob7-wa-status').style.color = '#16a34a';
+  toast('WhatsApp key saved.', 'success');
+}
+
+function obStep7Submit() {
+  // populate demo preview with actual user data
+  const target  = localStorage.getItem('ob_target_industry') || 'your target customers';
+  const city    = localStorage.getItem('ob_target_city')     || 'your city';
+  const channel = localStorage.getItem('ob_channel')         || 'email';
+  const tone    = localStorage.getItem('ob_tone')            || 'professional';
+  document.getElementById('ob7-prev-target').textContent  = target;
+  document.getElementById('ob7-prev-city').textContent    = city;
+  document.getElementById('ob7-prev-channel').textContent = channel;
+  document.getElementById('ob7-prev-tone').textContent    = tone;
+  obGoToStep(8);
+}
+
+function obLoadSummary() {
+  const idType  = localStorage.getItem('ob_id_type')  || '';
+  const idVal   = localStorage.getItem('ob_id_value') || '';
+  document.getElementById('sum-identity').textContent =
+    idType ? `${idType}: ${idVal}` : '⚠ Not provided — required within 7 days';
+
+  const company  = localStorage.getItem('ob_company')  || '—';
+  const industry = localStorage.getItem('ob_industry') || '';
+  const city     = localStorage.getItem('ob_city')     || '';
+  document.getElementById('sum-company').textContent =
+    [company, industry, city].filter(Boolean).join(' · ');
+
+  const ti = localStorage.getItem('ob_target_industry') || '—';
+  const tc = localStorage.getItem('ob_target_city')     || '';
+  const ts = localStorage.getItem('ob_target_size')     || '';
+  document.getElementById('sum-target').textContent =
+    [ti, tc, ts].filter(Boolean).join(' · ');
+
+  const tone    = localStorage.getItem('ob_tone')    || '—';
+  const channel = localStorage.getItem('ob_channel') || '—';
+  document.getElementById('sum-campaign').textContent = `${channel} · ${tone} tone`;
+
+  const sname  = localStorage.getItem('ob_sender_name')  || '—';
+  const semail = localStorage.getItem('ob_sender_email') || '';
+  document.getElementById('sum-sender').textContent =
+    [sname, semail].filter(Boolean).join(' · ');
+}
+
+async function obFinish() {
+  // save everything to backend
+  try {
+    await api('/auth/onboarding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id_type:           localStorage.getItem('ob_id_type'),
+        id_value:          localStorage.getItem('ob_id_value'),
+        country:           localStorage.getItem('ob_country'),
+        company:           localStorage.getItem('ob_company'),
+        industry:          localStorage.getItem('ob_industry'),
+        website:           localStorage.getItem('ob_website'),
+        city:              localStorage.getItem('ob_city'),
+        target_industry:   localStorage.getItem('ob_target_industry'),
+        target_city:       localStorage.getItem('ob_target_city'),
+        target_size:       localStorage.getItem('ob_target_size'),
+        target_titles:     localStorage.getItem('ob_target_titles'),
+        product:           localStorage.getItem('ob_product'),
+        tone:              localStorage.getItem('ob_tone'),
+        channel:           localStorage.getItem('ob_channel'),
+        sender_name:       localStorage.getItem('ob_sender_name'),
+        sender_title:      localStorage.getItem('ob_sender_title'),
+        sender_email:      localStorage.getItem('ob_sender_email'),
+        sender_phone:      localStorage.getItem('ob_sender_phone'),
+      })
+    });
+  } catch(e) { console.warn('Onboarding save failed', e); }
+  localStorage.setItem('onboarding_complete', '1');
+  closeOnboarding();
+  toast('🚀 Welcome! Your AI agent is ready.', 'success');
+}
+
+// live preview on Step 6
+document.addEventListener('DOMContentLoaded', () => {
+  ['ob6-name','ob6-title','ob6-email'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => {
+      document.getElementById('ob6-prev-name').textContent  = document.getElementById('ob6-name').value  || 'Your Name';
+      document.getElementById('ob6-prev-title').textContent = document.getElementById('ob6-title').value || 'Your Title';
+      document.getElementById('ob6-prev-email').textContent = document.getElementById('ob6-email').value || 'your@email.com';
+    });
+  });
+});
+
+function obUpdateProgress() {
+  const pct = (_obStep / _obTotal) * 100;
+  document.getElementById('ob-progress-bar').style.width = pct + '%';
+  document.getElementById('ob-step-label').textContent   = `Step ${_obStep} of ${_obTotal}`;
+}
+
+function obGoToStep(n) {
+  for (let i = 1; i <= 8; i++) {
+    const el = document.getElementById('ob-step-' + i);
+    if (el) el.style.display = 'none';
+  }
+  const target = document.getElementById('ob-step-' + n);
+  if (target) {
+    target.style.display = 'block';
+    _obStep = n;
+    // update progress bar — cap display at 7 steps
+    const pct = (Math.min(n, 7) / 7) * 100;
+    document.getElementById('ob-progress-bar').style.width = pct + '%';
+    document.getElementById('ob-step-label').textContent   = n <= 7 ? `Step ${n} of 7` : 'Review';
+    document.getElementById('onboarding-overlay').scrollTo({ top: 0, behavior: 'smooth' });
+    if (n === 8) obLoadSummary();
+  }
+}
+
+function obNextStep() {
+  obGoToStep(_obStep + 1);
+}
+
+function showOnboarding() {
+  _obStep = 1;
+  _obLang = 'en';
+  obUpdateProgress();
+  setObLang('en');
+  document.getElementById('onboarding-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOnboarding() {
+  document.getElementById('onboarding-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  localStorage.setItem('onboarding_complete', '1');
 }
 
 // ── Navigation ─────────────────────────────────────────────────────────────
