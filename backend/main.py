@@ -409,6 +409,63 @@ def login(form:OAuth2PasswordRequestForm=Depends(), db:Session=Depends(get_db)):
 @app.get("/auth/me")
 def me(cu:UserDB=Depends(get_current_user)): return _user_dict(cu)
 
+class OnboardingData(BaseModel):
+    id_type:         Optional[str] = ""
+    id_value:        Optional[str] = ""
+    country:         Optional[str] = "IN"
+    company:         Optional[str] = ""
+    industry:        Optional[str] = ""
+    website:         Optional[str] = ""
+    city:            Optional[str] = ""
+    target_industry: Optional[str] = ""
+    target_city:     Optional[str] = ""
+    target_size:     Optional[str] = ""
+    target_titles:   Optional[str] = ""
+    product:         Optional[str] = ""
+    tone:            Optional[str] = "professional"
+    channel:         Optional[str] = "email"
+    sender_name:     Optional[str] = ""
+    sender_title:    Optional[str] = ""
+    sender_email:    Optional[str] = ""
+    sender_phone:    Optional[str] = ""
+
+@app.post("/auth/onboarding")
+def save_onboarding(data: OnboardingData, db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
+    from datetime import timedelta
+    # Save KYC — lock if provided, only if not already locked
+    if data.id_value and not cu.kyc_locked:
+        cu.kyc_id_type  = data.id_type
+        cu.kyc_id_value = data.id_value
+        cu.kyc_country  = data.country
+        cu.kyc_locked   = True
+    # Save sender details
+    if data.sender_name:  cu.sender_name  = data.sender_name
+    if data.sender_title: cu.sender_title = data.sender_title
+    if data.sender_email: cu.sender_email = data.sender_email
+    if data.sender_phone: cu.sender_phone = data.sender_phone
+    # Set trial window
+    cu.trial_started_at = datetime.utcnow()
+    cu.trial_ends_at    = datetime.utcnow() + timedelta(days=7)
+    cu.onboarding_done  = True
+    # Save client profile
+    if cu.client_id:
+        client = db.query(ClientDB).filter(ClientDB.id == cu.client_id).first()
+        if client:
+            if data.company:         client.name             = data.company
+            if data.industry:        client.industry         = data.industry
+            if data.website:         client.website          = data.website
+            if data.city:            client.city             = data.city
+            if data.target_industry: client.target_industry  = data.target_industry
+            if data.target_city:     client.target_city      = data.target_city
+            if data.target_size:     client.target_size      = data.target_size
+            if data.target_titles:   client.target_titles    = data.target_titles
+            if data.product:         client.product_desc     = data.product
+            if data.tone:            client.tone_config      = {"tone": data.tone}
+            if data.channel:         client.preferred_channel = data.channel
+            client.onboarding_complete = True
+    db.commit()
+    return {"status": "ok", "trial_ends_at": cu.trial_ends_at.isoformat() if cu.trial_ends_at else None}
+
 def enrich_with_hunter(domain: str) -> dict:
     if not HUNTER_API_KEY or not domain:
         return {}

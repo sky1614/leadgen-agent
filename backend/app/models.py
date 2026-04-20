@@ -23,6 +23,14 @@ class ClientDB(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     festival_blackout_dates = Column(JSON, default=list)
     onboarding_complete = Column(Boolean, default=False)
+    website           = Column(String, nullable=True)
+    target_industry   = Column(String, nullable=True)
+    target_city       = Column(String, nullable=True)
+    target_size       = Column(String, nullable=True)
+    target_titles     = Column(String, nullable=True)
+    product_desc      = Column(Text, nullable=True)
+    preferred_channel = Column(String, default="email")
+    city              = Column(String, nullable=True)
         # White-label / branding
     brand_name = Column(String, nullable=True)
     brand_logo_url = Column(String, nullable=True)
@@ -48,6 +56,17 @@ class UserDB(Base):
     is_active = Column(Boolean, default=True)
     client_id = Column(String, ForeignKey("clients.id"), nullable=True)
     role = Column(String, default="admin")
+    trial_started_at  = Column(DateTime, default=datetime.utcnow)
+    trial_ends_at     = Column(DateTime, nullable=True)
+    kyc_id_type       = Column(String, nullable=True)
+    kyc_id_value      = Column(String, nullable=True)
+    kyc_country       = Column(String, default="IN")
+    kyc_locked        = Column(Boolean, default=False)
+    onboarding_done   = Column(Boolean, default=False)
+    sender_name       = Column(String, nullable=True)
+    sender_title      = Column(String, nullable=True)
+    sender_email      = Column(String, nullable=True)
+    sender_phone      = Column(String, nullable=True)
 
 
 class LeadDB(Base):
