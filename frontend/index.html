@@ -1594,6 +1594,20 @@ const API = 'http://localhost:8000';
 let authToken = localStorage.getItem('authToken') || null;
 let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
+// ── Auto-restore session on page load ──────────────────────────────────────
+if (authToken && currentUser) {
+  document.getElementById('auth-screen').style.display  = 'none';
+  document.getElementById('app-shell').style.display    = 'block';
+  document.getElementById('sidebar-username').textContent = currentUser.name  || currentUser.email;
+  document.getElementById('sidebar-email').textContent    = currentUser.email || '';
+  loadAnalytics();
+}
+
+// Show login tab if arriving via ?login=true
+if (new URLSearchParams(window.location.search).get('login') === 'true' && !authToken) {
+  switchAuthTab('login');
+}
+
 // ── Auth helpers ───────────────────────────────────────────────────────────
 function switchAuthTab(tab) {
   document.querySelectorAll('.auth-tab').forEach((t, i) => {
@@ -1645,7 +1659,10 @@ async function doRegister() {
   }
 }
 
+// CHANGE onAuthSuccess — add localStorage save
 function onAuthSuccess(data) {
+  authToken   = data.access_token;
+  currentUser = data.user;
   localStorage.setItem('authToken', data.access_token);
   localStorage.setItem('currentUser', JSON.stringify(data.user));
   document.getElementById('auth-screen').style.display  = 'none';
@@ -1655,6 +1672,7 @@ function onAuthSuccess(data) {
   loadAnalytics();
 }
 
+// CHANGE doLogout — clear localStorage + redirect to landing
 function doLogout() {
   authToken   = null;
   currentUser = null;
@@ -2046,7 +2064,13 @@ async function api(path, opts = {}) {
     opts.headers = opts.headers || {};
     if (authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
     const res = await fetch(API + path, opts);
-    if (res.status === 401) { doLogout(); toast('Session expired — please sign in again.', 'error'); return null; }
+    if (res.status === 401) {
+      authToken = null; currentUser = null;
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('currentUser');
+      window.location.href = 'landing.html';
+      return null;
+    }
     return await res.json();
   } catch (e) {
     toast('Cannot reach API — is the backend running on port 8000?', 'error');
