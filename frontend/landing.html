@@ -11,7 +11,7 @@
 <meta property="og:image" content="/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="LeadGen AI — Get 15–20 Qualified Meetings Every Month">
-<meta name="twitter:description" content="AI lead generation for Indian businesses. WhatsApp + Email. Starts at ₹15,000/month. Free audit available.">
+<meta name="twitter:description" content="AI-powered B2B lead generation. WhatsApp + Email outreach. Plans from $59/month. 7-day free trial.">
 
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -353,22 +353,22 @@ footer { background: var(--ink); color: #9ca3af; padding: 48px 0 24px; }
 <section class="hero">
   <div class="container">
     <div class="hero-badge">
-      ✦ Built for Global B2B Businesses
+      ✦ Built for Global B2B Businesses · Starts at $59/month
     </div>
-    <h1>Close More Deals with <span class="highlight">AI-Powered Lead Generation</span></h1>
+    <h1>Get <span class="highlight">15–20 Qualified Meetings</span><br>Every Month — On Autopilot</h1>
     <p class="hero-sub">
-      Your AI agent finds real businesses, writes personalized outreach, and books meetings — automatically.
-      <strong>Email + WhatsApp.</strong> You approve every message.
+      AI-powered lead generation for B2B businesses.<br>
+      <strong>WhatsApp + Email</strong> outreach. Higher plan = better leads. Real results.
     </p>
     <div class="hero-btns">
-      <a href="#audit" class="btn-primary">Start Your Free Audit →</a>
-      <a href="#pricing" class="btn-secondary">View Pricing</a>
+      <a href="#audit" class="btn-primary">Start Free 7-Day Trial →</a>
+      <a href="#pricing" class="btn-secondary">See Plans & Pricing</a>
     </div>
     <div class="hero-trust">
-      <div class="trust-item"><span class="trust-icon">✓</span> No cold calling</div>
-      <div class="trust-item"><span class="trust-icon">✓</span> Email + WhatsApp outreach</div>
+      <div class="trust-item"><span class="trust-icon">✓</span> No credit card required</div>
+      <div class="trust-item"><span class="trust-icon">✓</span> WhatsApp + Email outreach</div>
       <div class="trust-item"><span class="trust-icon">✓</span> You approve every message</div>
-      <div class="trust-item"><span class="trust-icon">✓</span> Free audit included</div>
+      <div class="trust-item"><span class="trust-icon">✓</span> Plans from $59/month</div>
     </div>
   </div>
 </section>
@@ -449,31 +449,46 @@ footer { background: var(--ink); color: #9ca3af; padding: 48px 0 24px; }
   <div class="container">
     <div class="section-label">Pricing</div>
     <div class="section-title">Simple, outcome-based pricing</div>
-    <p class="section-sub text-muted">No setup fees. No per-lead charges. Flat monthly rate — you keep every meeting booked.</p>
-    <div class="quarterly-note">
-      🎉 Save 10% with quarterly billing — pay once, run for 3 months
+    <p class="section-sub text-muted">No setup fees. No per-lead charges. Higher plan = better leads, more volume, smarter AI.</p>
+
+    <!-- Billing toggle -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:28px 0 8px;">
+      <span id="toggle-monthly-label" style="font-size:14px;font-weight:700;color:var(--ink);">Monthly</span>
+      <div onclick="toggleBilling()" id="billing-toggle" style="width:48px;height:26px;background:#e5e7eb;border-radius:99px;cursor:pointer;position:relative;transition:background .2s;">
+        <div id="billing-knob" style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);"></div>
+      </div>
+      <span id="toggle-annual-label" style="font-size:14px;font-weight:600;color:var(--muted);">Annual <span style="background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid #bbf7d0;margin-left:4px;">Save 20%</span></span>
     </div>
-    <div class="pricing-grid">
+
+    <div class="pricing-grid" style="margin-top:32px;">
 
       <!-- Starter -->
       <div class="price-card">
         <div class="price-tier">Starter</div>
         <div class="price-name">Starter</div>
-        <div><span class="price-amount"><sup>$</sup>199</span></div>
-        <div class="price-period">per month + GST</div>
-        <div class="price-quarterly">$537/quarter (save $60)</div>
+        <div>
+          <span class="price-amount" id="price-starter"><sup>$</sup>59</span>
+        </div>
+        <div class="price-period" id="period-starter">per month</div>
+        <div class="price-quarterly" id="save-starter">&nbsp;</div>
         <hr class="price-divider">
+        <!-- Lead quality badge -->
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:#92400e;">
+          <strong>150 leads/month</strong> · Fit score 5+ · Google Places
+        </div>
         <ul class="price-features">
-          <li>500 leads/month</li>
-          <li>1,000 emails/month</li>
-          <li>1,000 WA messages/month</li>
-          <li>AI enrichment + scoring</li>
+          <li>AI enrichment — basic depth</li>
+          <li>Email outreach only</li>
+          <li>1 active campaign</li>
+          <li>1 follow-up per lead</li>
           <li>Approval queue</li>
           <li>Weekly email report</li>
-          <li class="dimmed">Advanced analytics</li>
-          <li class="dimmed">Custom integrations</li>
+          <li class="dimmed">WhatsApp outreach</li>
+          <li class="dimmed">AI Intelligence dashboard</li>
+          <li class="dimmed">Multi-agent mode</li>
+          <li class="dimmed">RAG / A-B testing</li>
         </ul>
-        <button class="price-cta price-cta-outline" onclick="scrollToAudit('Starter')">Start Free Audit</button>
+        <button class="price-cta price-cta-outline" onclick="scrollToAudit('Starter')">Start Free Trial →</button>
       </div>
 
       <!-- Growth -->
@@ -481,65 +496,146 @@ footer { background: var(--ink); color: #9ca3af; padding: 48px 0 24px; }
         <div class="featured-badge">Most Popular</div>
         <div class="price-tier">Growth</div>
         <div class="price-name">Growth</div>
-        <div><span class="price-amount"><sup>$</sup>449</span></div>
-        <div class="price-period">per month + GST</div>
-        <div class="price-quarterly">$1,212/quarter (save $135)</div>
+        <div>
+          <span class="price-amount" id="price-growth"><sup>$</sup>119</span>
+        </div>
+        <div class="price-period" id="period-growth">per month</div>
+        <div class="price-quarterly" id="save-growth">&nbsp;</div>
         <hr class="price-divider">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:#166534;">
+          <strong>500 leads/month</strong> · Fit score 7+ · + Hunter.io verified emails
+        </div>
         <ul class="price-features">
-          <li>2,000 leads/month</li>
-          <li>5,000 emails/month</li>
-          <li>5,000 WA messages/month</li>
-          <li>All Starter features</li>
-          <li>Advanced analytics</li>
+          <li>AI enrichment — standard depth</li>
+          <li>Email + WhatsApp outreach</li>
+          <li>3 active campaigns</li>
+          <li>3 follow-ups per lead</li>
+          <li>AI Intelligence dashboard</li>
           <li>Cost per lead tracking</li>
-          <li>Priority support</li>
-          <li class="dimmed">Custom integrations</li>
+          <li>Priority email support</li>
+          <li class="dimmed">Multi-agent mode</li>
+          <li class="dimmed">RAG / A-B testing</li>
+          <li class="dimmed">API access</li>
         </ul>
-        <button class="price-cta price-cta-primary" onclick="scrollToAudit('Growth')">Start Free Audit</button>
+        <button class="price-cta price-cta-primary" onclick="scrollToAudit('Growth')">Start Free Trial →</button>
       </div>
 
       <!-- Pro -->
       <div class="price-card">
         <div class="price-tier">Pro</div>
         <div class="price-name">Pro</div>
-        <div><span class="price-amount"><sup>$</sup>899</span></div>
-        <div class="price-period">per month + GST</div>
-        <div class="price-quarterly">$2,427/quarter (save $270)</div>
+        <div>
+          <span class="price-amount" id="price-pro"><sup>$</sup>239</span>
+        </div>
+        <div class="price-period" id="period-pro">per month</div>
+        <div class="price-quarterly" id="save-pro">&nbsp;</div>
         <hr class="price-divider">
+        <div style="background:#ede9fe;border:1px solid #ddd6fe;border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:#5b21b6;">
+          <strong>1,500 leads/month</strong> · Fit score 8+ · + Apollo decision makers
+        </div>
         <ul class="price-features">
-          <li>10,000 leads/month</li>
-          <li>20,000 emails/month</li>
-          <li>20,000 WA messages/month</li>
-          <li>All Growth features</li>
-          <li>Dedicated onboarding</li>
-          <li>Multi-city campaigns</li>
-          <li>Custom prompt templates</li>
+          <li>AI enrichment — deep + pain points</li>
+          <li>Email + WhatsApp outreach</li>
+          <li>Unlimited campaigns</li>
+          <li>5 follow-ups per lead</li>
+          <li>Multi-agent pipeline mode</li>
+          <li>RAG + OPRO + A-B testing</li>
           <li>API access</li>
+          <li>Priority support</li>
+          <li class="dimmed">White label</li>
+          <li class="dimmed">Dedicated account manager</li>
         </ul>
-        <button class="price-cta price-cta-outline" onclick="scrollToAudit('Pro')">Start Free Audit</button>
+        <button class="price-cta price-cta-outline" onclick="scrollToAudit('Pro')">Start Free Trial →</button>
       </div>
 
       <!-- Enterprise -->
       <div class="price-card">
         <div class="price-tier">Enterprise</div>
         <div class="price-name">Enterprise</div>
-        <div style="font-size:24px;font-weight:800;margin:4px 0">Custom</div>
-        <div class="price-period">tailored to your needs</div>
-        <div class="price-quarterly" style="visibility:hidden">—</div>
+        <div style="font-size:28px;font-weight:800;margin:4px 0;color:var(--ink);">Custom</div>
+        <div class="price-period">tailored pricing</div>
+        <div class="price-quarterly">&nbsp;</div>
         <hr class="price-divider">
+        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:#374151;">
+          <strong>Unlimited leads</strong> · Custom fit thresholds · All sources + custom APIs
+        </div>
         <ul class="price-features">
-          <li>Unlimited leads</li>
-          <li>Unlimited messages</li>
-          <li>Multi-team accounts</li>
-          <li>All Pro features</li>
-          <li>SLA guarantee</li>
-          <li>Custom CRM integration</li>
+          <li>Everything in Pro</li>
+          <li>White label branding</li>
           <li>Dedicated account manager</li>
+          <li>Custom CRM integrations</li>
+          <li>Multi-team accounts</li>
+          <li>SLA guarantee</li>
           <li>On-site training</li>
+          <li>Custom prompt templates</li>
+          <li>Zoho + HubSpot sync</li>
+          <li>Invoice billing available</li>
         </ul>
-        <a href="https://wa.me/919999999999?text=Hi%2C+I%27m+interested+in+the+Enterprise+plan" class="price-cta price-cta-outline" style="display:block;text-align:center">Talk to Us →</a>
+        <a href="https://wa.me/919999999999?text=Hi%2C+I%27m+interested+in+the+Enterprise+plan" class="price-cta price-cta-outline" style="display:block;text-align:center;">Talk to Us →</a>
       </div>
 
+    </div>
+
+    <!-- Lead quality comparison table -->
+    <div style="margin-top:48px;background:#fff;border:1.5px solid var(--line);border-radius:16px;overflow:hidden;">
+      <div style="padding:20px 28px;border-bottom:1px solid var(--line);">
+        <div style="font-size:16px;font-weight:800;color:var(--ink);">Lead Quality Breakdown</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;">What "quality" actually means at each tier</div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:#f9fafb;">
+              <th style="padding:12px 20px;text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);">Quality Factor</th>
+              <th style="padding:12px 16px;text-align:center;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);">Starter</th>
+              <th style="padding:12px 16px;text-align:center;color:#e85d04;font-weight:700;border-bottom:1px solid var(--line);background:#fff7ed;">Growth ★</th>
+              <th style="padding:12px 16px;text-align:center;color:#5b21b6;font-weight:600;border-bottom:1px solid var(--line);">Pro</th>
+              <th style="padding:12px 16px;text-align:center;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);">Enterprise</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--line);">
+              <td style="padding:12px 20px;font-weight:600;color:var(--ink);">Min Fit Score</td>
+              <td style="padding:12px 16px;text-align:center;color:var(--muted);">5 / 10</td>
+              <td style="padding:12px 16px;text-align:center;font-weight:700;background:#fff7ed;">7 / 10</td>
+              <td style="padding:12px 16px;text-align:center;font-weight:700;color:#5b21b6;">8 / 10</td>
+              <td style="padding:12px 16px;text-align:center;">Custom</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);background:#f9fafb;">
+              <td style="padding:12px 20px;font-weight:600;color:var(--ink);">Lead Sources</td>
+              <td style="padding:12px 16px;text-align:center;color:var(--muted);">Google Places</td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;background:#fff7ed;">+ Hunter.io</td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;color:#5b21b6;">+ Apollo</td>
+              <td style="padding:12px 16px;text-align:center;">+ Custom</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+              <td style="padding:12px 20px;font-weight:600;color:var(--ink);">Enrichment Depth</td>
+              <td style="padding:12px 16px;text-align:center;color:var(--muted);">Name + Email</td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;background:#fff7ed;">+ Role + Website</td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;color:#5b21b6;">+ Pain points + Icebreaker</td>
+              <td style="padding:12px 16px;text-align:center;">Deep + Custom</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);background:#f9fafb;">
+              <td style="padding:12px 20px;font-weight:600;color:var(--ink);">Email Verification</td>
+              <td style="padding:12px 16px;text-align:center;">Basic</td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;background:#fff7ed;">ZeroBounce</td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;color:#5b21b6;">ZeroBounce + Catch-all</td>
+              <td style="padding:12px 16px;text-align:center;">Enterprise grade</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 20px;font-weight:600;color:var(--ink);">Expected Reply Rate</td>
+              <td style="padding:12px 16px;text-align:center;color:var(--muted);">3–5%</td>
+              <td style="padding:12px 16px;text-align:center;font-weight:700;color:#e85d04;background:#fff7ed;">6–10%</td>
+              <td style="padding:12px 16px;text-align:center;font-weight:700;color:#5b21b6;">10–18%</td>
+              <td style="padding:12px 16px;text-align:center;">Custom SLA</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="quarterly-note" style="margin-top:24px;">
+      🎉 All plans include a 7-day free trial — no credit card required
     </div>
   </div>
 </section>
@@ -808,6 +904,40 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
   });
 });
+
+let _billingAnnual = false;
+const _prices = { starter: 59, growth: 119, pro: 239 };
+
+function toggleBilling() {
+  _billingAnnual = !_billingAnnual;
+  const knob   = document.getElementById('billing-knob');
+  const toggle = document.getElementById('billing-toggle');
+  const mLabel = document.getElementById('toggle-monthly-label');
+  const aLabel = document.getElementById('toggle-annual-label');
+  knob.style.left       = _billingAnnual ? '25px' : '3px';
+  toggle.style.background = _billingAnnual ? '#7c5cfc' : '#e5e7eb';
+  mLabel.style.color    = _billingAnnual ? 'var(--muted)' : 'var(--ink)';
+  mLabel.style.fontWeight = _billingAnnual ? '600' : '700';
+
+  ['starter','growth','pro'].forEach(plan => {
+    const monthly  = _prices[plan];
+    const annual   = Math.round(monthly * 12 * 0.8);
+    const perMonth = Math.round(annual / 12);
+    const el       = document.getElementById('price-' + plan);
+    const period   = document.getElementById('period-' + plan);
+    const save     = document.getElementById('save-' + plan);
+    if (_billingAnnual) {
+      el.innerHTML     = `<sup>$</sup>${perMonth}`;
+      period.textContent = 'per month, billed annually';
+      save.textContent   = `$${annual}/year — save $${monthly * 12 - annual}`;
+      save.style.color   = '#166534';
+    } else {
+      el.innerHTML     = `<sup>$</sup>${monthly}`;
+      period.textContent = 'per month';
+      save.innerHTML     = '&nbsp;';
+    }
+  });
+}
 </script>
 </body>
 </html>
