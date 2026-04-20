@@ -20,6 +20,7 @@ celery = Celery(
         "app.tasks.rag_tasks",
         "app.tasks.ab_testing_tasks",
         "app.tasks.multi_agent_tasks",
+        "app.tasks.trial_tasks",   
     ]
 )
 
@@ -76,6 +77,10 @@ celery.conf.update(
         "ab-test-significance-check": {
             "task": "app.tasks.ab_testing_tasks.check_all_running_tests",
             "schedule": crontab(hour="*/6", minute=30),  # every 6 hours
+        },
+        "trial-day6-reminder": {
+    "task": "app.tasks.trial_tasks.send_trial_day6_reminders",
+    "schedule": crontab(hour=4, minute=30),   # 10 AM IST daily
         },
     }
 )

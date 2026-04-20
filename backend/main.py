@@ -429,6 +429,11 @@ class OnboardingData(BaseModel):
     sender_email:    Optional[str] = ""
     sender_phone:    Optional[str] = ""
 
+@app.get("/plan/summary")
+def plan_summary(db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
+    from app.services.plan_gate import get_plan_summary
+    return get_plan_summary(db, cu.client_id)
+
 @app.post("/auth/onboarding")
 def save_onboarding(data: OnboardingData, db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
     from datetime import timedelta
@@ -801,9 +806,24 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
         user = db.query(UserDB).filter(UserDB.id==user_id).first()
         camp = db.query(CampaignDB).filter(CampaignDB.id==req.campaign_id).first()
         if not camp: job.status="error"; db.commit(); return
+        # ── Plan gate checks ──────────────────────────────────────────────────────
+        from app.services.plan_gate import check_leads_cap, get_allowed_sources, get_enrichment_depth
+        allowed, reason = check_leads_cap(db, user.client_id)
+        if not allowed:
+            job.status = "error"
+            job.error_message = reason
+            db.commit()
+            return
+        allowed_sources = get_allowed_sources(db, user.client_id)
+        enrichment_depth = get_enrichment_depth(db, user.client_id)
 
         if req.source_url:
-            raw_leads = scrape_url(req.source_url, req.industry)
+            # Only use sources allowed by plan
+            if req.source_url and "google_places" in allowed_sources:
+                raw_leads = scrape_url(req.source_url, req.industry)
+            else:
+                raw_leads = SAMPLE_LEADS.get(req.industry, [])
+            raw_leads = raw_leads[:req.count]
         else:
             city = getattr(req, 'city', 'Mumbai') or 'Mumbai'
             if GOOGLE_PLACES_API_KEY:
@@ -835,7 +855,7 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
                         lead.role = hunter.get("role", "")
                     db.commit()
 
-            enrichment = ai_enrich(lead)
+            enrichment = ai_enrich(lead, depth=enrichment_depth)
             lead.enrichment_json = json.dumps(enrichment)
             lead.fit_score = enrichment.get("fit_score", 5)
             if lead.fit_score < 5: lead.status = "skipped"; db.commit(); continue
