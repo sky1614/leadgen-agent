@@ -21,9 +21,9 @@ SECRET_KEY = os.getenv("SECRET_KEY", "nsai-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 DATABASE_URL = "sqlite:///./leadgen.db"
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+#GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")
-_groq_client = Groq(api_key=GROQ_API_KEY)
+#_groq_client = Groq(api_key=GROQ_API_KEY)
 HUNTER_API_KEY = os.getenv("HUNTER_API_KEY", "")
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
@@ -166,11 +166,19 @@ def get_admin_user(cu: UserDB = Depends(get_current_user)):
     return cu
 
 def gemini(prompt):
-    res = _groq_client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}],
-        model="llama-3.3-70b-versatile"
+    import requests, os
+    res = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": "anthropic/claude-sonnet-4-20250514",
+            "messages": [{"role": "user", "content": prompt}]
+        }
     )
-    return res.choices[0].message.content.strip()
+    return res.json()["choices"][0]["message"]["content"].strip()
 
 def make_fingerprint(name, company, email="", whatsapp=""):
     raw = f"{name.lower().strip()}{company.lower().strip()}{email.lower().strip()}{whatsapp.strip()}"
