@@ -429,6 +429,95 @@ class OnboardingData(BaseModel):
     sender_email:    Optional[str] = ""
     sender_phone:    Optional[str] = ""
 
+@app.get("/admin/users")
+def admin_list_users(db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
+    if cu.role not in ("admin", "superadmin"):
+        raise HTTPException(403, "Admin only")
+    users = db.query(UserDB).order_by(UserDB.created_at.desc()).all()
+    return {"users": [{
+        "id":           u.id,
+        "name":         u.name,
+        "email":        u.email,
+        "plan":         u.plan,
+        "is_active":    u.is_active,
+        "kyc_id_type":  u.kyc_id_type,
+        "kyc_id_value": u.kyc_id_value,
+        "trial_ends_at": u.trial_ends_at.isoformat() if u.trial_ends_at else None,
+        "created_at":   u.created_at.isoformat() if u.created_at else None,
+    } for u in users]}
+
+@app.put("/admin/users/{user_id}")
+def admin_update_user(user_id: str, data: dict, db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
+    if cu.role not in ("admin", "superadmin"):
+        raise HTTPException(403, "Admin only")
+    u = db.query(UserDB).filter(UserDB.id == user_id).first()
+    if not u: raise HTTPException(404, "User not found")
+    if "name"         in data: u.name      = data["name"]
+    if "email"        in data: u.email     = data["email"]
+    if "plan"         in data: u.plan      = data["plan"]
+    if "is_active"    in data: u.is_active = data["is_active"]
+    if "kyc_id_type"  in data: u.kyc_id_type  = data["kyc_id_type"]
+    if "kyc_id_value" in data: u.kyc_id_value = data["kyc_id_value"]
+    if data.get("kyc_id_value"): u.kyc_locked = True
+    if "trial_ends_at" in data and data["trial_ends_at"]:
+        from datetime import datetime
+        u.trial_ends_at = datetime.fromisoformat(data["trial_ends_at"].replace("Z",""))
+    db.commit()
+    return {"status": "ok"}
+
+@app.get("/auth/profile")
+def get_profile(db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
+    client = db.query(ClientDB).filter(ClientDB.id == cu.client_id).first() if cu.client_id else None
+    return {
+        "name":              cu.name,
+        "email":             cu.email,
+        "kyc_id_type":       cu.kyc_id_type,
+        "kyc_id_value":      cu.kyc_id_value,
+        "kyc_country":       cu.kyc_country,
+        "kyc_locked":        cu.kyc_locked,
+        "sender_name":       cu.sender_name,
+        "sender_title":      cu.sender_title,
+        "sender_email":      cu.sender_email,
+        "sender_phone":      cu.sender_phone,
+        "company":           client.name             if client else None,
+        "industry":          client.industry         if client else None,
+        "website":           client.website          if client else None,
+        "city":              client.city             if client else None,
+        "target_industry":   client.target_industry  if client else None,
+        "target_city":       client.target_city      if client else None,
+        "target_size":       client.target_size      if client else None,
+        "target_titles":     client.target_titles    if client else None,
+        "product":           client.product_desc     if client else None,
+        "tone":              client.tone_config.get("tone") if client and client.tone_config else None,
+        "channel":           client.preferred_channel if client else None,
+        "sendgrid_connected": bool(cu.sender_email),
+        "whatsapp_connected": bool(client.wa_number if client else None),
+    }
+
+@app.put("/auth/profile")
+def update_profile(data: dict, db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
+    client = db.query(ClientDB).filter(ClientDB.id == cu.client_id).first() if cu.client_id else None
+    # User fields
+    if "sender_name"  in data and data["sender_name"]:  cu.sender_name  = data["sender_name"]
+    if "sender_title" in data: cu.sender_title = data["sender_title"]
+    if "sender_email" in data and data["sender_email"]: cu.sender_email = data["sender_email"]
+    if "sender_phone" in data: cu.sender_phone = data["sender_phone"]
+    # Client fields
+    if client:
+        if "company"         in data and data["company"]:  client.name             = data["company"]
+        if "industry"        in data: client.industry         = data["industry"]
+        if "website"         in data: client.website          = data["website"]
+        if "city"            in data: client.city             = data["city"]
+        if "target_industry" in data: client.target_industry  = data["target_industry"]
+        if "target_city"     in data: client.target_city      = data["target_city"]
+        if "target_size"     in data: client.target_size      = data["target_size"]
+        if "target_titles"   in data: client.target_titles    = data["target_titles"]
+        if "product"         in data: client.product_desc     = data["product"]
+        if "tone"            in data: client.tone_config      = {"tone": data["tone"]}
+        if "channel"         in data: client.preferred_channel = data["channel"]
+    db.commit()
+    return {"status": "ok"}
+
 @app.get("/plan/summary")
 def plan_summary(db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
     from app.services.plan_gate import get_plan_summary
