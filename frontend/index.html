@@ -485,6 +485,241 @@
   <!-- Main -->
   <main class="main">
 
+    <!-- ── PROFILE ── -->
+    <div id="view-profile" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-title">My <span class="accent">Profile</span></div>
+          <div class="page-sub">Manage your account details and preferences</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" onclick="loadProfile()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="content">
+
+        <!-- Plan badge -->
+        <div id="prof-plan-banner" style="background:linear-gradient(135deg,#7c5cfc,#9d7cfc);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.08em;">Current Plan</div>
+            <div style="font-size:20px;font-weight:800;color:#fff;" id="prof-plan-name">—</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:13px;color:rgba(255,255,255,.8);" id="prof-leads-remaining">— leads remaining</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;" id="prof-trial-status"></div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs" style="padding:0 0 0 0;margin-bottom:20px;">
+          <div class="tab active" onclick="switchProfileTab('identity', this)">Identity</div>
+          <div class="tab" onclick="switchProfileTab('company', this)">Company</div>
+          <div class="tab" onclick="switchProfileTab('target', this)">Target Customer</div>
+          <div class="tab" onclick="switchProfileTab('campaign', this)">Campaign</div>
+          <div class="tab" onclick="switchProfileTab('sender', this)">Sender</div>
+          <div class="tab" onclick="switchProfileTab('integrations', this)">Integrations</div>
+        </div>
+
+        <!-- Identity tab -->
+        <div id="prof-tab-identity" class="prof-tab">
+          <div class="panel">
+            <div class="panel-title">🪪 Identity Verification</div>
+            <div style="display:flex;flex-direction:column;gap:14px;max-width:480px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;">Country</label>
+                <div id="prof-country" style="font-size:14px;color:var(--text);padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;">—</div>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;">ID Type</label>
+                <div id="prof-id-type" style="font-size:14px;color:var(--text);padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;">—</div>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;">ID Number</label>
+                <div id="prof-id-value" style="font-size:14px;color:var(--text);padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-family:var(--font-mono);">—</div>
+              </div>
+              <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;display:flex;gap:8px;align-items:center;">
+                <span>🔒</span>
+                <span style="font-size:12px;color:#92400e;font-weight:500;">Your ID is permanently locked and cannot be changed. Contact support if there's an error.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Company tab -->
+        <div id="prof-tab-company" class="prof-tab" style="display:none;">
+          <div class="panel">
+            <div class="panel-title">🏢 Company Details</div>
+            <div style="display:flex;flex-direction:column;gap:14px;max-width:480px;">
+              <div class="form-group">
+                <label>Company Name</label>
+                <input id="prof-company" type="text" placeholder="Acme Technologies">
+              </div>
+              <div class="form-group">
+                <label>Industry</label>
+                <select id="prof-industry">
+                  <option>SaaS / Software</option>
+                  <option>IT Staffing</option>
+                  <option>Real Estate</option>
+                  <option>EdTech</option>
+                  <option>Marketing Agency</option>
+                  <option>Finance / Fintech</option>
+                  <option>Healthcare</option>
+                  <option>Manufacturing</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Website</label>
+                <input id="prof-website" type="url" placeholder="https://yourcompany.com">
+              </div>
+              <div class="form-group">
+                <label>City</label>
+                <input id="prof-city" type="text" placeholder="Ahmedabad">
+              </div>
+              <button class="btn btn-primary" onclick="saveProfileSection('company')" style="width:fit-content;">Save Changes</button>
+              <div id="prof-company-msg" style="font-size:13px;min-height:18px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target tab -->
+        <div id="prof-tab-target" class="prof-tab" style="display:none;">
+          <div class="panel">
+            <div class="panel-title">🎯 Target Customer Profile</div>
+            <div style="display:flex;flex-direction:column;gap:14px;max-width:480px;">
+              <div class="form-group">
+                <label>Target Industry</label>
+                <select id="prof-target-industry">
+                  <option>SaaS / Software</option>
+                  <option>IT Staffing</option>
+                  <option>Real Estate</option>
+                  <option>EdTech</option>
+                  <option>Marketing Agency</option>
+                  <option>Finance / Fintech</option>
+                  <option>Healthcare</option>
+                  <option>Manufacturing</option>
+                  <option>Retail / E-commerce</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Target City</label>
+                <input id="prof-target-city" type="text" placeholder="Mumbai, Delhi...">
+              </div>
+              <div class="form-group">
+                <label>Company Size</label>
+                <select id="prof-target-size">
+                  <option value="">Any size</option>
+                  <option>1–10 employees</option>
+                  <option>11–50 employees</option>
+                  <option>51–200 employees</option>
+                  <option>201–500 employees</option>
+                  <option>500+ employees</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Target Job Titles</label>
+                <input id="prof-target-titles" type="text" placeholder="CEO, Founder, VP Sales">
+              </div>
+              <button class="btn btn-primary" onclick="saveProfileSection('target')" style="width:fit-content;">Save Changes</button>
+              <div id="prof-target-msg" style="font-size:13px;min-height:18px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campaign tab -->
+        <div id="prof-tab-campaign" class="prof-tab" style="display:none;">
+          <div class="panel">
+            <div class="panel-title">📣 Campaign Defaults</div>
+            <div style="display:flex;flex-direction:column;gap:14px;max-width:480px;">
+              <div class="form-group">
+                <label>Product Description</label>
+                <textarea id="prof-product" rows="4" placeholder="What are you selling..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>Default Tone</label>
+                <select id="prof-tone">
+                  <option value="professional">Professional</option>
+                  <option value="friendly">Friendly</option>
+                  <option value="direct">Direct</option>
+                  <option value="consultative">Consultative</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Primary Channel</label>
+                <select id="prof-channel">
+                  <option value="email">Email</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="both">Both</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="saveProfileSection('campaign')" style="width:fit-content;">Save Changes</button>
+              <div id="prof-campaign-msg" style="font-size:13px;min-height:18px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sender tab -->
+        <div id="prof-tab-sender" class="prof-tab" style="display:none;">
+          <div class="panel">
+            <div class="panel-title">✍️ Sender Details</div>
+            <div style="display:flex;flex-direction:column;gap:14px;max-width:480px;">
+              <div class="form-group">
+                <label>Sender Name</label>
+                <input id="prof-sender-name" type="text" placeholder="Rahul Sharma">
+              </div>
+              <div class="form-group">
+                <label>Sender Title</label>
+                <input id="prof-sender-title" type="text" placeholder="Founder, Head of Sales...">
+              </div>
+              <div class="form-group">
+                <label>Reply-to Email</label>
+                <input id="prof-sender-email" type="email" placeholder="rahul@company.com">
+              </div>
+              <div class="form-group">
+                <label>WhatsApp Number</label>
+                <input id="prof-sender-phone" type="tel" placeholder="+91 98765 43210">
+              </div>
+              <button class="btn btn-primary" onclick="saveProfileSection('sender')" style="width:fit-content;">Save Changes</button>
+              <div id="prof-sender-msg" style="font-size:13px;min-height:18px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrations tab -->
+        <div id="prof-tab-integrations" class="prof-tab" style="display:none;">
+          <div class="panel">
+            <div class="panel-title">🔌 Integrations</div>
+            <div style="display:flex;flex-direction:column;gap:12px;max-width:480px;">
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:20px;">✉️</span>
+                    <div><div style="font-size:14px;font-weight:600;">SendGrid</div><div style="font-size:12px;color:var(--muted);">Email delivery</div></div>
+                  </div>
+                  <div id="prof-sg-status" style="font-size:12px;font-weight:600;color:var(--muted);">Not connected</div>
+                </div>
+                <input id="prof-sg-key" type="password" placeholder="SG.xxxxxxxxxx" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:monospace;background:var(--surface);color:var(--text);outline:none;">
+                <button onclick="saveIntegration('sendgrid')" class="btn btn-ghost btn-sm" style="margin-top:8px;">Save Key</button>
+              </div>
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:20px;">💬</span>
+                    <div><div style="font-size:14px;font-weight:600;">WhatsApp (Gupshup)</div><div style="font-size:12px;color:var(--muted);">WhatsApp Business</div></div>
+                  </div>
+                  <div id="prof-wa-status" style="font-size:12px;font-weight:600;color:var(--muted);">Not connected</div>
+                </div>
+                <input id="prof-wa-key" type="password" placeholder="Gupshup API Key" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:monospace;background:var(--surface);color:var(--text);outline:none;">
+                <button onclick="saveIntegration('whatsapp')" class="btn btn-ghost btn-sm" style="margin-top:8px;">Save Key</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- ── DASHBOARD ── -->
     <div id="view-dashboard" class="view active">
       <div class="page-header">
@@ -1354,6 +1589,69 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
           </div>
         </div>
 
+        <!-- User Management -->
+          <div class="panel" style="margin-top:20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <div class="panel-title" style="margin:0;"><span class="dot" style="background:var(--accent)"></span> User Management</div>
+              <input id="adm-user-search" placeholder="Search by email..." onkeyup="filterAdminUsers()"
+                style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg);color:var(--text);width:220px;outline:none;">
+            </div>
+            <div id="adm-users-table" style="font-size:13px;color:var(--muted);">Loading...</div>
+          </div>
+
+          <!-- Edit User Modal -->
+          <div id="adm-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;">
+              <div style="font-size:16px;font-weight:700;margin-bottom:20px;">✏️ Edit User</div>
+              <input type="hidden" id="adm-edit-user-id">
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px;">NAME</label>
+                  <input id="adm-edit-name" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px;">EMAIL</label>
+                  <input id="adm-edit-email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px;">PLAN</label>
+                  <select id="adm-edit-plan" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;">
+                    <option value="free">Free Trial</option>
+                    <option value="starter">Starter — $59/mo</option>
+                    <option value="growth">Growth — $119/mo</option>
+                    <option value="pro">Pro — $239/mo</option>
+                    <option value="enterprise">Enterprise</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px;">TRIAL ENDS (leave blank to keep current)</label>
+                  <input id="adm-edit-trial" type="date" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px;">ID TYPE (admin override)</label>
+                  <select id="adm-edit-id-type" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;">
+                    <option value="">— Not set —</option>
+                    <option value="PAN">PAN</option>
+                    <option value="PASSPORT">Passport</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px;">ID VALUE (admin override)</label>
+                  <input id="adm-edit-id-value" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;font-family:monospace;" placeholder="ABCDE1234F">
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <input type="checkbox" id="adm-edit-active" style="width:16px;height:16px;">
+                  <label for="adm-edit-active" style="font-size:13px;font-weight:600;cursor:pointer;">Account Active</label>
+                </div>
+              </div>
+              <div id="adm-edit-msg" style="font-size:13px;margin-top:12px;min-height:16px;"></div>
+              <div style="display:flex;gap:10px;margin-top:20px;">
+                <button onclick="saveAdminUserEdit()" class="btn btn-primary" style="flex:1;">Save Changes</button>
+                <button onclick="document.getElementById('adm-edit-modal').style.display='none'" class="btn btn-ghost">Cancel</button>
+              </div>
+            </div>
+          </div>
+
         <!-- ── Share Stats card (hidden, shown on demand) ── -->
         <div id="share-stats-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:center;justify-content:center">
           <div style="width:520px;max-width:95vw">
@@ -1436,6 +1734,98 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
                 </select>
               </div>
               <button class="btn btn-primary" style="padding:10px 20px" onclick="saveProfile()">Save Profile</button>
+            </div>
+
+            <!-- Identity Card -->
+            <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+              <div style="font-size:15px;font-weight:700;margin-bottom:4px">🪪 Identity</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">Your verified ID — permanently locked</div>
+              <div style="margin-bottom:12px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Country</label>
+                <div id="prof-country" style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#F9FAFB;color:#6B7280;">—</div>
+              </div>
+              <div style="margin-bottom:12px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">ID Type</label>
+                <div id="prof-id-type" style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#F9FAFB;color:#6B7280;">—</div>
+              </div>
+              <div style="margin-bottom:14px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">ID Number</label>
+                <div id="prof-id-value" style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#F9FAFB;color:#6B7280;font-family:monospace;">—</div>
+              </div>
+              <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;display:flex;gap:8px;align-items:center;">
+                <span>🔒</span>
+                <span style="font-size:12px;color:#92400e;font-weight:500;">Permanently locked. Contact support if there's an error.</span>
+              </div>
+            </div>
+
+            <!-- Target Customer Card -->
+            <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+              <div style="font-size:15px;font-weight:700;margin-bottom:4px">🎯 Target Customer</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">Who your AI agent targets</div>
+              <div style="margin-bottom:14px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Target Industry</label>
+                <select id="prof-target-industry" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fff">
+                  <option>SaaS / Software</option><option>IT Staffing</option><option>Real Estate</option>
+                  <option>EdTech</option><option>Marketing Agency</option><option>Finance / Fintech</option>
+                  <option>Healthcare</option><option>Manufacturing</option><option>Retail / E-commerce</option><option>Other</option>
+                </select>
+              </div>
+              <div style="margin-bottom:14px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Target City</label>
+                <input id="prof-target-city" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="Mumbai, Delhi...">
+              </div>
+              <div style="margin-bottom:14px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Company Size</label>
+                <select id="prof-target-size" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fff">
+                  <option value="">Any size</option><option>1–10 employees</option><option>11–50 employees</option>
+                  <option>51–200 employees</option><option>201–500 employees</option><option>500+ employees</option>
+                </select>
+              </div>
+              <div style="margin-bottom:20px">
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Target Job Titles</label>
+                <input id="prof-target-titles" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="CEO, Founder, VP Sales">
+              </div>
+              <button class="btn btn-primary" style="padding:10px 20px" onclick="saveProfileSection('target')">Save</button>
+              <div id="prof-target-msg" style="font-size:12px;margin-top:8px;min-height:16px;"></div>
+            </div>
+
+            <!-- Sender + Campaign Card -->
+            <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;grid-column:1/-1">
+              <div style="font-size:15px;font-weight:700;margin-bottom:4px">✍️ Sender & Campaign Defaults</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px">How your outreach appears to leads</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Sender Name</label>
+                  <input id="prof-sender-name" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="Rahul Sharma">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Sender Title</label>
+                  <input id="prof-sender-title" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="Founder, Head of Sales">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Reply-to Email</label>
+                  <input id="prof-sender-email" type="email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="you@company.com">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">WhatsApp Number</label>
+                  <input id="prof-sender-phone" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px" placeholder="+91 98765 43210">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Default Tone</label>
+                  <select id="prof-tone" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fff">
+                    <option value="professional">Professional</option><option value="friendly">Friendly</option>
+                    <option value="direct">Direct</option><option value="consultative">Consultative</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Primary Channel</label>
+                  <select id="prof-channel" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fff">
+                    <option value="email">Email</option><option value="whatsapp">WhatsApp</option><option value="both">Both</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn btn-primary" style="padding:10px 20px;margin-top:16px" onclick="saveProfileSection('sender')">Save Changes</button>
+              <div id="prof-sender-msg" style="font-size:12px;margin-top:8px;min-height:16px;"></div>
             </div>
 
             <!-- Security Card -->
@@ -2179,7 +2569,7 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
 </div>
 
 <script>
-const API = 'http://localhost:8000';
+const API = 'https://leadgen-agent.onrender.com';
 
 // ── Auth state (in-memory) ──────────────────────────────────────────────────
 let authToken = localStorage.getItem('authToken') || null;
@@ -2657,6 +3047,136 @@ function initTrialState() {
   else if (data.usage_pct >= 60) fill.style.background = '#f59e0b';
 }
 
+// ── Profile ────────────────────────────────────────────────────────────────
+function switchProfileTab(name, el) {
+  document.querySelectorAll('.prof-tab').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('prof-tab-' + name).style.display = 'block';
+  if (el) el.classList.add('active');
+}
+
+async function loadProfile() {
+  const [prof, plan] = await Promise.all([
+    api('/auth/profile'),
+    api('/plan/summary')
+  ]);
+
+  // Plan banner
+  if (plan) {
+    document.getElementById('prof-plan-name').textContent      = plan.name + ' Plan';
+    document.getElementById('prof-leads-remaining').textContent = `${plan.leads_remaining} leads remaining this month`;
+  }
+  if (currentUser?.trial_ends_at) {
+    const days = Math.ceil((new Date(currentUser.trial_ends_at) - new Date()) / 86400000);
+    document.getElementById('prof-trial-status').textContent =
+      days > 0 ? `Trial: ${days} days remaining` : 'Trial expired';
+  }
+
+  if (!prof) return;
+
+  // Identity — read only
+  document.getElementById('prof-country').textContent  = prof.kyc_country  || '—';
+  document.getElementById('prof-id-type').textContent  = prof.kyc_id_type  || 'Not provided';
+  document.getElementById('prof-id-value').textContent = prof.kyc_id_value
+    ? prof.kyc_id_value.slice(0, 3) + '****' + prof.kyc_id_value.slice(-2)
+    : 'Not provided';
+
+  // Company
+  if (prof.company)  document.getElementById('prof-company').value  = prof.company;
+  if (prof.industry) document.getElementById('prof-industry').value = prof.industry;
+  if (prof.website)  document.getElementById('prof-website').value  = prof.website;
+  if (prof.city)     document.getElementById('prof-city').value     = prof.city;
+
+  // Target
+  if (prof.target_industry) document.getElementById('prof-target-industry').value = prof.target_industry;
+  if (prof.target_city)     document.getElementById('prof-target-city').value     = prof.target_city;
+  if (prof.target_size)     document.getElementById('prof-target-size').value     = prof.target_size;
+  if (prof.target_titles)   document.getElementById('prof-target-titles').value   = prof.target_titles;
+
+  // Campaign
+  if (prof.product) document.getElementById('prof-product').value  = prof.product;
+  if (prof.tone)    document.getElementById('prof-tone').value     = prof.tone;
+  if (prof.channel) document.getElementById('prof-channel').value  = prof.channel;
+
+  // Sender
+  if (prof.sender_name)  document.getElementById('prof-sender-name').value  = prof.sender_name;
+  if (prof.sender_title) document.getElementById('prof-sender-title').value = prof.sender_title;
+  if (prof.sender_email) document.getElementById('prof-sender-email').value = prof.sender_email;
+  if (prof.sender_phone) document.getElementById('prof-sender-phone').value = prof.sender_phone;
+
+  // Integrations status
+  if (prof.sendgrid_connected) {
+    document.getElementById('prof-sg-status').textContent = '✓ Connected';
+    document.getElementById('prof-sg-status').style.color = 'var(--accent2)';
+  }
+  if (prof.whatsapp_connected) {
+    document.getElementById('prof-wa-status').textContent = '✓ Connected';
+    document.getElementById('prof-wa-status').style.color = 'var(--accent2)';
+  }
+}
+
+async function saveProfileSection(section) {
+  const msgEl = document.getElementById('prof-' + section + '-msg');
+  msgEl.textContent = 'Saving...';
+  msgEl.style.color = 'var(--muted)';
+
+  const payload = {};
+  if (section === 'company') {
+    payload.company  = document.getElementById('prof-company').value.trim();
+    payload.industry = document.getElementById('prof-industry').value;
+    payload.website  = document.getElementById('prof-website').value.trim();
+    payload.city     = document.getElementById('prof-city').value.trim();
+  } else if (section === 'target') {
+    payload.target_industry = document.getElementById('prof-target-industry').value;
+    payload.target_city     = document.getElementById('prof-target-city').value.trim();
+    payload.target_size     = document.getElementById('prof-target-size').value;
+    payload.target_titles   = document.getElementById('prof-target-titles').value.trim();
+  } else if (section === 'campaign') {
+    payload.product = document.getElementById('prof-product').value.trim();
+    payload.tone    = document.getElementById('prof-tone').value;
+    payload.channel = document.getElementById('prof-channel').value;
+  } else if (section === 'sender') {
+    payload.sender_name  = document.getElementById('prof-sender-name').value.trim();
+    payload.sender_title = document.getElementById('prof-sender-title').value.trim();
+    payload.sender_email = document.getElementById('prof-sender-email').value.trim();
+    payload.sender_phone = document.getElementById('prof-sender-phone').value.trim();
+  }
+
+  const res = await api('/auth/profile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (res) {
+    msgEl.textContent = '✓ Saved successfully';
+    msgEl.style.color = 'var(--accent2)';
+    setTimeout(() => msgEl.textContent = '', 3000);
+  } else {
+    msgEl.textContent = 'Failed to save';
+    msgEl.style.color = 'var(--accent3)';
+  }
+}
+
+async function saveIntegration(type) {
+  const key = type === 'sendgrid'
+    ? document.getElementById('prof-sg-key').value.trim()
+    : document.getElementById('prof-wa-key').value.trim();
+  if (!key) { toast('Enter an API key first', 'error'); return; }
+  const payload = type === 'sendgrid' ? { sendgrid_key: key } : { gupshup_key: key };
+  const res = await api('/auth/profile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (res) {
+    const statusEl = document.getElementById(type === 'sendgrid' ? 'prof-sg-status' : 'prof-wa-status');
+    statusEl.textContent = '✓ Connected';
+    statusEl.style.color = 'var(--accent2)';
+    toast('Integration saved', 'success');
+  }
+}
+
   // Show trial banner
   const banner = document.getElementById('trial-banner');
   banner.style.display = 'block';
@@ -2708,7 +3228,8 @@ function showView(name, el) {
   if (name === 'outreach')  { loadLeadSelects(); loadCampaignSelects(); }
   if (name === 'log')       loadLog();
   if (name === 'agent')     loadAgentCampaigns();
-  if (name === 'settings') { switchSettingsTab('account'); loadSettingsProfile(); }
+  if (name === 'profile')   loadProfile();
+  if (name === 'settings') { switchSettingsTab('account'); loadSettingsProfile(); loadProfileExtras(); }
   if (name === 'intelligence') loadIntelligenceDashboard();
 }
 
@@ -3827,7 +4348,7 @@ function switchAnalyticsTab(name, el) {
   if (name === 'pipeline')  loadPipelineKanban();
   if (name === 'campaigns') loadCampaignPerf();
   if (name === 'ai')        loadAIPerf();
-  if (name === 'admin')     loadAdminOverview();
+  if (name === 'admin') { loadAdminOverview(); loadAdminUsers(); }
 }
 
 async function loadAnalyticsDash() {
@@ -3963,6 +4484,122 @@ async function loadAdminOverview() {
   document.getElementById('adm-h-green').textContent  = h.healthy || 0;
   document.getElementById('adm-h-yellow').textContent = h.warning || 0;
   document.getElementById('adm-h-red').textContent    = h.critical || 0;
+}
+
+let _admUsers = [];
+
+async function loadAdminUsers() {
+  const data = await api('/admin/users');
+  if (!data) return;
+  _admUsers = data.users || [];
+  renderAdminUsers(_admUsers);
+}
+
+function filterAdminUsers() {
+  const q = document.getElementById('adm-user-search').value.toLowerCase();
+  renderAdminUsers(_admUsers.filter(u =>
+    u.email.toLowerCase().includes(q) || (u.name || '').toLowerCase().includes(q)
+  ));
+}
+
+function renderAdminUsers(users) {
+  const el = document.getElementById('adm-users-table');
+  if (!users.length) { el.innerHTML = '<div style="color:var(--muted);padding:12px;">No users found.</div>'; return; }
+  el.innerHTML = `
+    <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;">User</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;">Plan</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;">Trial Ends</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;">KYC</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;">Status</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${users.map(u => `
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:10px 12px;">
+            <div style="font-weight:600;color:var(--text);">${u.name || '—'}</div>
+            <div style="font-size:11px;color:var(--muted);">${u.email}</div>
+          </td>
+          <td style="padding:10px 12px;">
+            <span style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(124,92,252,.15);color:var(--accent);">${u.plan || 'free'}</span>
+          </td>
+          <td style="padding:10px 12px;font-size:12px;color:var(--muted);">
+            ${u.trial_ends_at ? new Date(u.trial_ends_at).toLocaleDateString('en-IN') : '—'}
+          </td>
+          <td style="padding:10px 12px;font-size:12px;">
+            ${u.kyc_id_type
+              ? `<span style="color:var(--accent2);">✓ ${u.kyc_id_type}</span>`
+              : `<span style="color:var(--amber);">⚠ Not set</span>`}
+          </td>
+          <td style="padding:10px 12px;">
+            <span style="font-size:12px;font-weight:600;color:${u.is_active ? 'var(--accent2)' : 'var(--accent3)'};">
+              ${u.is_active ? '● Active' : '● Inactive'}
+            </span>
+          </td>
+          <td style="padding:10px 12px;">
+            <button onclick="openAdminEditUser('${u.id}')" class="btn btn-ghost btn-sm">Edit</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>`;
+}
+
+function openAdminEditUser(userId) {
+  const u = _admUsers.find(x => x.id === userId);
+  if (!u) return;
+  document.getElementById('adm-edit-user-id').value  = u.id;
+  document.getElementById('adm-edit-name').value     = u.name    || '';
+  document.getElementById('adm-edit-email').value    = u.email   || '';
+  document.getElementById('adm-edit-plan').value     = u.plan    || 'free';
+  document.getElementById('adm-edit-id-type').value  = u.kyc_id_type  || '';
+  document.getElementById('adm-edit-id-value').value = u.kyc_id_value || '';
+  document.getElementById('adm-edit-active').checked = u.is_active !== false;
+  document.getElementById('adm-edit-msg').textContent = '';
+  if (u.trial_ends_at) {
+    document.getElementById('adm-edit-trial').value =
+      new Date(u.trial_ends_at).toISOString().split('T')[0];
+  } else {
+    document.getElementById('adm-edit-trial').value = '';
+  }
+  document.getElementById('adm-edit-modal').style.display = 'flex';
+}
+
+async function saveAdminUserEdit() {
+  const userId = document.getElementById('adm-edit-user-id').value;
+  const msgEl  = document.getElementById('adm-edit-msg');
+  msgEl.textContent = 'Saving...';
+  const trialVal = document.getElementById('adm-edit-trial').value;
+  const payload = {
+    name:        document.getElementById('adm-edit-name').value.trim(),
+    email:       document.getElementById('adm-edit-email').value.trim(),
+    plan:        document.getElementById('adm-edit-plan').value,
+    kyc_id_type: document.getElementById('adm-edit-id-type').value,
+    kyc_id_value:document.getElementById('adm-edit-id-value').value.trim(),
+    is_active:   document.getElementById('adm-edit-active').checked,
+    trial_ends_at: trialVal ? new Date(trialVal).toISOString() : null,
+  };
+  const res = await api(`/admin/users/${userId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (res) {
+    msgEl.textContent = '✓ Saved';
+    msgEl.style.color = 'var(--accent2)';
+    setTimeout(() => {
+      document.getElementById('adm-edit-modal').style.display = 'none';
+      loadAdminUsers();
+    }, 800);
+  } else {
+    msgEl.textContent = 'Failed to save';
+    msgEl.style.color = 'var(--accent3)';
+  }
 }
 
 function shareStats() {
@@ -4131,6 +4768,53 @@ function loadSettingsProfile() {
   const emailEl = document.getElementById('settings-email');
   if (nameEl) nameEl.value = currentUser.name || '';
   if (emailEl) emailEl.value = currentUser.email || '';
+}
+
+async function loadProfileExtras() {
+  const prof = await api('/auth/profile');
+  if (!prof) return;
+  document.getElementById('prof-country').textContent  = prof.kyc_country  || '—';
+  document.getElementById('prof-id-type').textContent  = prof.kyc_id_type  || 'Not provided';
+  document.getElementById('prof-id-value').textContent = prof.kyc_id_value
+    ? prof.kyc_id_value.slice(0,3) + '****' + prof.kyc_id_value.slice(-2)
+    : 'Not provided';
+  if (prof.target_industry) document.getElementById('prof-target-industry').value = prof.target_industry;
+  if (prof.target_city)     document.getElementById('prof-target-city').value     = prof.target_city;
+  if (prof.target_size)     document.getElementById('prof-target-size').value     = prof.target_size;
+  if (prof.target_titles)   document.getElementById('prof-target-titles').value   = prof.target_titles;
+  if (prof.sender_name)     document.getElementById('prof-sender-name').value     = prof.sender_name;
+  if (prof.sender_title)    document.getElementById('prof-sender-title').value    = prof.sender_title;
+  if (prof.sender_email)    document.getElementById('prof-sender-email').value    = prof.sender_email;
+  if (prof.sender_phone)    document.getElementById('prof-sender-phone').value    = prof.sender_phone;
+  if (prof.tone)            document.getElementById('prof-tone').value            = prof.tone;
+  if (prof.channel)         document.getElementById('prof-channel').value         = prof.channel;
+}
+
+async function saveProfileSection(section) {
+  const msgEl = document.getElementById('prof-' + section + '-msg');
+  msgEl.textContent = 'Saving...';
+  const payload = {};
+  if (section === 'target') {
+    payload.target_industry = document.getElementById('prof-target-industry').value;
+    payload.target_city     = document.getElementById('prof-target-city').value.trim();
+    payload.target_size     = document.getElementById('prof-target-size').value;
+    payload.target_titles   = document.getElementById('prof-target-titles').value.trim();
+  } else if (section === 'sender') {
+    payload.sender_name  = document.getElementById('prof-sender-name').value.trim();
+    payload.sender_title = document.getElementById('prof-sender-title').value.trim();
+    payload.sender_email = document.getElementById('prof-sender-email').value.trim();
+    payload.sender_phone = document.getElementById('prof-sender-phone').value.trim();
+    payload.tone         = document.getElementById('prof-tone').value;
+    payload.channel      = document.getElementById('prof-channel').value;
+  }
+  const res = await api('/auth/profile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  msgEl.textContent = res ? '✓ Saved' : 'Failed';
+  msgEl.style.color = res ? '#16a34a' : '#dc2626';
+  setTimeout(() => msgEl.textContent = '', 3000);
 }
 
 async function saveProfile() {
