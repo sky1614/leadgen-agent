@@ -178,7 +178,7 @@ async function adminLogin() {
     const res = await fetch(API + '/auth/login', { method:'POST', body:form });
     const data = await res.json();
     if (!res.ok) { err.textContent = 'Invalid credentials'; return; }
-    if (data.user.email !== 'ceo@nsai.in') { err.textContent = 'Admin access denied'; return; }
+    if (data.user.email !== 'info@nsai.in') { err.textContent = 'Admin access denied'; return; }
     adminToken = data.access_token;
     localStorage.setItem('adminToken', adminToken);
     showApp(data.user);
@@ -277,7 +277,7 @@ async function loadOverview() {
 
 if (adminToken) {
   const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-  if (user.email === 'ceo@nsai.in') showApp(user);
+  if (user.email === 'info@nsai.in') showApp(user);
   else { adminToken = null; localStorage.removeItem('adminToken'); }
 }
 </script>
