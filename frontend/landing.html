@@ -341,7 +341,7 @@ footer { background: var(--ink); color: #9ca3af; padding: 48px 0 24px; }
         <a href="#features">Features</a>
         <a href="#pricing">Pricing</a>
         <a href="#audit">Free Audit</a>
-        <a href="index.html?login=true" style="color:var(--ink);font-weight:600;">Sign In</a>
+        <a href="/dashboard?login=true" style="color:var(--ink);font-weight:600;">Sign In</a>
         <a href="#audit" class="nav-cta">Get Free Audit →</a>
       </div>
       <a href="#audit" class="nav-cta nav-mobile-cta" style="font-size:13px;padding:8px 16px">Free Audit →</a>
@@ -831,7 +831,7 @@ footer { background: var(--ink); color: #9ca3af; padding: 48px 0 24px; }
         <a href="#features">Features</a>
         <a href="#pricing">Pricing</a>
         <a href="#audit">Free Audit</a>
-        <a href="index.html?login=true">Login</a>
+        <a href="/dashboard?login=true">Login</a>
       </div>
       <div class="footer-col">
         <h4>Company</h4>
@@ -855,7 +855,8 @@ footer { background: var(--ink); color: #9ca3af; padding: 48px 0 24px; }
 </footer>
 
 <script>
-const API = 'https://leadgen-agent.onrender.com';
+const API = window.location.origin;
+
 
 function toggleFaq(el) {
   el.parentElement.classList.toggle('open');

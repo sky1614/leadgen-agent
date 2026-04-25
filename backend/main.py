@@ -1,11 +1,14 @@
 from dotenv import load_dotenv
-load_dotenv()
+from pathlib import Path
+load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from typing import Optional, List
-import csv, io, json, os, uuid, hashlib, re
+import csv, io, json, os, uuid, hashlib, re, random, time
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, Column, String, Integer, Float, Text, DateTime, Boolean, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
@@ -20,13 +23,18 @@ GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")
 SECRET_KEY = os.getenv("SECRET_KEY", "nsai-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
-DATABASE_URL = "sqlite:///./leadgen.db"
 #GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")
 #_groq_client = Groq(api_key=GROQ_API_KEY)
 HUNTER_API_KEY = os.getenv("HUNTER_API_KEY", "")
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./leadgen.db")
+# Railway PostgreSQL URLs start with postgres:// but SQLAlchemy needs postgresql://
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+_engine_kwargs = {} if DATABASE_URL.startswith("postgresql") else {"connect_args": {"check_same_thread": False}}
+engine = create_engine(DATABASE_URL, **_engine_kwargs)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -41,6 +49,12 @@ class UserDB(Base):
     leads_limit = Column(Integer, default=500)
     created_at = Column(DateTime, default=datetime.utcnow)
     is_active = Column(Boolean, default=True)
+    role = Column(String, default="client")
+
+class RevokedTokenDB(Base):
+    __tablename__ = "revoked_tokens"
+    jti = Column(String, primary_key=True)
+    revoked_at = Column(DateTime, default=datetime.utcnow)
 
 class LeadDB(Base):
     __tablename__ = "leads"
@@ -131,7 +145,22 @@ class AgentJobItemDB(Base):
     whatsapp_message = Column(Text)
     status = Column(String, default="pending")  # pending, approved, rejected
 
+class OTPStoreDB(Base):
+    __tablename__ = "otp_store"
+    email = Column(String, primary_key=True)
+    otp = Column(String)
+    expires = Column(Float)
+    user_id = Column(String)
+
 Base.metadata.create_all(bind=engine)
+
+with engine.connect() as _conn:
+    from sqlalchemy import text
+    try:
+        _conn.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR DEFAULT 'client'"))
+        _conn.commit()
+    except Exception:
+        pass
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -140,7 +169,10 @@ def verify_password(plain, hashed): return pwd_context.verify(plain, hashed)
 def hash_password(password): return pwd_context.hash(password)
 def create_token(data: dict):
     to_encode = data.copy()
-    to_encode.update({"exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)})
+    to_encode.update({
+        "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+        "jti": uuid.uuid4().hex,
+    })
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def get_db():
@@ -152,16 +184,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
+        jti = payload.get("jti")
         if not user_id: raise HTTPException(401, "Invalid token")
     except JWTError: raise HTTPException(401, "Invalid token")
+    if jti and db.query(RevokedTokenDB).filter(RevokedTokenDB.jti == jti).first():
+        raise HTTPException(401, "Token revoked")
     user = db.query(UserDB).filter(UserDB.id == user_id).first()
     if not user: raise HTTPException(401, "User not found")
     return user
 
-ADMIN_EMAILS = ["ceo@nsai.in"]  # add your cofounder email here
-
 def get_admin_user(cu: UserDB = Depends(get_current_user)):
-    if cu.email not in ADMIN_EMAILS:
+    if getattr(cu, "role", "client") != "admin":
         raise HTTPException(403, "Admin access required")
     return cu
 
@@ -297,6 +330,41 @@ SAMPLE_LEADS = {
         {"name":"Shobha Iyer","company":"Iyer & Associates","email":"shobha@iyerassoc.com","whatsapp":"+916998765432","industry":"Construction","role":"Partner","website":"iyerassoc.com","notes":"Architecture & construction"},
         {"name":"Naresh Bhatt","company":"BhattBuild","email":"naresh@bhattbuild.in","whatsapp":"+916887654321","industry":"Construction","role":"Founder","website":"bhattbuild.in","notes":"Affordable housing developer"},
     ],
+    "IT Staffing": [
+        {"name":"Nikhil Mehta","company":"TalentBridge IT","email":"nikhil@talentbridgeit.com","whatsapp":"","industry":"IT Staffing","role":"CEO","website":"talentbridgeit.com","notes":"IT staffing & recruitment, 200+ placements/year"},
+        {"name":"Pooja Agarwal","company":"CodeHire Solutions","email":"pooja@codehire.in","whatsapp":"","industry":"IT Staffing","role":"Director","website":"codehire.in","notes":"Tech talent acquisition firm"},
+        {"name":"Rajan Nair","company":"DevForce Staffing","email":"rajan@devforce.io","whatsapp":"","industry":"IT Staffing","role":"Founder","website":"devforce.io","notes":"Contract & permanent IT staffing"},
+        {"name":"Sneha Choudhary","company":"StackRecruit","email":"sneha@stackrecruit.com","whatsapp":"","industry":"IT Staffing","role":"Head of Operations","website":"stackrecruit.com","notes":"Specializes in full-stack & cloud engineers"},
+        {"name":"Arjun Pillai","company":"TechHunt India","email":"arjun@techhunt.in","whatsapp":"","industry":"IT Staffing","role":"Co-founder","website":"techhunt.in","notes":"Pan-India IT recruitment, 50+ clients"},
+    ],
+    "Marketing Agency": [
+        {"name":"Ritu Sharma","company":"GrowthCraft Agency","email":"ritu@growthcraft.in","whatsapp":"","industry":"Marketing Agency","role":"Founder","website":"growthcraft.in","notes":"Digital marketing agency, 80+ brand clients"},
+        {"name":"Varun Bhatia","company":"PixelPulse Media","email":"varun@pixelpulse.io","whatsapp":"","industry":"Marketing Agency","role":"CEO","website":"pixelpulse.io","notes":"Performance marketing & paid ads"},
+        {"name":"Ananya Seth","company":"BrandBurst","email":"ananya@brandburst.co","whatsapp":"","industry":"Marketing Agency","role":"Creative Director","website":"brandburst.co","notes":"Brand strategy & social media"},
+        {"name":"Karan Malhotra","company":"InfluenceFlow","email":"karan@influenceflow.in","whatsapp":"","industry":"Marketing Agency","role":"Director","website":"influenceflow.in","notes":"Influencer & content marketing agency"},
+        {"name":"Divya Kapoor","company":"LeadLaunch Digital","email":"divya@leadlaunch.io","whatsapp":"","industry":"Marketing Agency","role":"Head of Strategy","website":"leadlaunch.io","notes":"B2B lead generation & SEO agency"},
+    ],
+    "EdTech": [
+        {"name":"Rahul Joshi","company":"SkillSprint","email":"rahul@skillsprint.io","whatsapp":"","industry":"EdTech","role":"CEO","website":"skillsprint.io","notes":"Online upskilling platform, 50k+ learners"},
+        {"name":"Meera Patel","company":"ClassCloud India","email":"meera@classcloud.in","whatsapp":"","industry":"EdTech","role":"Co-founder","website":"classcloud.in","notes":"K-12 online tutoring platform"},
+        {"name":"Amit Kumar","company":"LearnLoop","email":"amit@learnloop.co","whatsapp":"","industry":"EdTech","role":"CTO","website":"learnloop.co","notes":"AI-powered adaptive learning for engineering students"},
+        {"name":"Priya Nambiar","company":"EduReach","email":"priya@edureach.in","whatsapp":"","industry":"EdTech","role":"Head of Partnerships","website":"edureach.in","notes":"Rural EdTech startup, vernacular content"},
+        {"name":"Siddharth Rao","company":"ExamAce","email":"siddharth@examace.io","whatsapp":"","industry":"EdTech","role":"Founder","website":"examace.io","notes":"UPSC & competitive exam prep platform"},
+    ],
+    "Finance / Fintech": [
+        {"name":"Aditya Shah","company":"PayEase Fintech","email":"aditya@payease.io","whatsapp":"","industry":"Finance / Fintech","role":"CEO","website":"payease.io","notes":"UPI-based payment gateway startup"},
+        {"name":"Kaveri Iyer","company":"LendSmart","email":"kaveri@lendsmart.in","whatsapp":"","industry":"Finance / Fintech","role":"Founder","website":"lendsmart.in","notes":"MSME lending platform, ₹5cr+ disbursed"},
+        {"name":"Rohan Chopra","company":"WealthNest","email":"rohan@wealthnest.co","whatsapp":"","industry":"Finance / Fintech","role":"CTO","website":"wealthnest.co","notes":"Robo-advisory wealth management"},
+        {"name":"Sunita Mishra","company":"InsurAI","email":"sunita@insurai.in","whatsapp":"","industry":"Finance / Fintech","role":"Head of Product","website":"insurai.in","notes":"AI-driven insurance comparison platform"},
+        {"name":"Nitin Garg","company":"TaxSimple","email":"nitin@taxsimple.io","whatsapp":"","industry":"Finance / Fintech","role":"Director","website":"taxsimple.io","notes":"GST & ITR filing SaaS for SMBs"},
+    ],
+    "SaaS / Software": [
+        {"name":"Vikram Anand","company":"CloudMatrix","email":"vikram@cloudmatrix.io","whatsapp":"","industry":"SaaS / Software","role":"CEO","website":"cloudmatrix.io","notes":"B2B SaaS for supply chain management"},
+        {"name":"Pooja Reddy","company":"FormFlow","email":"pooja@formflow.app","whatsapp":"","industry":"SaaS / Software","role":"Founder","website":"formflow.app","notes":"No-code form builder SaaS, 10k+ users"},
+        {"name":"Aman Gupta","company":"DeskMate Pro","email":"aman@deskmateapp.com","whatsapp":"","industry":"SaaS / Software","role":"CTO","website":"deskmateapp.com","notes":"Remote work productivity suite"},
+        {"name":"Divya Sharma","company":"ReportGen AI","email":"divya@reportgen.io","whatsapp":"","industry":"SaaS / Software","role":"Head of Growth","website":"reportgen.io","notes":"Automated business reporting platform"},
+        {"name":"Kiran Nair","company":"InvoiceZen","email":"kiran@invoicezen.in","whatsapp":"","industry":"SaaS / Software","role":"Co-founder","website":"invoicezen.in","notes":"GST invoicing & billing software for SMBs"},
+    ],
 }
 
 MESSAGE_TEMPLATES = {
@@ -387,6 +455,30 @@ scheduler.start()
 app = FastAPI(title="LeadGen AI v2", version="2.0.0")
 app.add_middleware(CORSMiddleware,allow_origins=["*"],allow_credentials=True,allow_methods=["*"],allow_headers=["*"])
 
+frontend_path = str(Path(__file__).resolve().parent.parent / "frontend")
+app.mount("/frontend", StaticFiles(directory=frontend_path), name="frontend")
+
+@app.get("/")
+def serve_index():
+    return FileResponse(os.path.join(frontend_path, "landing.html"))
+
+NO_CACHE_HEADERS = {
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+    "Pragma": "no-cache",
+}
+
+@app.get("/admin")
+def serve_admin():
+    return FileResponse(os.path.join(frontend_path, "admin.html"), headers=NO_CACHE_HEADERS)
+
+@app.get("/dashboard")
+def serve_dashboard():
+    return FileResponse(os.path.join(frontend_path, "index.html"), headers=NO_CACHE_HEADERS)
+
+@app.get("/client")
+def serve_client():
+    return FileResponse(os.path.join(frontend_path, "client.html"), headers=NO_CACHE_HEADERS)
+
 class UserCreate(BaseModel): email:str; name:str; password:str
 class LeadCreate(BaseModel):
     name:str; company:str; email:Optional[str]=""; whatsapp:Optional[str]=""
@@ -411,10 +503,89 @@ def register(user:UserCreate, db:Session=Depends(get_db)):
 def login(form:OAuth2PasswordRequestForm=Depends(), db:Session=Depends(get_db)):
     u = db.query(UserDB).filter(UserDB.email==form.username).first()
     if not u or not verify_password(form.password,u.hashed_password): raise HTTPException(401,"Invalid credentials")
-    return {"access_token":create_token({"sub":u.id}),"token_type":"bearer","user":_user_dict(u)}
+    otp = str(random.randint(100000, 999999))
+    record = db.query(OTPStoreDB).filter(OTPStoreDB.email == u.email).first()
+    if record:
+        record.otp = otp; record.expires = time.time() + 600; record.user_id = u.id
+    else:
+        db.add(OTPStoreDB(email=u.email, otp=otp, expires=time.time() + 600, user_id=u.id))
+    db.commit()
+    _send_otp_email(u.email, u.name or u.email, otp)
+    return {"otp_required": True, "email": u.email}
+
+def _send_otp_email(to_email: str, name: str, otp: str):
+    import logging
+    logger = logging.getLogger("otp")
+    logger.info(f"OTP for {to_email}: {otp}")
+    print(f"\n{'='*40}\nOTP for {to_email}: {otp}\n{'='*40}\n", flush=True)
+    try:
+        from app.services.email_service import send_email
+        send_email(
+            to_email=to_email,
+            subject=f"Your LeadGen AI login code: {otp}",
+            body_html=f"""
+            <div style="font-family:Inter,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9fafb;border-radius:12px">
+              <h2 style="color:#111827;margin-bottom:8px">Your login code</h2>
+              <p style="color:#6B7280;margin-bottom:24px">Hi {name}, use the code below to complete your login.</p>
+              <div style="background:#fff;border:2px solid #1570EF;border-radius:10px;padding:24px;text-align:center;margin-bottom:24px">
+                <span style="font-size:36px;font-weight:800;letter-spacing:8px;color:#1570EF">{otp}</span>
+              </div>
+              <p style="color:#9CA3AF;font-size:12px">This code expires in 10 minutes. If you didn't request this, ignore this email.</p>
+            </div>""",
+            body_text=f"Your LeadGen AI login code is: {otp}\nExpires in 10 minutes.",
+            from_email=os.getenv("SENDGRID_FROM_EMAIL", "noreply@leadgenai.in"),
+            from_name="LeadGen AI",
+        )
+    except Exception:
+        pass  # email delivery failed but OTP is printed to terminal
+
+class OTPVerify(BaseModel):
+    email: str
+    otp: str
+
+@app.post("/auth/verify-otp")
+def verify_otp(body: OTPVerify, db: Session = Depends(get_db)):
+    record = db.query(OTPStoreDB).filter(OTPStoreDB.email == body.email).first()
+    if not record:
+        raise HTTPException(401, "OTP expired or not requested. Please login again.")
+    if time.time() > record.expires:
+        db.delete(record); db.commit()
+        raise HTTPException(401, "OTP expired. Please login again.")
+    if record.otp != body.otp.strip():
+        raise HTTPException(401, "Invalid OTP. Please try again.")
+    user_id = record.user_id
+    db.delete(record); db.commit()
+    u = db.query(UserDB).filter(UserDB.id == user_id).first()
+    if not u:
+        raise HTTPException(401, "User not found.")
+    return {"access_token": create_token({"sub": u.id}), "token_type": "bearer", "user": _user_dict(u)}
 
 @app.get("/auth/me")
 def me(cu:UserDB=Depends(get_current_user)): return _user_dict(cu)
+
+@app.post("/setup/make-admin")
+def setup_make_admin(email: str, secret: str, db: Session = Depends(get_db)):
+    setup_secret = os.getenv("SETUP_SECRET", "")
+    if not setup_secret or secret != setup_secret:
+        raise HTTPException(403, "Invalid setup secret.")
+    u = db.query(UserDB).filter(UserDB.email == email).first()
+    if not u:
+        raise HTTPException(404, "User not found. Register first.")
+    u.role = "admin"
+    db.commit()
+    return {"ok": True, "message": f"{email} is now admin."}
+
+@app.post("/auth/logout")
+def logout(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        jti = payload.get("jti")
+    except JWTError:
+        return {"ok": True}
+    if jti and not db.query(RevokedTokenDB).filter(RevokedTokenDB.jti == jti).first():
+        db.add(RevokedTokenDB(jti=jti))
+        db.commit()
+    return {"ok": True}
 
 class OnboardingData(BaseModel):
     id_type:         Optional[str] = ""
@@ -441,17 +612,23 @@ def admin_list_users(db: Session = Depends(get_db), cu: UserDB = Depends(get_cur
     if cu.role not in ("admin", "superadmin"):
         raise HTTPException(403, "Admin only")
     users = db.query(UserDB).order_by(UserDB.created_at.desc()).all()
-    return {"users": [{
-        "id":           u.id,
-        "name":         u.name,
-        "email":        u.email,
-        "plan":         u.plan,
-        "is_active":    u.is_active,
-        "kyc_id_type":  u.kyc_id_type,
-        "kyc_id_value": u.kyc_id_value,
-        "trial_ends_at": u.trial_ends_at.isoformat() if u.trial_ends_at else None,
-        "created_at":   u.created_at.isoformat() if u.created_at else None,
-    } for u in users]}
+    result = []
+    for u in users:
+        lead_count = db.query(LeadDB).filter(LeadDB.user_id == u.id).count()
+        msg_count  = db.query(MessageLogDB).filter(MessageLogDB.user_id == u.id).count()
+        result.append({
+            "id":         u.id,
+            "name":       u.name,
+            "email":      u.email,
+            "plan":       u.plan,
+            "leads_used": u.leads_used,
+            "leads_limit": u.leads_limit,
+            "lead_count": lead_count,
+            "msg_count":  msg_count,
+            "created_at": str(u.created_at),
+            "is_active":  u.is_active,
+        })
+    return {"users": result, "total": len(result)}
 
 @app.put("/admin/users/{user_id}")
 def admin_update_user(user_id: str, data: dict, db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
@@ -474,41 +651,54 @@ def admin_update_user(user_id: str, data: dict, db: Session = Depends(get_db), c
 
 @app.get("/auth/profile")
 def get_profile(db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
-    client = db.query(ClientDB).filter(ClientDB.id == cu.client_id).first() if cu.client_id else None
+    client_id = getattr(cu, 'client_id', None)
+    client = None
+    try:
+        if client_id:
+            client = db.query(ClientDB).filter(ClientDB.id == client_id).first()
+    except Exception:
+        pass
     return {
         "name":              cu.name,
         "email":             cu.email,
-        "kyc_id_type":       cu.kyc_id_type,
-        "kyc_id_value":      cu.kyc_id_value,
-        "kyc_country":       cu.kyc_country,
-        "kyc_locked":        cu.kyc_locked,
-        "sender_name":       cu.sender_name,
-        "sender_title":      cu.sender_title,
-        "sender_email":      cu.sender_email,
-        "sender_phone":      cu.sender_phone,
-        "company":           client.name             if client else None,
-        "industry":          client.industry         if client else None,
-        "website":           client.website          if client else None,
-        "city":              client.city             if client else None,
-        "target_industry":   client.target_industry  if client else None,
-        "target_city":       client.target_city      if client else None,
-        "target_size":       client.target_size      if client else None,
-        "target_titles":     client.target_titles    if client else None,
-        "product":           client.product_desc     if client else None,
-        "tone":              client.tone_config.get("tone") if client and client.tone_config else None,
-        "channel":           client.preferred_channel if client else None,
-        "sendgrid_connected": bool(cu.sender_email),
-        "whatsapp_connected": bool(client.wa_number if client else None),
+        "kyc_id_type":       getattr(cu, 'kyc_id_type', None),
+        "kyc_id_value":      getattr(cu, 'kyc_id_value', None),
+        "kyc_country":       getattr(cu, 'kyc_country', None),
+        "kyc_locked":        getattr(cu, 'kyc_locked', False),
+        "sender_name":       getattr(cu, 'sender_name', None),
+        "sender_title":      getattr(cu, 'sender_title', None),
+        "sender_email":      getattr(cu, 'sender_email', None),
+        "sender_phone":      getattr(cu, 'sender_phone', None),
+        "company":           getattr(client, 'name', None),
+        "industry":          getattr(client, 'industry', None),
+        "website":           getattr(client, 'website', None),
+        "city":              getattr(client, 'city', None),
+        "target_industry":   getattr(client, 'target_industry', None),
+        "target_city":       getattr(client, 'target_city', None),
+        "target_size":       getattr(client, 'target_size', None),
+        "target_titles":     getattr(client, 'target_titles', None),
+        "product":           getattr(client, 'product_desc', None),
+        "tone":              (client.tone_config.get("tone") if client and getattr(client, 'tone_config', None) else None),
+        "channel":           getattr(client, 'preferred_channel', None),
+        "sendgrid_connected": bool(getattr(cu, 'sender_email', None)),
+        "whatsapp_connected": bool(getattr(client, 'wa_number', None)),
     }
 
 @app.put("/auth/profile")
 def update_profile(data: dict, db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
-    client = db.query(ClientDB).filter(ClientDB.id == cu.client_id).first() if cu.client_id else None
-    # User fields
-    if "sender_name"  in data and data["sender_name"]:  cu.sender_name  = data["sender_name"]
-    if "sender_title" in data: cu.sender_title = data["sender_title"]
-    if "sender_email" in data and data["sender_email"]: cu.sender_email = data["sender_email"]
-    if "sender_phone" in data: cu.sender_phone = data["sender_phone"]
+    client_id = getattr(cu, 'client_id', None)
+    client = None
+    try:
+        if client_id:
+            client = db.query(ClientDB).filter(ClientDB.id == client_id).first()
+    except Exception:
+        pass
+    # User fields (only set if the column exists on this model)
+    if "name"         in data and data["name"]:         cu.name         = data["name"]
+    if hasattr(cu, 'sender_name')  and "sender_name"  in data and data["sender_name"]:  cu.sender_name  = data["sender_name"]
+    if hasattr(cu, 'sender_title') and "sender_title" in data: cu.sender_title = data["sender_title"]
+    if hasattr(cu, 'sender_email') and "sender_email" in data and data["sender_email"]: cu.sender_email = data["sender_email"]
+    if hasattr(cu, 'sender_phone') and "sender_phone" in data: cu.sender_phone = data["sender_phone"]
     # Client fields
     if client:
         if "company"         in data and data["company"]:  client.name             = data["company"]
@@ -527,8 +717,14 @@ def update_profile(data: dict, db: Session = Depends(get_db), cu: UserDB = Depen
 
 @app.get("/plan/summary")
 def plan_summary(db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
-    from app.services.plan_gate import get_plan_summary
-    return get_plan_summary(db, cu.client_id)
+    client_id = getattr(cu, 'client_id', None) or cu.id
+    try:
+        from app.services.plan_gate import get_plan_summary
+        return get_plan_summary(db, client_id)
+    except Exception:
+        return {"name": cu.plan or "free", "leads_per_month": cu.leads_limit,
+                "leads_used_this_month": cu.leads_used, "leads_remaining": max(0, cu.leads_limit - cu.leads_used),
+                "usage_pct": round((cu.leads_used / cu.leads_limit) * 100, 1) if cu.leads_limit else 0}
 
 @app.post("/auth/onboarding")
 def save_onboarding(data: OnboardingData, db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
@@ -895,6 +1091,37 @@ def analytics(db:Session=Depends(get_db),cu:UserDB=Depends(get_current_user)):
             "leads_by_industry":by_ind,"leads_by_source":by_src,
             "plan":cu.plan,"leads_used":cu.leads_used,"leads_limit":cu.leads_limit}
 
+@app.get("/analytics/client-detail")
+def analytics_client_detail(db: Session = Depends(get_db), cu: UserDB = Depends(get_current_user)):
+    leads = db.query(LeadDB).filter(LeadDB.user_id == cu.id).all()
+    statuses = {l.status for l in leads}
+    funnel = {
+        "new":            sum(1 for l in leads if l.status == "new"),
+        "enriched":       sum(1 for l in leads if l.status == "enriched"),
+        "contacted":      sum(1 for l in leads if l.status in ["contacted", "sequence_complete"]),
+        "replied":        0,
+        "meeting_booked": 0,
+        "closed":         0,
+    }
+    try:
+        email_logs = db.query(MessageLogDB).filter(MessageLogDB.user_id == cu.id, MessageLogDB.channel == "email").all()
+        wa_logs    = db.query(MessageLogDB).filter(MessageLogDB.user_id == cu.id, MessageLogDB.channel == "whatsapp").all()
+    except Exception:
+        email_logs, wa_logs = [], []
+    email_metrics = {
+        "sent":        len(email_logs),
+        "open_rate":   "0%",
+        "click_rate":  "0%",
+        "bounce_rate": "0%",
+    }
+    wa_metrics = {
+        "sent":          len(wa_logs),
+        "delivered":     len(wa_logs),
+        "read_rate":     "0%",
+        "reply_rate":    "0%",
+    }
+    return {"funnel": funnel, "email_metrics": email_metrics, "wa_metrics": wa_metrics}
+
 def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
     db = SessionLocal()
     try:
@@ -903,15 +1130,19 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
         camp = db.query(CampaignDB).filter(CampaignDB.id==req.campaign_id).first()
         if not camp: job.status="error"; db.commit(); return
         # ── Plan gate checks ──────────────────────────────────────────────────────
-        from app.services.plan_gate import check_leads_cap, get_allowed_sources, get_enrichment_depth
-        allowed, reason = check_leads_cap(db, user.client_id)
-        if not allowed:
-            job.status = "error"
-            job.error_message = reason
-            db.commit()
-            return
-        allowed_sources = get_allowed_sources(db, user.client_id)
-        enrichment_depth = get_enrichment_depth(db, user.client_id)
+        _client_id = getattr(user, 'client_id', None) or user.id
+        try:
+            from app.services.plan_gate import check_leads_cap, get_allowed_sources, get_enrichment_depth
+            allowed, reason = check_leads_cap(db, _client_id)
+            if not allowed:
+                job.status = "error"
+                db.commit()
+                return
+            allowed_sources = get_allowed_sources(db, _client_id)
+            enrichment_depth = get_enrichment_depth(db, _client_id)
+        except Exception:
+            allowed_sources = ["sample"]
+            enrichment_depth = "basic"
 
         if req.source_url:
             # Only use sources allowed by plan
@@ -951,7 +1182,7 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
                         lead.role = hunter.get("role", "")
                     db.commit()
 
-            enrichment = ai_enrich(lead, depth=enrichment_depth)
+            enrichment = ai_enrich(lead)
             lead.enrichment_json = json.dumps(enrichment)
             lead.fit_score = enrichment.get("fit_score", 5)
             if lead.fit_score < 5: lead.status = "skipped"; db.commit(); continue
@@ -1051,7 +1282,7 @@ def reject_agent_item(job_id:str, item_id:str, db:Session=Depends(get_db), cu:Us
     item.status = "rejected"; db.commit()
     return {"success":True}
 
-@app.get("/")
+@app.get("/status")
 def root(): return {"status":"LeadGen AI Agent v2.0","features":["auth","sqlite","duplicate_detection","auto_follow_ups","scheduled_scraping","memory","csv_export","agent_mode"]}
 
 @app.get("/test-osm")
@@ -1174,7 +1405,7 @@ def _gc(cid,uid,db):
     return c
 def _chk(u):
     if u.leads_used>=u.leads_limit: raise HTTPException(403,f"Lead limit reached ({u.leads_limit}). Upgrade plan.")
-def _user_dict(u): return {"id":u.id,"name":u.name,"email":u.email,"plan":u.plan,"leads_used":u.leads_used,"leads_limit":u.leads_limit}
+def _user_dict(u): return {"id":u.id,"name":u.name,"email":u.email,"plan":u.plan,"leads_used":u.leads_used,"leads_limit":u.leads_limit,"role":getattr(u,"role","client")}
 def _ld(l): return {"id":l.id,"name":l.name,"company":l.company,"email":l.email,"whatsapp":l.whatsapp,"industry":l.industry,"role":l.role,"website":l.website,"notes":l.notes,"source":l.source,"status":l.status,"fit_score":l.fit_score,"enrichment":json.loads(l.enrichment_json or "{}"),"created_at":str(l.created_at),"last_contacted":str(l.last_contacted) if l.last_contacted else None,"follow_up_day":l.follow_up_day}
 def _cd(c): return {"id":c.id,"name":c.name,"product_description":c.product_description,"target_industry":c.target_industry,"tone":c.tone,"channel":c.channel,"status":c.status,"sent_count":c.sent_count,"created_at":str(c.created_at)}
 def _ld2(l): return {"id":l.id,"lead_id":l.lead_id,"campaign_id":l.campaign_id,"channel":l.channel,"message":l.message,"status":l.status,"follow_up_number":l.follow_up_number,"sent_at":str(l.sent_at)}
