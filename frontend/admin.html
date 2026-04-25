@@ -8,19 +8,29 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Inter', sans-serif; background: #F8F9FC; color: #111827; font-size: 14px; }
-#login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0C111D; }
-.login-box { background:#1a2234; border:1px solid #2d3748; border-radius:12px; padding:40px; width:380px; text-align:center; }
+#login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0C111D; padding: 16px; }
+.login-box { background:#1a2234; border:1px solid #2d3748; border-radius:12px; padding:40px; width:100%; max-width:380px; text-align:center; }
 .login-logo { font-size:20px; font-weight:800; color:#fff; margin-bottom:4px; }
 .login-logo span { color:#1570EF; }
 .login-sub { font-size:12px; color:#6B7280; margin-bottom:28px; }
 .login-field { margin-bottom:14px; text-align:left; }
 .login-field label { display:block; font-size:12px; color:#9CA3AF; margin-bottom:6px; }
-.login-field input { width:100%; padding:10px 12px; background:#0C111D; border:1px solid #374151; border-radius:8px; color:#fff; font-size:14px; outline:none; }
+.login-field input { width:100%; padding:10px 12px; background:#0C111D; border:1px solid #374151; border-radius:8px; color:#fff; font-size:16px; outline:none; }
 .login-field input:focus { border-color:#1570EF; }
 .login-btn { width:100%; padding:11px; background:#1570EF; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; margin-top:4px; }
 .login-error { color:#EF4444; font-size:12px; margin-top:8px; }
 #app { display:none; height:100vh; overflow:hidden; }
 .shell { display:flex; height:100vh; }
+
+/* Mobile top bar */
+.mobile-header { display:none; align-items:center; gap:12px; padding:12px 16px; background:#0C111D; border-bottom:1px solid #1F2937; position:sticky; top:0; z-index:100; }
+.hamburger { background:none; border:none; cursor:pointer; padding:4px; color:#CECFD2; display:flex; flex-direction:column; gap:4px; }
+.hamburger span { display:block; width:20px; height:2px; background:currentColor; border-radius:2px; }
+.mobile-logo { font-size:16px; font-weight:800; color:#fff; }
+.mobile-logo span { color:#1570EF; }
+.sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:199; }
+.sidebar-overlay.open { display:block; }
+
 .sidebar { width:220px; background:#0C111D; display:flex; flex-direction:column; flex-shrink:0; }
 .logo { padding:24px 20px; border-bottom:1px solid #1F2937; }
 .logo-mark { font-size:16px; font-weight:800; color:#fff; }
@@ -35,7 +45,7 @@ body { font-family: 'Inter', sans-serif; background: #F8F9FC; color: #111827; fo
 .user-info strong { color:#fff; display:block; }
 .btn-logout { width:100%; padding:8px 12px; background:transparent; color:#CECFD2; border:1px solid #344054; border-radius:8px; font-size:12px; cursor:pointer; }
 .main { flex:1; overflow-y:auto; background:#F8F9FC; }
-.page-header { padding:28px 32px 0; display:flex; align-items:center; justify-content:space-between; }
+.page-header { padding:28px 32px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
 .page-title { font-size:22px; font-weight:700; }
 .page-sub { font-size:13px; color:#6B7280; margin-top:4px; }
 .content { padding:24px 32px; }
@@ -48,24 +58,72 @@ body { font-family: 'Inter', sans-serif; background: #F8F9FC; color: #111827; fo
 .view.active { display:block; }
 .panel { background:#fff; border:1px solid #E4E7EC; border-radius:8px; padding:24px; margin-bottom:20px; }
 .panel-title { font-size:15px; font-weight:700; margin-bottom:16px; }
+table { width:100%; border-collapse:collapse; }
+th, td { padding:10px 12px; text-align:left; border-bottom:1px solid #E4E7EC; font-size:13px; }
+th { font-weight:600; color:#6B7280; font-size:11px; text-transform:uppercase; }
+
+@media (max-width: 768px) {
+  .mobile-header { display:flex; }
+  .sidebar { position:fixed; top:0; left:0; height:100vh; z-index:200; transform:translateX(-100%); transition:transform .25s ease; }
+  .sidebar.open { transform:translateX(0); }
+  .shell { flex-direction:column; }
+  .main { width:100%; }
+  .page-header { padding:16px 16px 0; }
+  .page-title { font-size:18px; }
+  .content { padding:14px 16px; }
+  .stat-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+  .stat-value { font-size:24px; }
+  .panel { padding:16px; }
+  .panel table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+}
+
+@media (max-width: 400px) {
+  .stat-grid { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
 
 <div id="login-screen">
-  <div class="login-box">
+  <!-- Password screen -->
+  <div class="login-box" id="admin-login-box">
     <div class="login-logo">Lead<span>Gen</span> AI</div>
     <div class="login-sub">Admin Panel — Restricted Access</div>
     <div class="login-field"><label>Email</label><input id="admin-email" type="email" placeholder="admin@nsai.in"></div>
-    <div class="login-field"><label>Password</label><input id="admin-password" type="password" placeholder="••••••••"></div>
-    <button class="login-btn" onclick="adminLogin()">Sign In</button>
+    <div class="login-field"><label>Password</label><input id="admin-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter') adminLogin()"></div>
+    <button class="login-btn" id="admin-login-btn" onclick="adminLogin()">Sign In</button>
     <div class="login-error" id="admin-error"></div>
+  </div>
+  <!-- OTP screen -->
+  <div class="login-box" id="admin-otp-box" style="display:none">
+    <div class="login-logo">Lead<span>Gen</span> AI</div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:28px;margin-bottom:8px">📧</div>
+      <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px">Check your email</div>
+      <div style="font-size:12px;color:#6B7280">6-digit code sent to<br><strong id="admin-otp-email" style="color:#9CA3AF"></strong></div>
+    </div>
+    <div class="login-field">
+      <label>Enter 6-digit code</label>
+      <input id="admin-otp-input" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
+        style="text-align:center;font-size:24px;font-weight:700;letter-spacing:8px;background:#0C111D;border:1px solid #374151;border-radius:8px;color:#fff;width:100%;padding:12px;outline:none"
+        onkeyup="if(this.value.length===6) adminVerifyOTP()">
+    </div>
+    <button class="login-btn" id="admin-otp-btn" onclick="adminVerifyOTP()">Verify & Sign In</button>
+    <div class="login-error" id="admin-otp-error"></div>
+    <p style="text-align:center;margin-top:12px;font-size:12px;color:#6B7280">
+      <a href="#" style="color:#1570EF" onclick="document.getElementById('admin-otp-box').style.display='none';document.getElementById('admin-login-box').style.display='block';return false">← Back</a>
+    </p>
   </div>
 </div>
 
 <div id="app">
+<div class="mobile-header">
+  <button class="hamburger" onclick="toggleAdminSidebar()"><span></span><span></span><span></span></button>
+  <div class="mobile-logo">Lead<span>Gen</span> AI <span style="font-size:10px;color:#6B7280;font-weight:400">admin</span></div>
+</div>
+<div class="sidebar-overlay" id="admin-overlay" onclick="toggleAdminSidebar()"></div>
   <div class="shell">
-    <aside class="sidebar">
+    <aside class="sidebar" id="admin-sidebar">
       <div class="logo">
         <div class="logo-mark">Lead<span>Gen</span> AI</div>
         <div class="logo-sub">admin panel</div>
@@ -163,26 +221,69 @@ body { font-family: 'Inter', sans-serif; background: #F8F9FC; color: #111827; fo
 </div>
 
 <script>
-const API = 'https://leadgen-agent.onrender.com';
+const API = window.location.origin;
 let adminToken = localStorage.getItem('adminToken') || null;
 
+function toggleAdminSidebar() {
+  document.getElementById('admin-sidebar').classList.toggle('open');
+  document.getElementById('admin-overlay').classList.toggle('open');
+}
+
+let _adminPendingEmail = '';
+
 async function adminLogin() {
-  const email = document.getElementById('admin-email').value;
+  const email = document.getElementById('admin-email').value.trim();
   const password = document.getElementById('admin-password').value;
   const err = document.getElementById('admin-error');
   err.textContent = '';
+  const btn = document.getElementById('admin-login-btn');
+  btn.textContent = 'Sending code…'; btn.disabled = true;
   try {
     const form = new URLSearchParams();
     form.append('username', email);
     form.append('password', password);
     const res = await fetch(API + '/auth/login', { method:'POST', body:form });
     const data = await res.json();
-    if (!res.ok) { err.textContent = 'Invalid credentials'; return; }
-    if (data.user.email !== 'ceo@nsai.in') { err.textContent = 'Admin access denied'; return; }
+    if (!res.ok) { err.textContent = data.detail || 'Invalid credentials'; return; }
+    if (data.otp_required) {
+      _adminPendingEmail = data.email;
+      document.getElementById('admin-otp-email').textContent = data.email;
+      document.getElementById('admin-otp-error').textContent = '';
+      document.getElementById('admin-otp-input').value = '';
+      document.getElementById('admin-login-box').style.display = 'none';
+      document.getElementById('admin-otp-box').style.display = 'block';
+      setTimeout(() => document.getElementById('admin-otp-input').focus(), 100);
+    } else {
+      if (data.user.role !== 'admin') { err.textContent = 'Admin access denied'; return; }
+      adminToken = data.access_token;
+      localStorage.setItem('adminToken', adminToken);
+      showApp(data.user);
+    }
+  } catch(e) { err.textContent = 'Cannot reach backend'; }
+  finally { btn.textContent = 'Sign In'; btn.disabled = false; }
+}
+
+async function adminVerifyOTP() {
+  const otp = document.getElementById('admin-otp-input').value.trim();
+  const err = document.getElementById('admin-otp-error');
+  err.textContent = '';
+  if (otp.length !== 6) { err.textContent = 'Enter the 6-digit code.'; return; }
+  const btn = document.getElementById('admin-otp-btn');
+  btn.textContent = 'Verifying…'; btn.disabled = true;
+  try {
+    const res = await fetch(API + '/auth/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: _adminPendingEmail, otp })
+    });
+    const data = await res.json();
+    if (!res.ok) { err.textContent = data.detail || 'Invalid code.'; return; }
+    if (data.user.role !== 'admin') { err.textContent = 'Admin access denied.'; return; }
     adminToken = data.access_token;
     localStorage.setItem('adminToken', adminToken);
     showApp(data.user);
-  } catch(e) { err.textContent = 'Cannot reach backend'; }
+  } catch(e) { err.textContent = 'Cannot reach backend.'; }
+  finally { btn.textContent = 'Verify & Sign In'; btn.disabled = false; }
 }
 
 function showApp(user) {
@@ -193,20 +294,31 @@ function showApp(user) {
   loadOverview();
 }
 
-function adminLogout() {
+async function adminLogout() {
+  try {
+    if (adminToken) {
+      await fetch(API + '/auth/logout', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + adminToken }
+      });
+    }
+  } catch (e) { /* ignore */ }
   adminToken = null;
   localStorage.removeItem('adminToken');
-  window.location.href = 'landing.html';
+  localStorage.removeItem('currentUser');
+  window.location.replace('/');
 }
 
 function showAdminView(name, el) {
+  document.getElementById('admin-sidebar').classList.remove('open');
+  document.getElementById('admin-overlay').classList.remove('open');
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('admin-view-' + name).classList.add('active');
   if (el) el.classList.add('active');
   if (name === 'users') loadUsers();
   if (name === 'activity') loadActivity();
-  if (name === 'health') loadHealth();  
+  if (name === 'health') loadHealth();
 }
 
 async function loadHealth() {
@@ -275,11 +387,32 @@ async function loadOverview() {
   document.getElementById('adm-messages').textContent = data.total_messages ?? '—';
 }
 
-if (adminToken) {
-  const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-  if (user.email === 'ceo@nsai.in') showApp(user);
-  else { adminToken = null; localStorage.removeItem('adminToken'); }
+async function verifyAdminSession() {
+  if (!adminToken) return;
+  try {
+    const res = await fetch(API + '/auth/me', {
+      headers: { 'Authorization': 'Bearer ' + adminToken }
+    });
+    if (!res.ok) throw new Error('invalid');
+    const user = await res.json();
+    if (user.role !== 'admin') throw new Error('not admin');
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    showApp(user);
+  } catch (e) {
+    adminToken = null;
+    localStorage.removeItem('adminToken');
+    window.location.replace('/');
+  }
 }
+verifyAdminSession();
+
+window.addEventListener('pageshow', (e) => {
+  if (!e.persisted) return;
+  const t = localStorage.getItem('adminToken');
+  const u = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  const appVisible = document.getElementById('app').style.display === 'block';
+  if (appVisible && (!t || u.role !== 'admin')) window.location.replace('/');
+});
 </script>
 </body>
 </html>

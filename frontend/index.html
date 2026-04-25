@@ -76,6 +76,37 @@
   }
   .main { flex: 1; overflow-y: auto; background: var(--bg); }
 
+  /* Mobile hamburger button */
+  .mobile-header {
+    display: none; align-items: center; gap: 12px;
+    padding: 12px 16px; background: #0C111D;
+    border-bottom: 1px solid #1e2a3a; position: sticky; top: 0; z-index: 100;
+  }
+  .hamburger {
+    background: none; border: none; cursor: pointer; padding: 4px;
+    color: #CECFD2; display: flex; flex-direction: column; gap: 4px;
+  }
+  .hamburger span { display: block; width: 20px; height: 2px; background: currentColor; border-radius: 2px; }
+  .mobile-logo { font-family: var(--font-display); font-size: 16px; font-weight: 800; color: #fff; }
+  .mobile-logo span { color: var(--accent); }
+
+  /* Overlay backdrop */
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 199;
+  }
+  .sidebar-overlay.open { display: block; }
+
+  @media (max-width: 768px) {
+    .mobile-header { display: flex; }
+    .sidebar {
+      position: fixed; top: 0; left: 0; height: 100vh; z-index: 200;
+      transform: translateX(-100%); transition: transform .25s ease;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .shell { flex-direction: column; }
+    .main { width: 100%; flex: 1; overflow-y: auto; }
+  }
+
   /* Sidebar */
   .logo { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
   .logo-mark { font-family: var(--font-display); font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF; }
@@ -375,12 +406,59 @@
   @media (max-width: 900px) {
     .stats-row { grid-template-columns: repeat(2, 1fr); }
     .form-grid { grid-template-columns: 1fr; }
-    .sidebar { width: 56px; }
-    .nav-item span:not(.nav-icon), .logo-sub, .logo-mark, .sidebar-footer { display: none; }
     .auth-left { display: none; }
     .metric-grid { grid-template-columns: repeat(2,1fr); }
     .funnel-row { flex-wrap: wrap; }
     .funnel-stage { min-width: 45%; border-right: 1px solid var(--border); margin-bottom: 8px; border-radius: 8px !important; }
+  }
+
+  @media (max-width: 768px) {
+    /* Page layout */
+    .page-header { padding: 16px 16px 0; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 18px; }
+    .header-actions { width: 100%; }
+    .content { padding: 14px 16px; }
+
+    /* Stats grid — 2 cols on mobile */
+    .stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .stat-card { padding: 14px; }
+    .stat-value { font-size: 22px; }
+
+    /* Metric/analytics grids */
+    .metric-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+    /* Tables — horizontal scroll */
+    .table-wrap, table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    /* Cards full width */
+    .panel { padding: 16px; }
+
+    /* Form inputs full width */
+    .form-grid { grid-template-columns: 1fr; }
+    input, select, textarea { font-size: 16px !important; } /* prevents iOS zoom */
+
+    /* Quick actions wrap */
+    .quick-actions { flex-wrap: wrap; gap: 8px; }
+    .quick-actions .btn { flex: 1 1 45%; text-align: center; justify-content: center; }
+
+    /* Auth screen */
+    .auth-box { width: 100%; padding: 32px 20px; border-radius: 0; border: none; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+
+    /* Tabs scroll horizontally */
+    .tabs { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+    .tab { display: inline-block; }
+
+    /* Funnel */
+    .funnel-stage { min-width: 100%; }
+
+    /* Hide less critical columns in tables on very small screens */
+    .hide-mobile { display: none !important; }
+  }
+
+  @media (max-width: 400px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: 1fr; }
+    .quick-actions .btn { flex: 1 1 100%; }
   }
 </style>
 
@@ -421,11 +499,41 @@
       <button class="auth-btn" onclick="doRegister()">Create Account</button>
       <div class="auth-error" id="reg-error"></div>
     </div>
+
+    <!-- OTP verification screen -->
+    <div id="auth-otp" class="auth-form" style="display:none;">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="font-size:32px;margin-bottom:8px">📧</div>
+        <div style="font-size:15px;font-weight:600;color:#111827;margin-bottom:6px">Check your email</div>
+        <div style="font-size:13px;color:#6B7280">We sent a 6-digit code to<br><strong id="otp-email-display" style="color:#111827"></strong></div>
+      </div>
+      <div class="auth-field">
+        <label>Enter 6-digit code</label>
+        <input id="otp-input" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
+          style="text-align:center;font-size:24px;font-weight:700;letter-spacing:8px"
+          onkeyup="if(this.value.length===6) doVerifyOTP()">
+      </div>
+      <button class="auth-btn" onclick="doVerifyOTP()">Verify & Sign In</button>
+      <div class="auth-error" id="otp-error"></div>
+      <p style="text-align:center;margin-top:16px;font-size:12px;color:#9CA3AF">
+        Didn't get the code? <a href="#" style="color:#1570EF" onclick="showAuthForm('login');return false">Go back</a>
+      </p>
+    </div>
   </div>
 </div>
 
 <!-- ── APP SHELL ── -->
 <div id="app-shell">
+
+<!-- Mobile top bar (hidden on desktop) -->
+<div class="mobile-header">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="mobile-logo">Lead<span>Gen</span> AI</div>
+</div>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
 <div class="shell">
   <!-- Sidebar -->
   <aside class="sidebar">
@@ -446,6 +554,10 @@
         <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
         <span>Agent</span>
       </div>
+      <div class="nav-item" onclick="showView('campaigns', this)">
+        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg></span>
+        <span>Campaigns</span>
+      </div>
       <div class="nav-item" onclick="showView('analytics', this)">
         <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></span>
         <span>Analytics</span>
@@ -465,15 +577,15 @@
     </div>
 
     <!-- Plan Usage -->
-    <div id="plan-usage-bar" style="display:none;margin:0 12px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+    <div id="plan-usage-bar" style="display:none;margin:0 12px 8px;background:#1C2536;border:1px solid #2D3748;border-radius:10px;padding:10px 12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-        <span id="plan-name-label" style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;"></span>
-        <span id="plan-leads-label" style="font-size:11px;font-weight:600;color:var(--text);"></span>
+        <span id="plan-name-label" style="font-size:11px;font-weight:700;color:#9AA5B4;text-transform:uppercase;letter-spacing:.06em;"></span>
+        <span id="plan-leads-label" style="font-size:11px;font-weight:600;color:#E2E8F0;"></span>
       </div>
-      <div style="height:4px;background:var(--border);border-radius:99px;overflow:hidden;">
+      <div style="height:4px;background:#2D3748;border-radius:99px;overflow:hidden;">
         <div id="plan-usage-fill" style="height:100%;border-radius:99px;background:var(--accent);transition:width .5s;"></div>
       </div>
-      <div id="plan-leads-sub" style="font-size:10px;color:var(--muted);margin-top:4px;"></div>
+      <div id="plan-leads-sub" style="font-size:10px;color:#9AA5B4;margin-top:4px;"></div>
     </div>
 
     <div class="sidebar-footer">
@@ -2569,20 +2681,45 @@ Priya Shah,QuickCommerce,priya@quickcommerce.in,+918765432109,E-commerce,Head of
 </div>
 
 <script>
-const API = 'https://leadgen-agent.onrender.com';
+const API = window.location.origin;
 
 // ── Auth state (in-memory) ──────────────────────────────────────────────────
 let authToken = localStorage.getItem('authToken') || null;
 let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
-// ── Auto-restore session on page load ──────────────────────────────────────
-if (authToken && currentUser) {
-  document.getElementById('auth-screen').style.display  = 'none';
-  document.getElementById('app-shell').style.display    = 'block';
-  document.getElementById('sidebar-username').textContent = currentUser.name  || currentUser.email;
-  document.getElementById('sidebar-email').textContent    = currentUser.email || '';
-  loadAnalytics();
+// ── Auto-restore session on page load (with server-side token verification) ─
+async function restoreSession() {
+  if (!authToken || !currentUser) return;
+  try {
+    const res = await fetch(API + '/auth/me', {
+      headers: { 'Authorization': 'Bearer ' + authToken }
+    });
+    if (!res.ok) throw new Error('invalid');
+    currentUser = await res.json();
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    document.getElementById('auth-screen').style.display  = 'none';
+    document.getElementById('app-shell').style.display    = 'block';
+    document.getElementById('sidebar-username').textContent = currentUser.name  || currentUser.email;
+    document.getElementById('sidebar-email').textContent    = currentUser.email || '';
+    lockHistory();
+    loadAnalytics();
+  } catch (e) {
+    authToken = null; currentUser = null;
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+  }
 }
+restoreSession();
+
+function lockHistory() {
+  history.pushState({ locked: true }, '', window.location.href);
+}
+
+window.addEventListener('popstate', () => {
+  if (localStorage.getItem('authToken')) {
+    history.go(1);
+  }
+});
 
 // Show login tab if arriving via ?login=true
 if (new URLSearchParams(window.location.search).get('login') === 'true' && !authToken) {
@@ -2590,13 +2727,25 @@ if (new URLSearchParams(window.location.search).get('login') === 'true' && !auth
 }
 
 // ── Auth helpers ───────────────────────────────────────────────────────────
+function showAuthForm(form) {
+  ['auth-login','auth-register','auth-otp'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('active');
+    el.style.display = 'none';
+  });
+  const target = document.getElementById('auth-' + form);
+  target.style.display = 'block';
+  target.classList.add('active');
+}
+
 function switchAuthTab(tab) {
   document.querySelectorAll('.auth-tab').forEach((t, i) => {
     t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
   });
-  document.getElementById('auth-login').classList.toggle('active', tab === 'login');
-  document.getElementById('auth-register').classList.toggle('active', tab === 'register');
+  showAuthForm(tab);
 }
+
+let _pendingOTPEmail = '';
 
 async function doLogin() {
   const email    = document.getElementById('login-email').value.trim();
@@ -2605,6 +2754,9 @@ async function doLogin() {
   errEl.textContent = '';
   if (!email || !password) { errEl.textContent = 'Email and password required.'; return; }
 
+  const btn = document.querySelector('#auth-login .auth-btn[onclick="doLogin()"]');
+  if (btn) { btn.textContent = 'Sending code…'; btn.disabled = true; }
+
   try {
     const form = new URLSearchParams();
     form.append('username', email);
@@ -2612,9 +2764,45 @@ async function doLogin() {
     const res  = await fetch(API + '/auth/login', { method: 'POST', body: form });
     const data = await res.json();
     if (!res.ok) { errEl.textContent = data.detail || 'Login failed.'; return; }
-    onAuthSuccess(data);
+    if (data.otp_required) {
+      _pendingOTPEmail = data.email;
+      document.getElementById('otp-email-display').textContent = data.email;
+      document.getElementById('otp-error').textContent = '';
+      document.getElementById('otp-input').value = '';
+      showAuthForm('otp');
+      setTimeout(() => document.getElementById('otp-input').focus(), 100);
+    } else {
+      onAuthSuccess(data);
+    }
   } catch (e) {
     errEl.textContent = 'Cannot reach backend. Is it running on port 8000?';
+  } finally {
+    if (btn) { btn.textContent = 'Sign In'; btn.disabled = false; }
+  }
+}
+
+async function doVerifyOTP() {
+  const otp   = document.getElementById('otp-input').value.trim();
+  const errEl = document.getElementById('otp-error');
+  errEl.textContent = '';
+  if (otp.length !== 6) { errEl.textContent = 'Enter the 6-digit code.'; return; }
+
+  const btn = document.querySelector('#auth-otp .auth-btn');
+  if (btn) { btn.textContent = 'Verifying…'; btn.disabled = true; }
+
+  try {
+    const res  = await fetch(API + '/auth/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: _pendingOTPEmail, otp })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.detail || 'Invalid code.'; return; }
+    onAuthSuccess(data);
+  } catch (e) {
+    errEl.textContent = 'Cannot reach backend.';
+  } finally {
+    if (btn) { btn.textContent = 'Verify & Sign In'; btn.disabled = false; }
   }
 }
 
@@ -2651,18 +2839,26 @@ function onAuthSuccess(data) {
   document.getElementById('app-shell').style.display    = 'block';
   document.getElementById('sidebar-username').textContent = currentUser.name  || currentUser.email;
   document.getElementById('sidebar-email').textContent    = currentUser.email || '';
+  lockHistory();
   loadAnalytics();
   initTrialState();
   initPlanUsage();
 }
 
-// CHANGE doLogout — clear localStorage + redirect to landing
-function doLogout() {
+async function doLogout() {
+  try {
+    if (authToken) {
+      await fetch(API + '/auth/logout', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + authToken }
+      });
+    }
+  } catch (e) { /* network error — clear client-side anyway */ }
   authToken   = null;
   currentUser = null;
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentUser');
-  window.location.href = 'landing.html';
+  window.location.replace('/');
 }
 
 // ── Onboarding ─────────────────────────────────────────────────────────────
@@ -3032,7 +3228,23 @@ function initTrialState() {
     return;
   }
 
-  async function initPlanUsage() {
+  // Show trial banner
+  const banner = document.getElementById('trial-banner');
+  banner.style.display = 'block';
+  document.getElementById('trial-days-text').textContent =
+    daysLeft === 1 ? '⚠ Last day of trial!' : `${daysLeft} days remaining`;
+  const pct = ((totalDays - daysLeft) / totalDays) * 100;
+  document.getElementById('trial-progress').style.width = pct + '%';
+
+  // Warning colour on last 2 days
+  if (daysLeft <= 2) {
+    banner.style.background = 'linear-gradient(135deg,#fef2f2,#fecaca)';
+    banner.style.borderColor = '#fca5a5';
+    document.getElementById('trial-days-text').style.color = '#991b1b';
+  }
+}
+
+async function initPlanUsage() {
   const data = await api('/plan/summary');
   if (!data) return;
   const bar = document.getElementById('plan-usage-bar');
@@ -3177,22 +3389,6 @@ async function saveIntegration(type) {
   }
 }
 
-  // Show trial banner
-  const banner = document.getElementById('trial-banner');
-  banner.style.display = 'block';
-  document.getElementById('trial-days-text').textContent =
-    daysLeft === 1 ? '⚠ Last day of trial!' : `${daysLeft} days remaining`;
-  const pct = ((totalDays - daysLeft) / totalDays) * 100;
-  document.getElementById('trial-progress').style.width = pct + '%';
-
-  // Warning colour on last 2 days
-  if (daysLeft <= 2) {
-    banner.style.background = 'linear-gradient(135deg,#fef2f2,#fecaca)';
-    banner.style.borderColor = '#fca5a5';
-    document.getElementById('trial-days-text').style.color = '#991b1b';
-  }
-}
-
 async function showSoftLock() {
   // Fetch actual trial stats
   try {
@@ -3213,9 +3409,18 @@ function lockScreenPay() {
 }
 
 // ── Navigation ─────────────────────────────────────────────────────────────
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+
 function showView(name, el) {
   localStorage.setItem('lastView', name);
   history.replaceState({view: name}, '', '#' + name);
+  if (localStorage.getItem('authToken')) history.pushState(null, '', window.location.href);
+  // close sidebar on mobile after nav tap
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
@@ -3589,6 +3794,8 @@ function toast(msg, type = 'success') {
   t.className = 'show ' + type;
   setTimeout(() => t.className = '', 3500);
 }
+function showToast(msg, type) { toast(msg, type); }
+function authHeaders() { return authToken ? { 'Authorization': 'Bearer ' + authToken } : {}; }
 
 // ── API helpers ────────────────────────────────────────────────────────────
 async function api(path, opts = {}) {
@@ -3600,7 +3807,7 @@ async function api(path, opts = {}) {
       authToken = null; currentUser = null;
       localStorage.removeItem('authToken');
       localStorage.removeItem('currentUser');
-      window.location.href = 'landing.html';
+      window.location.replace('/');
       return null;
     }
     return await res.json();
@@ -3982,6 +4189,13 @@ function updatePipelineStatus(jobId) {
 }
 
 function showAgentReview(data) {
+  if (!data.items || !data.items.length) {
+    document.getElementById('agent-status-panel').style.display = 'none';
+    document.getElementById('agent-config-panel').style.display = 'block';
+    toast('No leads found for this industry. Try a different industry or add a Source URL.', 'error');
+    resetAgent();
+    return;
+  }
   document.getElementById('agent-status-panel').style.display = 'none';
   document.getElementById('agent-review-panel').style.display = 'block';
   document.getElementById('agent-lead-count').textContent = data.items.length;
@@ -4064,6 +4278,7 @@ async function rejectAgentItem(itemId) {
 }
 
 async function approveAgentJob() {
+  if (!_agentJobId) { toast('No active job to approve', 'error'); return; }
   const data = await api(`/agent/jobs/${_agentJobId}/approve`, { method: 'POST' });
   if (data?.success) {
     document.getElementById('agent-review-panel').style.display = 'none';
@@ -4664,7 +4879,7 @@ if (!authToken || !currentUser) {
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app-shell').style.display = 'none';
   } else {
-    window.location.href = 'landing.html';
+    window.location.replace('/');
   }
 }
 
@@ -4749,19 +4964,6 @@ async function deleteSelected() {
   toast(`${ids.length} leads deleted`);
   loadLeads();
 }
-window.addEventListener('popstate', function(e) {
-  if (e.state && e.state.view) {
-    const navEl = document.querySelector(`[onclick*="'${e.state.view}'"]`);
-    const views = document.querySelectorAll('.view');
-    const navItems = document.querySelectorAll('.nav-item');
-    views.forEach(v => v.classList.remove('active'));
-    navItems.forEach(n => n.classList.remove('active'));
-    const viewEl = document.getElementById('view-' + e.state.view);
-    if (viewEl) viewEl.classList.add('active');
-    if (navEl) navEl.classList.add('active');
-    localStorage.setItem('lastView', e.state.view);
-  }
-});
 function loadSettingsProfile() {
   if (!currentUser) return;
   const nameEl = document.getElementById('settings-name');
