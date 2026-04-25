@@ -533,7 +533,7 @@ def _send_otp_email(to_email: str, name: str, otp: str):
               <p style="color:#9CA3AF;font-size:12px">This code expires in 10 minutes. If you didn't request this, ignore this email.</p>
             </div>""",
             body_text=f"Your LeadGen AI login code is: {otp}\nExpires in 10 minutes.",
-            from_email="noreply@leadgenai.in",
+            from_email=os.getenv("SENDGRID_FROM_EMAIL", "noreply@leadgenai.in"),
             from_name="LeadGen AI",
         )
     except Exception:
