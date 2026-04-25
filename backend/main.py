@@ -563,6 +563,18 @@ def verify_otp(body: OTPVerify, db: Session = Depends(get_db)):
 @app.get("/auth/me")
 def me(cu:UserDB=Depends(get_current_user)): return _user_dict(cu)
 
+@app.post("/setup/make-admin")
+def setup_make_admin(email: str, secret: str, db: Session = Depends(get_db)):
+    setup_secret = os.getenv("SETUP_SECRET", "")
+    if not setup_secret or secret != setup_secret:
+        raise HTTPException(403, "Invalid setup secret.")
+    u = db.query(UserDB).filter(UserDB.email == email).first()
+    if not u:
+        raise HTTPException(404, "User not found. Register first.")
+    u.role = "admin"
+    db.commit()
+    return {"ok": True, "message": f"{email} is now admin."}
+
 @app.post("/auth/logout")
 def logout(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
