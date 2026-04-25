@@ -207,7 +207,7 @@ def gemini(prompt):
             "Content-Type": "application/json"
         },
         json={
-            "model": "anthropic/claude-sonnet-4-20250514",
+            "model": "anthropic/claude-sonnet-4-5",
             "messages": [{"role": "user", "content": prompt}]
         }
     )
@@ -514,13 +514,11 @@ def login(form:OAuth2PasswordRequestForm=Depends(), db:Session=Depends(get_db)):
     return {"otp_required": True, "email": u.email}
 
 def _send_otp_email(to_email: str, name: str, otp: str):
-    import logging
-    logger = logging.getLogger("otp")
-    logger.info(f"OTP for {to_email}: {otp}")
-    print(f"\n{'='*40}\nOTP for {to_email}: {otp}\n{'='*40}\n", flush=True)
+    print(f"\n{'='*40}\nDEBUG: _send_otp_email called for {to_email}\nOTP: {otp}\n{'='*40}\n", flush=True)
     try:
         from app.services.email_service import send_email
-        send_email(
+        print(f"DEBUG: calling send_email...", flush=True)
+        result = send_email(
             to_email=to_email,
             subject=f"Your LeadGen AI login code: {otp}",
             body_html=f"""
@@ -536,8 +534,10 @@ def _send_otp_email(to_email: str, name: str, otp: str):
             from_email=os.getenv("SENDGRID_FROM_EMAIL", "noreply@leadgenai.in"),
             from_name="LeadGen AI",
         )
-    except Exception:
-        pass  # email delivery failed but OTP is printed to terminal
+        print(f"DEBUG: send_email result: {result}", flush=True)
+    except Exception as e:
+        import traceback
+        print(f"EMAIL ERROR: {e}\n{traceback.format_exc()}", flush=True)
 
 class OTPVerify(BaseModel):
     email: str
@@ -745,21 +745,24 @@ def save_onboarding(data: OnboardingData, db: Session = Depends(get_db), cu: Use
     cu.trial_ends_at    = datetime.utcnow() + timedelta(days=7)
     cu.onboarding_done  = True
     # Save client profile
-    if cu.client_id:
-        client = db.query(ClientDB).filter(ClientDB.id == cu.client_id).first()
-        if client:
-            if data.company:         client.name             = data.company
-            if data.industry:        client.industry         = data.industry
-            if data.website:         client.website          = data.website
-            if data.city:            client.city             = data.city
-            if data.target_industry: client.target_industry  = data.target_industry
-            if data.target_city:     client.target_city      = data.target_city
-            if data.target_size:     client.target_size      = data.target_size
-            if data.target_titles:   client.target_titles    = data.target_titles
-            if data.product:         client.product_desc     = data.product
-            if data.tone:            client.tone_config      = {"tone": data.tone}
-            if data.channel:         client.preferred_channel = data.channel
-            client.onboarding_complete = True
+    if getattr(cu, 'client_id', None):
+        try:
+            client = db.query(ClientDB).filter(ClientDB.id == cu.client_id).first()
+            if client:
+                if data.company:         client.name             = data.company
+                if data.industry:        client.industry         = data.industry
+                if data.website:         client.website          = data.website
+                if data.city:            client.city             = data.city
+                if data.target_industry: client.target_industry  = data.target_industry
+                if data.target_city:     client.target_city      = data.target_city
+                if data.target_size:     client.target_size      = data.target_size
+                if data.target_titles:   client.target_titles    = data.target_titles
+                if data.product:         client.product_desc     = data.product
+                if data.tone:            client.tone_config      = {"tone": data.tone}
+                if data.channel:         client.preferred_channel = data.channel
+                client.onboarding_complete = True
+        except Exception:
+            pass
     db.commit()
     return {"status": "ok", "trial_ends_at": cu.trial_ends_at.isoformat() if cu.trial_ends_at else None}
 
@@ -919,7 +922,7 @@ def search_osm_businesses(industry:str, city:str, count:int=5):
 def search_places(req:PlacesSearchReq, db:Session=Depends(get_db), cu:UserDB=Depends(get_current_user)):
     from app.services.scraper_service import search_google_places
     query = f"{req.industry} companies in {req.city}"
-    raw = search_google_places(query, client_id=cu.client_id)
+    raw = search_google_places(query, client_id=getattr(cu, 'client_id', None))
     if not raw:
         raw = search_osm_businesses(req.industry, req.city, req.count)
     raw = raw[:req.count]
@@ -1256,9 +1259,9 @@ def approve_agent_job(job_id:str, db:Session=Depends(get_db), cu:UserDB=Depends(
                     subject=subject,
                     body_html=body.replace("\n", "<br>"),
                     body_text=body,
-                    from_email=os.getenv("SENDER_EMAIL", "info@nsai.in"),
+                    from_email=os.getenv("SENDGRID_FROM_EMAIL", os.getenv("SENDER_EMAIL", "info@nsai.in")),
                     from_name="LeadGen AI",
-                    client_id=cu.client_id,
+                    client_id=getattr(cu, 'client_id', None),
                     lead_id=lead.id,
                     campaign_id=job.campaign_id
                 )
@@ -1282,6 +1285,85 @@ def reject_agent_item(job_id:str, item_id:str, db:Session=Depends(get_db), cu:Us
     item.status = "rejected"; db.commit()
     return {"success":True}
 
+@app.get("/messages/pending")
+def messages_pending(campaign_id:str=None, channel:str=None, page:int=1, limit:int=20,
+                     db:Session=Depends(get_db), cu:UserDB=Depends(get_current_user)):
+    # Pending messages come from agent job items awaiting approval
+    query = db.query(AgentJobItemDB).join(
+        AgentJobDB, AgentJobItemDB.job_id==AgentJobDB.id
+    ).filter(AgentJobDB.user_id==cu.id, AgentJobItemDB.status=="pending")
+    if campaign_id:
+        query = query.filter(AgentJobDB.campaign_id==campaign_id)
+    total = query.count()
+    items = query.offset((page-1)*limit).limit(limit).all()
+    result = []
+    for i in items:
+        ch = channel or "email"
+        result.append({
+            "id": i.id,
+            "lead_id": i.lead_id,
+            "lead_name": i.lead_name,
+            "lead_company": i.lead_company,
+            "lead_fit_score": i.fit_score,
+            "lead_industry": "",
+            "channel": ch,
+            "message": i.email_message if ch=="email" else i.whatsapp_message,
+            "email_message": i.email_message,
+            "whatsapp_message": i.whatsapp_message,
+            "status": "pending_approval",
+            "sent_at": None,
+        })
+    return {"messages":result,"total":total,"page":page,"pages":(total+limit-1)//limit,
+            "stats":{"pending":total,"approved_today":0,"rejected_today":0,"waiting_to_send":0,"avg_quality_score":0}}
+
+@app.put("/messages/{message_id}/approve")
+def message_approve(message_id:str, db:Session=Depends(get_db), cu:UserDB=Depends(get_current_user)):
+    item = db.query(AgentJobItemDB).join(
+        AgentJobDB, AgentJobItemDB.job_id==AgentJobDB.id
+    ).filter(AgentJobItemDB.id==message_id, AgentJobDB.user_id==cu.id).first()
+    if not item: raise HTTPException(404,"Message not found")
+    item.status = "approved"
+    lead = db.query(LeadDB).filter(LeadDB.id==item.lead_id).first()
+    if lead: lead.status = "contacted"; lead.last_contacted = datetime.utcnow()
+    db.add(MessageLogDB(user_id=cu.id, lead_id=item.lead_id, campaign_id=None,
+                        channel="email", message=item.email_message, status="approved"))
+    db.commit()
+    return {"success":True,"message_id":message_id,"status":"approved"}
+
+@app.put("/messages/{message_id}/edit")
+def message_edit(message_id:str, body:dict, db:Session=Depends(get_db), cu:UserDB=Depends(get_current_user)):
+    item = db.query(AgentJobItemDB).join(
+        AgentJobDB, AgentJobItemDB.job_id==AgentJobDB.id
+    ).filter(AgentJobItemDB.id==message_id, AgentJobDB.user_id==cu.id).first()
+    if not item: raise HTTPException(404,"Message not found")
+    new_text = body.get("message","").strip()
+    if not new_text: raise HTTPException(400,"Message cannot be empty")
+    item.email_message = new_text; item.status = "approved"
+    db.commit()
+    return {"success":True,"message_id":message_id,"status":"approved_edited"}
+
+@app.put("/messages/{message_id}/reject")
+def message_reject(message_id:str, body:dict, db:Session=Depends(get_db), cu:UserDB=Depends(get_current_user)):
+    item = db.query(AgentJobItemDB).join(
+        AgentJobDB, AgentJobItemDB.job_id==AgentJobDB.id
+    ).filter(AgentJobItemDB.id==message_id, AgentJobDB.user_id==cu.id).first()
+    if not item: raise HTTPException(404,"Message not found")
+    item.status = "rejected"; db.commit()
+    return {"success":True,"message_id":message_id,"status":"rejected"}
+
+@app.post("/messages/approve-batch")
+def messages_approve_batch(body:dict, db:Session=Depends(get_db), cu:UserDB=Depends(get_current_user)):
+    ids = body.get("message_ids",[])
+    if not ids: raise HTTPException(400,"No message IDs provided")
+    approved = 0
+    for mid in ids:
+        item = db.query(AgentJobItemDB).join(
+            AgentJobDB, AgentJobItemDB.job_id==AgentJobDB.id
+        ).filter(AgentJobItemDB.id==mid, AgentJobDB.user_id==cu.id).first()
+        if item: item.status = "approved"; approved += 1
+    db.commit()
+    return {"success":True,"approved":approved,"total":len(ids)}
+
 @app.get("/status")
 def root(): return {"status":"LeadGen AI Agent v2.0","features":["auth","sqlite","duplicate_detection","auto_follow_ups","scheduled_scraping","memory","csv_export","agent_mode"]}
 
@@ -1303,27 +1385,6 @@ def admin_overview(db: Session = Depends(get_db), cu: UserDB = Depends(get_admin
         "total_leads": total_leads,
         "total_messages": total_messages,
     }
-
-@app.get("/admin/users")
-def admin_users(db: Session = Depends(get_db), cu: UserDB = Depends(get_admin_user)):
-    users = db.query(UserDB).order_by(UserDB.created_at.desc()).all()
-    result = []
-    for u in users:
-        lead_count = db.query(LeadDB).filter(LeadDB.user_id == u.id).count()
-        msg_count = db.query(MessageLogDB).filter(MessageLogDB.user_id == u.id).count()
-        result.append({
-            "id": u.id,
-            "name": u.name,
-            "email": u.email,
-            "plan": u.plan,
-            "leads_used": u.leads_used,
-            "leads_limit": u.leads_limit,
-            "lead_count": lead_count,
-            "msg_count": msg_count,
-            "created_at": str(u.created_at),
-            "is_active": u.is_active
-        })
-    return {"users": result, "total": len(result)}
 
 @app.get("/admin/agent-activity")
 def admin_agent_activity(db: Session = Depends(get_db), cu: UserDB = Depends(get_admin_user)):

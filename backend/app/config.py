@@ -1,7 +1,14 @@
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 
-load_dotenv()
+# Walk up to find .env (supports running from backend/ or leadgen-agent/)
+for _p in [Path(__file__).parent, Path(__file__).parent.parent, Path(__file__).parent.parent.parent]:
+    if (_p / ".env").exists():
+        load_dotenv(_p / ".env")
+        break
+else:
+    load_dotenv()
 
 SECRET_KEY: str = os.getenv("SECRET_KEY", "nsai-secret-key-change-in-production")
 ALGORITHM: str = "HS256"

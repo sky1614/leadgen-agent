@@ -64,7 +64,7 @@ def send_email(
 
     try:
         import sendgrid
-        from sendgrid.helpers.mail import Mail, Email, To, Content, ReplyTo
+        from sendgrid.helpers.mail import Mail, Email, To, Content, ReplyTo, CustomArg
 
         unsubscribe_url = f"{WEBHOOK_BASE_URL}/unsubscribe/{lead_id}" if lead_id else f"{WEBHOOK_BASE_URL}/unsubscribe"
 
@@ -84,17 +84,14 @@ def send_email(
         message.reply_to = ReplyTo(from_email, from_name)
 
         # Custom tracking args for webhook identification
-        message.custom_args = {
-            "client_id": client_id or "",
-            "lead_id": lead_id or "",
-            "campaign_id": campaign_id or ""
-        }
+        message.custom_arg = CustomArg(key="client_id", value=client_id or "")
+        message.custom_arg = CustomArg(key="lead_id", value=lead_id or "")
+        message.custom_arg = CustomArg(key="campaign_id", value=campaign_id or "")
 
         # Unsubscribe headers
-        message.headers = {
-            "List-Unsubscribe": f"<{unsubscribe_url}>",
-            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
-        }
+        from sendgrid.helpers.mail import Header
+        message.header = Header("List-Unsubscribe", f"<{unsubscribe_url}>")
+        message.header = Header("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
 
         sg = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
         response = sg.send(message)
