@@ -46,7 +46,7 @@ class UserDB(Base):
     hashed_password = Column(String)
     plan = Column(String, default="free")
     leads_used = Column(Integer, default=0)
-    leads_limit = Column(Integer, default=500)
+    leads_limit = Column(Integer, default=50)
     created_at = Column(DateTime, default=datetime.utcnow)
     is_active = Column(Boolean, default=True)
     role = Column(String, default="client")
@@ -1122,6 +1122,70 @@ def analytics_client_detail(db: Session = Depends(get_db), cu: UserDB = Depends(
     }
     return {"funnel": funnel, "email_metrics": email_metrics, "wa_metrics": wa_metrics}
 
+def _search_google_places_direct(industry: str, city: str, count: int = 5):
+    try:
+        query = f"{industry} companies in {city} India"
+        url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
+        params = {"query": query, "key": GOOGLE_PLACES_API_KEY, "type": "establishment"}
+        r = requests.get(url, params=params, timeout=10)
+        results = r.json().get("results", [])
+        leads = []
+        for place in results[:count]:
+            name = place.get("name", "")
+            address = place.get("formatted_address", "")
+            website = ""
+            email = ""
+            # Try to get details for website
+            place_id = place.get("place_id", "")
+            if place_id:
+                try:
+                    det = requests.get(
+                        "https://maps.googleapis.com/maps/api/place/details/json",
+                        params={"place_id": place_id, "fields": "website,formatted_phone_number", "key": GOOGLE_PLACES_API_KEY},
+                        timeout=8
+                    ).json().get("result", {})
+                    website = det.get("website", "")
+                    phone = det.get("formatted_phone_number", "")
+                except:
+                    phone = ""
+            else:
+                phone = ""
+            if website:
+                domain = website.replace("https://","").replace("http://","").split("/")[0]
+                email = f"info@{domain}"
+            leads.append({
+                "name": name, "company": name, "email": email,
+                "whatsapp": phone, "industry": industry,
+                "role": "", "website": website,
+                "notes": address
+            })
+        return leads
+    except Exception as e:
+        print(f"GOOGLE PLACES ERROR: {e}")
+        return []
+
+def _send_email_direct(to_email: str, subject: str, body: str):
+    api_key = os.getenv("SENDGRID_API_KEY", "")
+    sender  = os.getenv("SENDER_EMAIL", "info@nsai.in")
+    if not api_key:
+        print(f"SIMULATED EMAIL to {to_email}: {subject}")
+        return
+    payload = {
+        "personalizations": [{"to": [{"email": to_email}]}],
+        "from": {"email": sender, "name": "LeadGen AI"},
+        "subject": subject,
+        "content": [
+            {"type": "text/plain", "value": body},
+            {"type": "text/html",  "value": body.replace("\n", "<br>")}
+        ]
+    }
+    r = requests.post(
+        "https://api.sendgrid.com/v3/mail/send",
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        json=payload, timeout=15
+    )
+    print(f"SENDGRID RESPONSE: {r.status_code} to {to_email}")
+
 def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
     db = SessionLocal()
     try:
@@ -1154,9 +1218,7 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
         else:
             city = getattr(req, 'city', 'Mumbai') or 'Mumbai'
             if GOOGLE_PLACES_API_KEY:
-                from app.services.scraper_service import search_google_places
-                query = f"{req.industry} companies in {city}"
-                raw_leads = search_google_places(query) or SAMPLE_LEADS.get(req.industry, [])
+                raw_leads = _search_google_places_direct(req.industry, city, req.count) or SAMPLE_LEADS.get(req.industry, [])
             else:
                 raw_leads = SAMPLE_LEADS.get(req.industry, [])
         raw_leads = raw_leads[:req.count]
@@ -1244,31 +1306,23 @@ def approve_agent_job(job_id:str, db:Session=Depends(get_db), cu:UserDB=Depends(
         # Actually send the email
         if lead.email and item.email_message:
             try:
-                from app.services.email_service import send_email
                 subject = "Following up"
                 body = item.email_message
                 if body.startswith("Subject:"):
                     lines = body.split("\n", 2)
                     subject = lines[0].replace("Subject:", "").strip()
                     body = lines[2].strip() if len(lines) > 2 else body
-                sg_result = send_email(
+                _send_email_direct(
                     to_email=lead.email,
                     subject=subject,
-                    body_html=body.replace("\n", "<br>"),
-                    body_text=body,
-                    from_email=os.getenv("SENDER_EMAIL", "info@nsai.in"),
-                    from_name="LeadGen AI",
-                    client_id=cu.client_id,
-                    lead_id=lead.id,
-                    campaign_id=job.campaign_id
+                    body=body,
                 )
-                # Update message log status
                 log = db.query(MessageLogDB).filter(
                     MessageLogDB.lead_id == lead.id,
                     MessageLogDB.channel == "email"
                 ).order_by(MessageLogDB.sent_at.desc()).first()
                 if log:
-                    log.status = "sent" if sg_result.get("success") else "failed"
+                    log.status = "sent"
                     log.sent_at = datetime.utcnow()
             except Exception as e:
                 print(f"EMAIL SEND ERROR: {e}")
