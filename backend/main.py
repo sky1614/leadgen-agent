@@ -24,7 +24,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "nsai-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 #GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")
+#GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")
 #_groq_client = Groq(api_key=GROQ_API_KEY)
 HUNTER_API_KEY = os.getenv("HUNTER_API_KEY", "")
 
@@ -908,7 +908,7 @@ def search_osm_businesses(industry:str, city:str, count:int=5):
             slug = name.lower().replace(" ","").replace("&","and")
             website = f"https://www.{slug}.com"
         if not email:
-            domain = website.replace("https://","").replace("http://","").split("/")[0]
+            domain = website.replace("https://","").replace("http://","").split("/")[0].replace("www.","")
             email = f"info@{domain}"
         leads.append({"name":name,"company":name,"email":email,"whatsapp":phone,
                       "industry":industry,"role":"","website":website,"notes":addr or f"Found in {city} via OpenStreetMap"})
@@ -1217,9 +1217,8 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
             raw_leads = raw_leads[:req.count]
         else:
             city = getattr(req, 'city', 'Mumbai') or 'Mumbai'
-            if GOOGLE_PLACES_API_KEY:
-                raw_leads = _search_google_places_direct(req.industry, city, req.count) or SAMPLE_LEADS.get(req.industry, [])
-            else:
+            raw_leads = search_osm_businesses(req.industry, city, req.count)
+            if not raw_leads:
                 raw_leads = SAMPLE_LEADS.get(req.industry, [])
         raw_leads = raw_leads[:req.count]
 
