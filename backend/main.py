@@ -1440,6 +1440,11 @@ def test_apollo(industry:str="retail", city:str="Mumbai"):
         "contacts": {"total": r3.json().get("pagination",{}).get("total_entries",0), "sample": [f"{c.get('first_name')} {c.get('last_name')} @ {c.get('organization_name')}" for c in r3.json().get("contacts",[])]}
     }
 
+@app.get("/test-places")
+def test_places(industry: str = "Real Estate", city: str = "Mumbai"):
+    results = _search_google_places_direct(industry, city, 5)
+    return {"api_key_set": bool(GOOGLE_PLACES_API_KEY), "results_count": len(results), "results": results}
+
 @app.get("/test-gemini")
 def test_gemini():
     try:
