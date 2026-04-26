@@ -207,7 +207,7 @@ def gemini(prompt):
             "Content-Type": "application/json"
         },
         json={
-            "model": "anthropic/claude-sonnet-4-20250514",
+            "model": "anthropic/claude-3-5-sonnet",
             "messages": [{"role": "user", "content": prompt}]
         }
     )
@@ -745,7 +745,7 @@ def save_onboarding(data: OnboardingData, db: Session = Depends(get_db), cu: Use
     cu.trial_ends_at    = datetime.utcnow() + timedelta(days=7)
     cu.onboarding_done  = True
     # Save client profile
-    if cu.client_id:
+    if getattr(cu, 'client_id', None):
         client = db.query(ClientDB).filter(ClientDB.id == cu.client_id).first()
         if client:
             if data.company:         client.name             = data.company
@@ -1214,13 +1214,16 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
                 raw_leads = scrape_url(req.source_url, req.industry)
             else:
                 raw_leads = SAMPLE_LEADS.get(req.industry, [])
-            raw_leads = raw_leads[:req.count]
+            rraw_leads = raw_leads[:req.count] if raw_leads else []
         else:
             city = getattr(req, 'city', 'Mumbai') or 'Mumbai'
-            raw_leads = search_osm_businesses(req.industry, city, req.count)
+            print(f"DEBUG: Using OSM for {req.industry} in {city}")
+            clean_city = city.split(",")[0].strip()
+            raw_leads = search_osm_businesses(req.industry, clean_city, req.count)
+            print(f"DEBUG: OSM returned {len(raw_leads)} leads")
             if not raw_leads:
                 raw_leads = SAMPLE_LEADS.get(req.industry, [])
-        raw_leads = raw_leads[:req.count]
+        raw_leads = raw_leads[:reqraw_leads = search_osm_businesses(req.industry, city, req.count).count]
 
         for ld in raw_leads:
             if user.leads_used >= user.leads_limit: break
