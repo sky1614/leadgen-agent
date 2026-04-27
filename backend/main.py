@@ -1214,7 +1214,7 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
                 raw_leads = scrape_url(req.source_url, req.industry)
             else:
                 raw_leads = SAMPLE_LEADS.get(req.industry, [])
-            rraw_leads = raw_leads[:req.count] if raw_leads else []
+            raw_leads = raw_leads[:req.count] if raw_leads else []
         else:
             city = getattr(req, 'city', 'Mumbai') or 'Mumbai'
             print(f"DEBUG: Using OSM for {req.industry} in {city}")
@@ -1223,7 +1223,7 @@ def run_agent_job(job_id:str, user_id:str, req:AgentRunReq):
             print(f"DEBUG: OSM returned {len(raw_leads)} leads")
             if not raw_leads:
                 raw_leads = SAMPLE_LEADS.get(req.industry, [])
-        raw_leads = raw_leads[:reqraw_leads = search_osm_businesses(req.industry, city, req.count).count]
+        raw_leads = raw_leads[:req.count]
 
         for ld in raw_leads:
             if user.leads_used >= user.leads_limit: break
@@ -1300,7 +1300,7 @@ def approve_agent_job(job_id:str, db:Session=Depends(get_db), cu:UserDB=Depends(
     for item in items:
         lead = db.query(LeadDB).filter(LeadDB.id==item.lead_id).first()
         if not lead: continue
-        db.add(MessageLogDB(user_id=cu.id, lead_id=lead.id, campaign_id=job.campaign_id, channel="email", message=item.email_message))
+        db.add(MessageLogDB(user_id=cu.id, lead_id=lead.id, campaign_id=job.campaign_id, channel="email", message=item.email_message, status="sent"))
         db.add(ConversationDB(lead_id=lead.id, role="assistant", content=item.email_message))
         lead.status = "contacted"; lead.last_contacted = datetime.utcnow(); lead.follow_up_day = 0
         item.status = "approved"
@@ -1319,13 +1319,27 @@ def approve_agent_job(job_id:str, db:Session=Depends(get_db), cu:UserDB=Depends(
                     subject=subject,
                     body=body,
                 )
-                log = db.query(MessageLogDB).filter(
-                    MessageLogDB.lead_id == lead.id,
-                    MessageLogDB.channel == "email"
-                ).order_by(MessageLogDB.sent_at.desc()).first()
-                if log:
-                    log.status = "sent"
-                    log.sent_at = datetime.utcnow()
+                if lead.email and item.email_message:
+                    try:
+                        subject = "Following up"
+                        body = item.email_message
+                        if body.startswith("Subject:"):
+                            lines = body.split("\n", 2)
+                            subject = lines[0].replace("Subject:", "").strip()
+                            body = lines[2].strip() if len(lines) > 2 else body
+                        _send_email_direct(to_email=lead.email, subject=subject, body=body)
+                        # Update the message log status to sent
+                        log = db.query(MessageLogDB).filter(
+                            MessageLogDB.lead_id == lead.id,
+                            MessageLogDB.channel == "email"
+                        ).order_by(MessageLogDB.sent_at.desc()).first()
+                        if log:
+                            log.status = "sent"
+                        else:
+                            # Log doesn't exist yet, will be created below with sent status
+                            item.status = "approved"
+                    except Exception as e:
+                        print(f"EMAIL SEND ERROR: {e}")
             except Exception as e:
                 print(f"EMAIL SEND ERROR: {e}")
     job.status = "approved"; db.commit()
